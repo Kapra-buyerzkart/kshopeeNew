@@ -27,19 +27,25 @@ export const useCommonStyles = () => {
             fontSize: 20,
             color: colour.text
         },
-        // Generic Text Styles
-        heading1: {
-            fontSize: 22,
-            fontWeight: 'bold',
-            color: colour.text,
-        },
-        heading2: {
+        sectionTitle: {
+            fontFamily: fonts.h1.fontFamily,
             fontSize: 18,
             fontWeight: 'bold',
             color: colour.text,
+            marginVertical: 12,
+            paddingHorizontal: 16,
         },
-        heading3: {
-            fontSize: 16,
+        horizontalScrollPadding: {
+            paddingHorizontal: 16,
+        },
+        rowCenter: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+        },
+        // Generic Text Styles
+        heading1: {
+            fontSize: 22,
             fontWeight: 'bold',
             color: colour.text,
         },
@@ -60,17 +66,10 @@ export const useCommonStyles = () => {
             fontWeight: '600',
             color: colour.text,
         },
-        label2: {
-            fontSize: 14,
-            fontWeight: '600',
-            color: colour.text,
-        },
 
         // Text Utilities
         textPrimary: { color: colour.primary },
         textWhite: { color: colour.white },
-        textGrey: { color: colour.grey },
-        textCenter: { textAlign: 'center' },
         textBold: { fontWeight: 'bold' },
 
         cardExample: {
@@ -108,119 +107,6 @@ export const useCommonStyles = () => {
             margin: 6
         },
         // Product Screen Styles
-        productContainer: {
-            flex: 1,
-            backgroundColor: '#F5F6F8',
-        },
-        productHeaderContainer: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            backgroundColor: 'white',
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-            borderBottomWidth: 1,
-            borderBottomColor: '#EEE',
-        },
-        productCategoryContainer: {
-            flex: 1,
-        },
-        productCategoryButton: {
-            flexDirection: 'row',
-            alignItems: 'center',
-        },
-        productSearchContainer: {
-            flex: 1,
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor: '#F0F0F0',
-            borderRadius: 8,
-            paddingHorizontal: 10,
-            height: 40,
-            marginRight: 10,
-        },
-        productSearchInput: {
-            paddingVertical: 0,
-            fontSize: 14,
-            color: colour.text,
-        },
-        productHeaderActions: {
-            flexDirection: 'row',
-            alignItems: 'center',
-        },
-        productIconButton: {
-            padding: 8,
-            marginLeft: 4,
-            borderRadius: 4,
-            borderWidth: 1,
-            borderColor: '#EEE',
-        },
-        productListContent: {
-            padding: 16,
-            paddingBottom: 100,
-        },
-        productColumnWrapper: {
-            justifyContent: 'space-between',
-        },
-        productCard: {
-            backgroundColor: 'white',
-            borderRadius: 12,
-            width: (width / 2) - 24,
-            marginBottom: 16,
-            overflow: 'hidden',
-            shadowColor: "#000",
-            shadowOffset: {
-                width: 0,
-                height: 2,
-            },
-            shadowOpacity: 0.1,
-            shadowRadius: 3.84,
-            elevation: 3,
-        },
-        productImageContainer: {
-            height: 120,
-            width: '100%',
-            position: 'relative',
-        },
-        productImage: {
-            width: '100%',
-            height: '100%',
-            resizeMode: 'cover',
-        },
-        productQtyBadge: {
-            position: 'absolute',
-            top: 8,
-            left: 8,
-            backgroundColor: colour.primary,
-            borderRadius: 4,
-            paddingHorizontal: 8,
-            paddingVertical: 4,
-        },
-        productRemoveButton: {
-            position: 'absolute',
-            top: 8,
-            right: 8,
-            backgroundColor: colour.red,
-            borderRadius: 12,
-            width: 24,
-            height: 24,
-            justifyContent: 'center',
-            alignItems: 'center',
-        },
-        productInfo: {
-            padding: 12,
-        },
-        productPriceRow: {
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginTop: 4,
-        },
-        productAddButton: {
-            backgroundColor: colour.primary,
-            borderRadius: 8,
-            padding: 6,
-        },
         productFloatingCartContainer: {
             position: 'absolute',
             bottom: 20,
@@ -248,458 +134,34 @@ export const useCommonStyles = () => {
             flexDirection: 'row',
             alignItems: 'center',
         },
-        productDropdownList: {
-            position: 'absolute',
-            top: 40,
-            left: 0,
-            backgroundColor: colour.white,
-            borderRadius: 8,
-            padding: 4,
-            width: 200,
-            shadowColor: colour.black,
-            shadowOffset: {
-                width: 0,
-                height: 2,
-            },
-            shadowOpacity: 0.25,
-            shadowRadius: 3.84,
-            elevation: 5,
-            zIndex: 2000,
-        },
-        productDropdownItem: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            paddingVertical: 10,
-            paddingHorizontal: 12,
-            borderBottomWidth: 1,
-            borderBottomColor: '#f0f0f0',
-        },
 
-        specialItemsSection: {
-            paddingHorizontal: 16,
-            paddingTop: 8,
-        },
-        specialItemsCard: {
-            backgroundColor: 'white',
-            borderRadius: 12,
-            width: (width / 2) - 24,
-            marginBottom: 16,
-            overflow: 'hidden',
-            shadowColor: "#000",
-            shadowOffset: {
-                width: 0,
-                height: 2,
-            },
-            shadowOpacity: 0.1,
-            shadowRadius: 3.84,
-            elevation: 3,
-        },
 
-        specialItemsAddCard: {
-            backgroundColor: 'white',
-            borderRadius: 12,
-            width: (width / 2) - 24,
-            height: 220,
-            marginBottom: 16,
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderWidth: 2,
-            borderColor: colour.primary,
-            borderStyle: 'dashed',
-        },
-        specialItemsAddButton: {
-            alignItems: 'center',
-        },
-        specialItemsAddIcon: {
-            marginBottom: 8,
-        },
         // Order Details Screen Styles
-        orderDetailsContainer: {
-            flex: 1,
-            backgroundColor: '#F5F6F8',
-        },
-        orderDetailsHeader: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            backgroundColor: 'white',
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-            borderBottomWidth: 1,
-            borderBottomColor: '#EEE',
-            width: '100%'
-        },
-        orderDetailsSection: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            backgroundColor: 'white',
-            paddingHorizontal: 16,
-            paddingVertical: 16,
-            marginTop: 16,
-        },
-        orderTypeContainer: {
-            flexDirection: 'row',
-            paddingHorizontal: 16,
-            paddingTop: 16,
-            gap: 12,
-        },
-        orderTypeButton: {
-            flex: 1,
-            paddingVertical: 12,
-            paddingHorizontal: 16,
-            borderRadius: 25,
-            backgroundColor: '#E8E8E8',
-            alignItems: 'center',
-        },
-        orderTypeButtonSelected: {
-            backgroundColor: colour.primary,
-        },
-        orderItemRow: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            paddingVertical: 12,
-            backgroundColor: 'white',
-            marginTop: 16,
-            paddingHorizontal: 16,
-            borderRadius: 8,
-        },
-        orderItemQuantityBadge: {
-            width: 40,
-            height: 40,
-            borderRadius: 8,
-            backgroundColor: colour.primary,
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginRight: 12,
-        },
-        orderSubtotalRow: {
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            paddingHorizontal: 16,
-            paddingVertical: 16,
-            marginTop: 16,
-        },
-        deleteOrderButton: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingVertical: 16,
-            marginTop: 16,
-            marginHorizontal: 16,
-            gap: 8,
-        },
-        orderBottomBar: {
-            backgroundColor: 'white',
-            paddingHorizontal: 16,
-            paddingTop: 16,
-            paddingBottom: 16,
-            borderTopWidth: 1,
-            borderTopColor: '#EEE',
-        },
-        orderBottomSubtotal: {
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            marginBottom: 12,
-        },
-        placeOrderButton: {
-            backgroundColor: colour.primary,
-            paddingVertical: 16,
-            borderRadius: 8,
-            alignItems: 'center',
-        },
 
         // Transaction Success Screen Styles
-        successCard: {
-            backgroundColor: colour.white,
-            borderRadius: 10,
-            width: '100%',
-            paddingVertical: 30,
-            paddingHorizontal: 20,
-            alignItems: 'center',
-            shadowColor: "#000",
-            shadowOffset: {
-                width: 0,
-                height: 2,
-            },
-            shadowOpacity: 0.25,
-            shadowRadius: 3.84,
-            elevation: 5,
-            marginBottom: 30,
-        },
-        successContentContainer: {
-            flex: 1,
-            padding: 20,
-            justifyContent: 'center',
-            alignItems: 'center',
-            width: '100%',
-        },
         iconContainer: {
             marginBottom: 20,
             alignItems: 'center',
             justifyContent: 'center',
         },
-        iconCircleOuter: {
-            width: 100,
-            height: 100,
-            borderRadius: 50,
-            backgroundColor: '#E6F0FF',
-            alignItems: 'center',
-            justifyContent: 'center',
-        },
-        iconCircleInner: {
-            width: 60,
-            height: 60,
-            borderRadius: 30,
-            backgroundColor: colour.primary,
-            alignItems: 'center',
-            justifyContent: 'center',
-        },
-        transactionDetailsBox: {
-            backgroundColor: colour.primary,
-            borderRadius: 8,
-            width: '100%',
-            padding: 15,
-            marginBottom: 20,
-        },
-        detailRow: {
-            paddingVertical: 8,
-        },
-        transactionDivider: {
-            height: 1,
-            backgroundColor: 'rgba(255, 255, 255, 0.3)',
-            width: '100%',
-        },
-        emailContainer: {
-            width: '100%',
-            marginBottom: 10,
-        },
-        receiptInput: {
-            borderWidth: 1,
-            borderColor: colour.lightGrey,
-            borderRadius: 4,
-            padding: 10,
-            width: '100%',
-            fontSize: 14,
-            color: colour.text,
-            textAlign: 'center',
-        },
-        receiptButton: {
-            backgroundColor: '#E6F0FF',
-            borderRadius: 4,
-            paddingVertical: 12,
-            width: '100%',
-            alignItems: 'center',
-        },
-        bottomButtons: {
-            width: '100%',
-            gap: 15,
-        },
-        printButton: {
-            backgroundColor: 'transparent',
-            borderWidth: 1,
-            borderColor: colour.white,
-            borderRadius: 4,
-            paddingVertical: 15,
-            width: '100%',
-            alignItems: 'center',
-        },
-        nextOrderButton: {
-            backgroundColor: colour.white,
-            borderRadius: 4,
-            paddingVertical: 15,
-            width: '100%',
-            alignItems: 'center',
-        },
         // Order History Screen Styles
-        historyCard: {
-            backgroundColor: 'white',
-            borderRadius: 8,
-            padding: 16,
-            marginBottom: 12,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.1,
-            shadowRadius: 2,
-            elevation: 2,
-        },
-        historyHeader: {
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            marginBottom: 8,
-        },
-        historyDetails: {
-            borderTopWidth: 1,
-            borderTopColor: '#f0f0f0',
-            paddingTop: 8,
-        },
-        historyRow: {
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            marginBottom: 4,
-        },
-        historyEmptyContainer: {
-            alignItems: 'center',
-            marginTop: 40,
-        },
 
         // Filter Button
-        historyFilterButton: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            backgroundColor: 'white',
-            paddingHorizontal: 16,
-            paddingVertical: 14,
-            marginHorizontal: 16,
-            marginTop: 16,
-            borderRadius: 8,
-            borderWidth: 1,
-            borderColor: '#ddd',
-            width: '100%',
-        },
-        historyFilterButtonLeft: {
-            flexDirection: 'row',
-            alignItems: 'center',
-        },
 
         // Filter Modal
-        filterModalOverlay: {
-            flex: 1,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            justifyContent: 'flex-end',
-        },
-        filterModalContent: {
-            backgroundColor: colour.background,
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20,
-            paddingBottom: 40,
-        },
-        filterModalHeader: {
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            paddingHorizontal: 20,
-            paddingVertical: 16,
-            borderBottomWidth: 1,
-            borderBottomColor: '#f0f0f0',
-        },
-        filterModalCloseButton: {
-            padding: 4,
-        },
-        filterModalBody: {
-            paddingHorizontal: 20,
-            paddingVertical: 20,
-        },
 
         // Radio Buttons
-        filterRadioOption: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            marginBottom: 24,
-        },
-        filterRadioCircle: {
-            width: 24,
-            height: 24,
-            borderRadius: 12,
-            borderWidth: 2,
-            borderColor: '#E0E0E0',
-            marginRight: 12,
-            alignItems: 'center',
-            justifyContent: 'center',
-        },
-        filterRadioCircleSelected: {
-            borderColor: colour.primary,
-        },
-        filterRadioInner: {
-            width: 14,
-            height: 14,
-            borderRadius: 7,
-            backgroundColor: colour.primary,
-        },
 
         // Date Inputs
-        filterDateSection: {
-            marginTop: 0,
-            paddingLeft: 36,
-        },
-        filterDateRow: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            marginBottom: 16,
-        },
-        filterDateInput: {
-            flex: 1,
-            backgroundColor: '#F5F6F8',
-            borderRadius: 8,
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-        },
 
         // Filter Action Button
-        filterApplyButton: {
-            backgroundColor: colour.primary,
-            borderRadius: 8,
-            paddingVertical: 16,
-            marginHorizontal: 20,
-            marginTop: 40,
-            alignItems: 'center',
-            shadowColor: colour.primary,
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.2,
-            shadowRadius: 8,
-            elevation: 4,
-        },
 
 
         // Section Headers for Daily Grouping
-        historySectionHeader: {
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-            backgroundColor: '#F5F6F8',
-            width: '100%',
-        },
 
 
         // Updated Transaction Cards
-        historyTransactionCard: {
-            backgroundColor: 'white',
-            paddingHorizontal: 16,
-            paddingVertical: 16,
-            borderBottomWidth: 1,
-            borderBottomColor: '#f0f0f0',
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.3,
-            shadowRadius: 2,
-            elevation: 5,
-            margin: 6
-        },
-        historyTransactionTop: {
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: 8,
-        },
 
-        historyTransactionBottom: {
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-        },
-        historyStatusBadge: {
-            backgroundColor: colour.primary,
-            paddingHorizontal: 12,
-            paddingVertical: 6,
-            borderRadius: 4,
-        },
 
         // Side Menu Styles
         sideMenuOverlay: {
@@ -795,422 +257,127 @@ export const useCommonStyles = () => {
             flex: 1,
         },
 
-        // Client Module Styles
-        // Shared header styles for all Client screens
-        clientHeader: {
+        // Home Screen specific styles
+        headerSection: { height: 280, width: width, position: 'relative' },
+        sliderImage: { width: width, height: 280 },
+        headerOverlay: {
+            ...StyleSheet.absoluteFillObject,
+            backgroundColor: 'rgba(0,0,0,0.3)',
+            paddingTop: 50,
+        },
+        topBar: {
             flexDirection: 'row',
-            alignItems: 'center',
             justifyContent: 'space-between',
+            alignItems: 'center',
             paddingHorizontal: 16,
-            paddingVertical: 12,
-            backgroundColor: colour.background,
-            borderBottomWidth: 1,
-            borderBottomColor: colour.border,
-        },
-        clientBackButton: {
-            padding: 4,
-        },
-        clientContainer: {
-            flex: 1,
-            backgroundColor: '#F5F6F8',
-        },
-
-        // Calculator Screen Styles
-        calcContainer: {
-            flex: 1,
-            backgroundColor: '#F5F6F8',
-        },
-        calcHeader: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingVertical: 16,
-            paddingHorizontal: 20,
-            backgroundColor: colour.white,
-            borderBottomWidth: 1,
-            borderBottomColor: '#F0F0F0',
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.05,
-            shadowRadius: 2,
-            elevation: 2,
-            zIndex: 10,
-        },
-        calcMenuIcon: {
-            position: 'absolute',
-            left: 20,
-        },
-        calcHeaderTitle: {
-            fontSize: 20,
-            fontWeight: 'bold',
-            color: colour.primary,
-        },
-        calcContent: {
-            flex: 1,
-            padding: 16,
-        },
-        calcDisplayContainer: {
-            backgroundColor: colour.white,
-            borderRadius: 12,
-            padding: 20,
-            marginBottom: 20,
-            height: 250,
-            justifyContent: 'flex-start',
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.05,
-            shadowRadius: 4,
-            elevation: 2,
-        },
-        calcDisplayLabel: {
-            fontSize: 16,
-            color: '#444',
-            marginBottom: 8,
-            fontWeight: '500',
-        },
-        calcDisplayValue: {
-            fontSize: 28,
-            fontWeight: 'bold',
-            color: '#BACDE1',
-        },
-        calcKeypadContainer: {
-            flexDirection: 'row',
-        },
-        calcKeypadLeftColumn: {
-            flex: 3,
-        },
-        calcKeypadRightColumn: {
-            flex: 1,
-            marginLeft: 8,
-        },
-        calcRow: {
-            flexDirection: 'row',
-            marginBottom: 8,
-        },
-        calcButton: {
-            backgroundColor: colour.white,
-            borderRadius: 8,
-            flex: 1,
-            height: 70,
-            justifyContent: 'center',
-            alignItems: 'center',
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.05,
-            shadowRadius: 1,
-            elevation: 2,
-        },
-        calcButtonMargin: {
-            marginRight: 8,
-        },
-        calcButtonText: {
-            fontSize: 24,
-            color: '#333',
-            fontWeight: '400',
-        },
-        calcButtonTextBlue: {
-            fontSize: 24,
-            color: colour.primary,
-        },
-        calcButtonTall: {
-            backgroundColor: colour.white,
-            borderRadius: 8,
-            height: 148, // 70 * 2 + 8
-            marginBottom: 8,
-            justifyContent: 'center',
-            alignItems: 'center',
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.05,
-            shadowRadius: 1,
-            elevation: 2,
-        },
-        calcButtonTallPrimary: {
-            backgroundColor: colour.primary,
-            borderRadius: 8,
-            height: 148,
-            marginBottom: 8,
-            justifyContent: 'center',
-            alignItems: 'center',
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.1,
-            shadowRadius: 2,
-            elevation: 3,
-        },
-        calcButtonRight: {
-            backgroundColor: colour.white,
-            borderRadius: 8,
-            height: 70,
-            justifyContent: 'center',
-            alignItems: 'center',
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.05,
-            shadowRadius: 1,
-            elevation: 2,
-        },
-        calcButtonTextWhite: {
-            fontSize: 16,
-            color: colour.white,
-            fontWeight: 'bold',
-        },
-
-        // Profile Styles
-        profileContainer: {
-            flex: 1,
-            backgroundColor: colour.background,
-        },
-        profileHeader: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-            backgroundColor: colour.background,
-            borderBottomWidth: 1,
-            borderBottomColor: colour.border,
-        },
-        profileAvatarBase: {
-            alignItems: 'center',
-            marginTop: 32,
-            marginBottom: 24,
-        },
-        profileAvatarCircle: {
-            width: 100,
-            height: 100,
-            borderRadius: 50,
-            backgroundColor: colour.primary,
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: 16,
-        },
-        profileInfoCard: {
-            backgroundColor: colour.white,
-            borderRadius: 12,
-            marginHorizontal: 16,
-            padding: 20,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.1,
-            shadowRadius: 4,
-            elevation: 3,
-            marginBottom: 24,
-        },
-        profileInfoRow: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            paddingVertical: 12,
-            borderBottomWidth: 1,
-            borderBottomColor: '#F0F0F0',
-        },
-        profileInfoTextContainer: {
-            marginLeft: 16,
-            flex: 1,
-        },
-        profileEditButton: {
-            backgroundColor: colour.primary,
-            marginHorizontal: 16,
-            paddingVertical: 16,
-            borderRadius: 8,
-            alignItems: 'center',
-        },
-        profileInputContainer: {
-            backgroundColor: colour.white,
-            paddingHorizontal: 16,
-            paddingVertical: 24,
-            flex: 1,
-        },
-        clientContent: {
-            padding: 20,
-        },
-
-        // ClientList specific styles
-        clientSearchContainer: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            margin: 16,
-            paddingHorizontal: 12,
-            height: 48,
-            backgroundColor: colour.background,
-            borderRadius: 8,
-            borderWidth: 1,
-            borderColor: colour.border,
-        },
-        clientSearchInput: {
-            flex: 1,
-            fontSize: 14,
-            color: colour.text,
-        },
-        clientSearchIcon: {
-            marginLeft: 8,
-        },
-        clientListContent: {
-            paddingBottom: 80,
-        },
-        clientItem: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: 16,
-            borderBottomWidth: 1,
-            borderBottomColor: colour.border,
-            backgroundColor: colour.background,
-        },
-        clientFooter: {
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            padding: 16,
-            backgroundColor: colour.background,
-            borderTopWidth: 1,
-            borderTopColor: colour.border,
-        },
-        clientAddButton: {
-            backgroundColor: colour.primary,
-            borderRadius: 8,
-            height: 48,
-            alignItems: 'center',
-            justifyContent: 'center',
-        },
-
-        // ClientDetails specific styles
-        clientCenter: {
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center'
-        },
-        clientAvatarContainer: {
-            alignItems: 'center',
-            marginBottom: 30,
-        },
-        clientAvatar: {
-            width: 80,
-            height: 80,
-            borderRadius: 40,
-            backgroundColor: colour.primary,
-            alignItems: 'center',
-            justifyContent: 'center',
             marginBottom: 10,
         },
-        clientDetailsCard: {
-            backgroundColor: colour.background,
-            borderRadius: 12,
-            padding: 20,
-            shadowColor: "#000",
-            shadowOffset: {
-                width: 0,
-                height: 2,
-            },
-            shadowOpacity: 0.1,
-            shadowRadius: 3.84,
-            elevation: 5,
-        },
-
-        clientDetailRow: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            marginBottom: 20,
-        },
-        clientDetailIconContainer: {
-            width: 40,
-            height: 40,
-            borderRadius: 20,
-            backgroundColor: colour.background,
-            alignItems: 'center',
+        profileArea: { flexDirection: 'row', alignItems: 'center' },
+        profileIconPlaceholder: {
+            width: 32,
+            height: 32,
+            borderRadius: 30,
+            backgroundColor: colour.primary,
             justifyContent: 'center',
-            marginRight: 16,
+            alignItems: 'center',
+            marginRight: 10,
         },
-        clientDetailContent: {
-            flex: 1,
+        userName: { fontFamily: 'Gilroy-Medium', fontSize: 17, color: colour.white },
+        actionsArea: { flexDirection: 'row', alignItems: 'center' },
+        actionIcon: { marginLeft: 16, position: 'relative' },
+        notificationDot: {
+            position: 'absolute', top: -2, right: -4, width: 8, height: 8, borderRadius: 4, backgroundColor: 'red', zIndex: 1
         },
+        sectionContainer: { marginTop: 20 },
+        sectionTitleCenter: {
+            fontFamily: fonts.h1.fontFamily, fontSize: 16, textAlign: 'center', marginBottom: 16, color: colour.black, letterSpacing: 1
+        },
+        goatDealCard: {
+            width: (width - 32 - 16) / 2,
+            backgroundColor: colour.white,
+            borderRadius: 16,
+            marginBottom: 16,
+            borderWidth: 1,
+            borderColor: '#E8F8FA',
+            overflow: 'hidden',
+        },
+        goatDealImage: { width: '100%', height: 120, resizeMode: 'contain' },
+        goatDealBadge: {
+            backgroundColor: colour.black,
+            borderTopLeftRadius: 10, borderTopRightRadius: 10,
+            paddingVertical: 6, alignItems: 'center',
+            marginHorizontal: 16, marginTop: -15, zIndex: 1,
+        },
+        goatDealBadgeText: { color: colour.white, fontSize: 10, fontWeight: 'bold' },
+        exploreItemCard: {
+            width: 140, marginRight: 12, backgroundColor: colour.white,
+            borderRadius: 12, borderWidth: 1, borderColor: '#E8F8FA',
+        },
+        exploreItemImage: { width: '100%', height: 120, borderTopLeftRadius: 12, borderTopRightRadius: 12, resizeMode: 'cover' },
+        cartBadge: {
+            width: 24, height: 24, borderRadius: 6, backgroundColor: '#00B4D8', justifyContent: 'center', alignItems: 'center',
+        },
+        bestSellingContainer: {
+            marginHorizontal: 16, backgroundColor: '#8ED2C9', borderRadius: 20, padding: 16, height: 260, position: 'relative', overflow: 'hidden'
+        },
+        bestSellingImage: { width: '100%', height: 180, zIndex: 1 },
+        bestSellingTextRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 20, zIndex: 1 },
+        bestSellingBrand: { fontFamily: 'Gilroy-Medium', fontSize: 16, color: colour.black },
+        bestSellingPrice: { fontFamily: fonts.h1.fontFamily, fontSize: 16, color: colour.black },
+        carouselArrowLeft: { position: 'absolute', left: 16, top: 110, width: 30, height: 30, borderRadius: 15, backgroundColor: colour.white, justifyContent: 'center', alignItems: 'center', zIndex: 2 },
+        carouselArrowRight: { position: 'absolute', right: 16, top: 110, width: 30, height: 30, borderRadius: 15, backgroundColor: colour.white, justifyContent: 'center', alignItems: 'center', zIndex: 2 },
+        arrowText: { fontSize: 14, color: colour.grey, fontWeight: 'bold' },
+        brandItemCard: {
+            width: (width - 32) / 3 - 10,
+            height: 120,
+            borderRadius: 12,
+            borderWidth: 1,
+            borderColor: '#E8F8FA',
+            backgroundColor: '#F5FCFD',
+            overflow: 'hidden',
+            marginHorizontal: 4,
+        },
+        brandItemImage: { width: '100%', height: '100%' },
+        gShockContainer: { backgroundColor: colour.black, marginTop: 20, paddingBottom: 20 },
+        gShockMainImage: { width: width, height: 220 },
+        gShockTitle: { color: colour.white, fontSize: 28, fontWeight: 'bold', letterSpacing: 2, position: 'absolute', top: 150, left: 20 },
+        gShockSmallCard: {
+            width: (width - 32 - 16) / 2, backgroundColor: '#1A1A1A', borderRadius: 8, padding: 10, marginBottom: 16, position: 'relative'
+        },
+        gShockSmallImage: { width: '100%', height: 80 },
+        gShockBadge: { position: 'absolute', right: 10, top: 10, paddingVertical: 2, paddingHorizontal: 6, backgroundColor: colour.white, borderRadius: 12, opacity: 0.8 },
+        gShockBadgeText: { color: colour.black, fontSize: 10, fontWeight: 'bold' },
+        superSaleBanner: { width: width - 32, height: 100, marginHorizontal: 16, borderRadius: 12 },
+        dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#D1D1D1', marginHorizontal: 4 },
+        flashSaleContainer: { backgroundColor: '#458B86', paddingVertical: 20, paddingBottom: 40, marginTop: 10 },
+        flashSaleTitle: { color: colour.white, fontSize: 32, fontWeight: 'bold', paddingHorizontal: 16, opacity: 0.8 },
+        podiumImageBackground: { width: width, height: 200, resizeMode: 'cover', opacity: 0.6, marginTop: -30 },
+        flashSaleItemCard: { alignItems: 'center', marginRight: 16, width: 100 },
+        flashSaleImage: { width: 100, height: 100, borderRadius: 50, backgroundColor: colour.white },
+        flashSaleBadge: { backgroundColor: colour.black, borderRadius: 12, paddingVertical: 4, paddingHorizontal: 8, marginTop: -15, zIndex: 1 },
+        flashSaleBadgeText: { color: colour.white, fontSize: 10, fontWeight: 'bold' },
+        flashSalePrice: { color: colour.white, fontSize: 12, marginTop: 4, fontWeight: 'bold' },
+        bottomTabMenu: { position: 'absolute', bottom: 0, width: width, height: 60, backgroundColor: colour.white, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', borderTopWidth: 1, borderTopColor: colour.lightGrey },
+
+        // Client Module Styles
+        // Shared header styles for all Client screens
+
+        // Calculator Screen Styles
+
+        // Profile Styles
+
+        // ClientList specific styles
+
+        // ClientDetails specific styles
+
 
         // ClientAdd specific styles
-        clientFieldContainer: {
-            marginBottom: 20,
-        },
-        clientInput: {
-            backgroundColor: colour.background,
-            borderRadius: 12,
-            paddingHorizontal: 16,
-            paddingVertical: 14,
-            fontSize: 14,
-            color: colour.text,
-        },
-        clientTextArea: {
-            height: 120,
-            borderWidth: 1,
-            borderColor: colour.primary,
-            backgroundColor: colour.background,
-            textAlignVertical: 'top',
-        },
-        clientSaveButton: {
-            backgroundColor: colour.background,
-            borderRadius: 8,
-            height: 50,
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginTop: 20,
-        },
 
 
         // Common Utils
-        flex1: {
-            flex: 1,
-        },
-        centerSelf: {
-            alignSelf: 'center',
-        },
-        disabledOpacity: {
-            opacity: 0.7,
-        },
-        headerSpacer: {
-            width: 40,
-        },
-        headerSpacerSmall: {
-            width: 24,
-        },
 
         // Refactored Order History Styles
-        filterModalApplyButton: {
-            width: '90%',
-            alignSelf: 'center',
-        },
-        headerBackButton: {
-            padding: 8,
-            alignSelf: 'flex-start',
-            alignItems: 'flex-start',
-        },
-        listContentContainer: {
-            paddingBottom: 16,
-        },
 
-        // Refactored Order Details Styles
-        paddingHorizontal16: {
-            paddingHorizontal: 16,
-        },
-        accordionArrow: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 8,
-        },
-        productHeaderWithZIndex: {
-            zIndex: 1000,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            backgroundColor: 'white',
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-            borderBottomWidth: 1,
-            borderBottomColor: '#EEE',
-        },
-        productCategoryStart: {
-            marginStart: 5,
-        },
-        searchIconMargin: {
-            marginRight: 8,
-        },
+
     })
 }

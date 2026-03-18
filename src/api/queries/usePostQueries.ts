@@ -1,6 +1,6 @@
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
-import apiClient from '../apiClient';
-import API_ROUTES from '../apiRoutes';
+import apiClient from '../services/apiClient';
+import API_ROUTES from '../services/apiRoutes';
 
 // 1. Fetch all posts (paginated or non-paginated)
 const fetchPosts = async ({ pageParam = 1 }) => {

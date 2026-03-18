@@ -6,6 +6,7 @@ import { colors } from '../assets/theme/colours';
 import Card from '../components/Card';
 import Button from '../components/Buttons';
 import { RootStackParamList } from '../types/types';
+import CustomGradientButton from '../components/CustomGradientButton';
 
 
 const HomeScreen: React.FC = () => {
@@ -30,7 +31,7 @@ const HomeScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Card style={styles.cardExample}>
+      {/* <Card style={styles.cardExample}>
         <Text style={styles.cardTitle}>Example Card Heading</Text>
         <Text style={styles.cardDescription}>
           This is a simple card component. You can place any content inside it to group information together.
@@ -44,10 +45,13 @@ const HomeScreen: React.FC = () => {
         <Button title="Go to Details" onPress={handGoDetails} textStyle={styles.buttonTextStyle} style={styles.confirmButton} />
         <Button title="Go to Components" onPress={handGoCheckComponent} textStyle={styles.buttonTextStyle} style={styles.confirmButton} />
       </View>
+
       <View style={styles.buttonContainer}>
         <Button title="Go to Check API" onPress={handGoCheckApiScreen} textStyle={styles.buttonTextStyle} style={styles.confirmButton} />
+      </View> */}
+      <View style={{ width: '100%', alignSelf: 'center' }}>
+        <CustomGradientButton title="Continue" onPress={handGoCheckComponent} />
       </View>
-
     </View>
   );
 

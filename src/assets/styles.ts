@@ -3,8 +3,15 @@ import { colors } from "./theme/colours";
 import { fonts } from "./theme/typography";
 
 // Export a function that returns the styles
-const width = Dimensions.get('window').width;
-const height = Dimensions.get('window').height;
+const { width, height } = Dimensions.get('window');
+
+// Guideline sizes are based on standard design screen (e.g. iPhone X)
+const guidelineBaseWidth = 375;
+const guidelineBaseHeight = 812;
+
+export const scale = (size: number) => (width / guidelineBaseWidth) * size;
+export const verticalScale = (size: number) => (height / guidelineBaseHeight) * size;
+export const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size) * factor;
 
 export const useCommonStyles = () => {
     const colour = colors;
@@ -65,11 +72,12 @@ export const useCommonStyles = () => {
         textGrey: { color: colour.grey },
         textCenter: { textAlign: 'center' },
         textBold: { fontWeight: 'bold' },
-        
+
         cardExample: {
             padding: 30,
             marginTop: 10,
-            color: colour.text
+            color: colour.text,
+            backgroundColor: colour.themeTeal,
         },
         headingTextStyle: {
             ...fonts.h4,
@@ -132,9 +140,9 @@ export const useCommonStyles = () => {
             marginRight: 10,
         },
         productSearchInput: {
-             paddingVertical: 0,
-             fontSize: 14,
-             color: colour.text,
+            paddingVertical: 0,
+            fontSize: 14,
+            color: colour.text,
         },
         productHeaderActions: {
             flexDirection: 'row',
@@ -320,7 +328,7 @@ export const useCommonStyles = () => {
             paddingVertical: 12,
             borderBottomWidth: 1,
             borderBottomColor: '#EEE',
-            width:'100%'
+            width: '100%'
         },
         orderDetailsSection: {
             flexDirection: 'row',
@@ -418,7 +426,7 @@ export const useCommonStyles = () => {
             shadowOpacity: 0.25,
             shadowRadius: 3.84,
             elevation: 5,
-            marginBottom: 30, 
+            marginBottom: 30,
         },
         successContentContainer: {
             flex: 1,
@@ -436,7 +444,7 @@ export const useCommonStyles = () => {
             width: 100,
             height: 100,
             borderRadius: 50,
-            backgroundColor: '#E6F0FF', 
+            backgroundColor: '#E6F0FF',
             alignItems: 'center',
             justifyContent: 'center',
         },
@@ -535,7 +543,7 @@ export const useCommonStyles = () => {
             alignItems: 'center',
             marginTop: 40,
         },
-        
+
         // Filter Button
         historyFilterButton: {
             flexDirection: 'row',
@@ -555,7 +563,7 @@ export const useCommonStyles = () => {
             flexDirection: 'row',
             alignItems: 'center',
         },
-        
+
         // Filter Modal
         filterModalOverlay: {
             flex: 1,
@@ -584,7 +592,7 @@ export const useCommonStyles = () => {
             paddingHorizontal: 20,
             paddingVertical: 20,
         },
-        
+
         // Radio Buttons
         filterRadioOption: {
             flexDirection: 'row',
@@ -610,7 +618,7 @@ export const useCommonStyles = () => {
             borderRadius: 7,
             backgroundColor: colour.primary,
         },
-        
+
         // Date Inputs
         filterDateSection: {
             marginTop: 0,
@@ -631,7 +639,7 @@ export const useCommonStyles = () => {
             justifyContent: 'space-between',
             alignItems: 'center',
         },
-        
+
         // Filter Action Button
         filterApplyButton: {
             backgroundColor: colour.primary,
@@ -647,7 +655,7 @@ export const useCommonStyles = () => {
             elevation: 4,
         },
 
-        
+
         // Section Headers for Daily Grouping
         historySectionHeader: {
             flexDirection: 'row',
@@ -659,7 +667,7 @@ export const useCommonStyles = () => {
             width: '100%',
         },
 
-        
+
         // Updated Transaction Cards
         historyTransactionCard: {
             backgroundColor: 'white',
@@ -672,7 +680,7 @@ export const useCommonStyles = () => {
             shadowOpacity: 0.3,
             shadowRadius: 2,
             elevation: 5,
-            margin:6
+            margin: 6
         },
         historyTransactionTop: {
             flexDirection: 'row',
@@ -806,7 +814,7 @@ export const useCommonStyles = () => {
             flex: 1,
             backgroundColor: '#F5F6F8',
         },
-        
+
         // Calculator Screen Styles
         calcContainer: {
             flex: 1,
@@ -1117,7 +1125,7 @@ export const useCommonStyles = () => {
         clientDetailContent: {
             flex: 1,
         },
-        
+
         // ClientAdd specific styles
         clientFieldContainer: {
             marginBottom: 20,
@@ -1163,7 +1171,7 @@ export const useCommonStyles = () => {
         headerSpacerSmall: {
             width: 24,
         },
-        
+
         // Refactored Order History Styles
         filterModalApplyButton: {
             width: '90%',
@@ -1177,15 +1185,15 @@ export const useCommonStyles = () => {
         listContentContainer: {
             paddingBottom: 16,
         },
-        
+
         // Refactored Order Details Styles
         paddingHorizontal16: {
             paddingHorizontal: 16,
         },
         accordionArrow: {
-             flexDirection: 'row',
-             alignItems: 'center',
-             gap: 8,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 8,
         },
         productHeaderWithZIndex: {
             zIndex: 1000,
@@ -1199,7 +1207,7 @@ export const useCommonStyles = () => {
             borderBottomColor: '#EEE',
         },
         productCategoryStart: {
-             marginStart: 5,
+            marginStart: 5,
         },
         searchIconMargin: {
             marginRight: 8,

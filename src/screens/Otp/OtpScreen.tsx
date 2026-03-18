@@ -16,9 +16,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import RNOtpVerify from 'react-native-otp-verify';
-import { mergeCustomerIdIntoProfile } from '../../utils/profileUtils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import RNOtpVerify from 'react-native-otp-verify';
 
 import { hp } from '../../utils/responsive';
 import { colors, fontColors } from '../../assets/theme/colours';
@@ -69,6 +68,17 @@ const setTokens = async (accessToken: string, refreshToken: string) => {
     ]);
 };
 
+const mergeCustomerIdIntoProfile = async (custId: number | string) => {
+    const storedProfile = await AsyncStorage.getItem('profile');
+    const existingProfile = storedProfile ? JSON.parse(storedProfile) : {};
+
+    const updatedProfile = {
+        ...existingProfile,
+        custId,
+    };
+
+    await AsyncStorage.setItem('profile', JSON.stringify(updatedProfile));
+};
 
 const OtpScreen: React.FC = () => {
     const navigation = useNavigation<OtpScreenNavigationProp>();
@@ -110,23 +120,10 @@ const OtpScreen: React.FC = () => {
 
             try {
                 setLoading(true);
-                let response;
                 if (type === 'login') {
-                    response = await sendLoginOtp(phone);
+                    await sendLoginOtp(phone);
                 } else if (type === 'register') {
-                    response = await sendRegisterOtp(phone);
-                }
-
-                if (response?.success === false) {
-                    if (response?.status === 'NOT_REGISTERED') {
-                        showAlert('Not Registered', 'This phone number is not registered. Please sign up.');
-                        navigation.navigate('Login', { type: 'register' });
-                    } else if (response?.status === 'ALREADY_REGISTERED') {
-                        showAlert('Already Registered', 'This phone number is already registered. Please login.');
-                        navigation.navigate('Login', { type: 'login' });
-                    } else {
-                        showAlert('Error', response?.message || 'Failed to send OTP');
-                    }
+                    await sendRegisterOtp(phone);
                 }
             } catch (error: any) {
                 console.log('Send OTP Error:', error);
@@ -289,22 +286,16 @@ const OtpScreen: React.FC = () => {
     const handleResendOtp = async () => {
         try {
             setLoading(true);
-            let response;
             if (type === 'login') {
-                response = await resendLoginOtp(phone);
+                await resendLoginOtp(phone);
             } else if (type === 'reset') {
-                response = await resendForgotPwdOtp(phone);
+                await resendForgotPwdOtp(phone);
             }
-
-            if (response?.success) {
-                showAlert('Success', 'OTP resent successfully');
-                setOtp(['', '', '', '', '']);
-                inputRefs[0].current?.focus();
-                setTimer(60);
-                setIsResendDisabled(true);
-            } else {
-                showAlert('Error', response?.message || 'Failed to resend OTP');
-            }
+            showAlert('Success', 'OTP resent successfully');
+            setOtp(['', '', '', '', '']);
+            inputRefs[0].current?.focus();
+            setTimer(60);
+            setIsResendDisabled(true);
         } catch (error: any) {
             console.log('Resend OTP Error:', error);
             showAlert('Error', error?.message || 'Failed to resend OTP');
@@ -338,7 +329,7 @@ const OtpScreen: React.FC = () => {
                         <TouchableOpacity onPress={() => navigation.navigate('Login', {
                             type: type
                         })} style={styles.phoneNoEditContainer}>
-                            <Text style={styles.phoneNoText}>Otp has been sent to your mobile number {phone}</Text>
+                            <Text style={styles.phoneNoText}>{phone}</Text>
                             <Image
                                 style={
                                     Platform.OS === 'android'

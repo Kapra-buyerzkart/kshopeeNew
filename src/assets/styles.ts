@@ -258,106 +258,109 @@ export const useCommonStyles = () => {
         },
 
         // Home Screen specific styles
-        headerSection: { height: 280, width: width, position: 'relative' },
-        sliderImage: { width: width, height: 280 },
-        headerOverlay: {
-            ...StyleSheet.absoluteFillObject,
-            backgroundColor: 'rgba(0,0,0,0.3)',
-            paddingTop: 50,
-        },
+        headerSectionWrapper: { height: 320, width: width, position: 'relative' },
+        headerSectionImageBackground: { height: 320, width: width },
         topBar: {
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
             paddingHorizontal: 16,
-            marginBottom: 10,
+            marginBottom: 20,
         },
         profileArea: { flexDirection: 'row', alignItems: 'center' },
-        profileIconPlaceholder: {
-            width: 32,
-            height: 32,
-            borderRadius: 30,
-            backgroundColor: colour.primary,
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginRight: 10,
+        profileImageReal: {
+            width: 36, height: 36, borderRadius: 18, backgroundColor: colour.white, marginRight: 10
         },
-        userName: { fontFamily: 'Gilroy-Medium', fontSize: 17, color: colour.white },
-        actionsArea: { flexDirection: 'row', alignItems: 'center' },
-        actionIcon: { marginLeft: 16, position: 'relative' },
+        userName: { fontFamily: 'Gilroy-Medium', fontSize: 16, color: colour.black },
+        actionsPill: { 
+            flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.1)',
+            borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6
+        },
+        actionIcon: { marginLeft: 12, position: 'relative' },
         notificationDot: {
-            position: 'absolute', top: -2, right: -4, width: 8, height: 8, borderRadius: 4, backgroundColor: 'red', zIndex: 1
+            position: 'absolute', top: -2, right: -2, width: 8, height: 8, borderRadius: 4, backgroundColor: '#E74C3C', zIndex: 1
         },
-        sectionContainer: { marginTop: 20 },
+        headerDotsContainer: { flexDirection: 'row', position: 'absolute', bottom: 16, alignSelf: 'center' },
+        headerDot: { width: 20, height: 4, borderRadius: 2, backgroundColor: colour.white, marginHorizontal: 3, opacity: 0.8 },
+        
+        sectionContainer: { marginTop: 30 },
         sectionTitleCenter: {
-            fontFamily: fonts.h1.fontFamily, fontSize: 16, textAlign: 'center', marginBottom: 16, color: colour.black, letterSpacing: 1
+            fontFamily: 'Gilroy-Bold', fontSize: 16, textAlign: 'center', marginBottom: 20, color: colour.black
         },
+        
         goatDealCard: {
             width: (width - 32 - 16) / 2,
             backgroundColor: colour.white,
             borderRadius: 16,
-            marginBottom: 16,
+            marginBottom: 24,
             borderWidth: 1,
             borderColor: '#E8F8FA',
-            overflow: 'hidden',
+            height: 140,
         },
-        goatDealImage: { width: '100%', height: 120, resizeMode: 'contain' },
+        goatDealTitle: { position: 'absolute', top: 12, left: 12, fontSize: 18, fontFamily: 'Gilroy-Bold', color: colour.black, zIndex: 1 },
+        goatDealImage: { width: '100%', height: 110, marginTop: 20 },
         goatDealBadge: {
-            backgroundColor: colour.black,
-            borderTopLeftRadius: 10, borderTopRightRadius: 10,
-            paddingVertical: 6, alignItems: 'center',
-            marginHorizontal: 16, marginTop: -15, zIndex: 1,
+            position: 'absolute', bottom: -14, alignSelf: 'center',
+            backgroundColor: '#2A2A2A', borderRadius: 20,
+            flexDirection: 'row', alignItems: 'center',
+            paddingVertical: 5, paddingHorizontal: 12,
         },
-        goatDealBadgeText: { color: colour.white, fontSize: 10, fontWeight: 'bold' },
+        goatDealBadgeText: { color: colour.white, fontSize: 10, marginRight: 8, fontFamily: 'Gilroy-Medium' },
+        goatDealArrowCircle: { width: 16, height: 16, borderRadius: 8, backgroundColor: colour.white, justifyContent: 'center', alignItems: 'center' },
+        
         exploreItemCard: {
-            width: 140, marginRight: 12, backgroundColor: colour.white,
-            borderRadius: 12, borderWidth: 1, borderColor: '#E8F8FA',
+            width: 150, marginRight: 16, backgroundColor: colour.white,
+            borderRadius: 16, borderWidth: 1, borderColor: '#E8F8FA',
+            paddingTop: 10,
         },
-        exploreItemImage: { width: '100%', height: 120, borderTopLeftRadius: 12, borderTopRightRadius: 12, resizeMode: 'cover' },
-        cartBadge: {
-            width: 24, height: 24, borderRadius: 6, backgroundColor: '#00B4D8', justifyContent: 'center', alignItems: 'center',
-        },
+        exploreTopBadgesRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 10, marginBottom: -10, zIndex: 2 },
+        discountCircle: { width: 32, height: 32, borderRadius: 16, borderWidth: 1, borderColor: '#00B4D8', justifyContent: 'center', alignItems: 'center', backgroundColor: colour.white },
+        discountCircleText: { color: '#00B4D8', fontSize: 10, fontFamily: 'Gilroy-Bold' },
+        exploreItemImage: { width: '100%', height: 120, resizeMode: 'contain' },
+        pricePill: { backgroundColor: '#00B4D8', borderRadius: 12, paddingVertical: 4, paddingHorizontal: 8 },
+        pricePillText: { color: colour.white, fontSize: 12, fontFamily: 'Gilroy-Bold' },
+        originalPriceText: { fontSize: 9, color: colour.grey, textDecorationLine: 'line-through', fontFamily: 'Gilroy-Medium' },
+        
         bestSellingContainer: {
-            marginHorizontal: 16, backgroundColor: '#8ED2C9', borderRadius: 20, padding: 16, height: 260, position: 'relative', overflow: 'hidden'
+            marginHorizontal: 16, backgroundColor: '#8ED2C9', borderRadius: 24, height: 280, justifyContent: 'flex-end', padding: 16, overflow: 'hidden'
         },
-        bestSellingImage: { width: '100%', height: 180, zIndex: 1 },
-        bestSellingTextRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 20, zIndex: 1 },
-        bestSellingBrand: { fontFamily: 'Gilroy-Medium', fontSize: 16, color: colour.black },
-        bestSellingPrice: { fontFamily: fonts.h1.fontFamily, fontSize: 16, color: colour.black },
-        carouselArrowLeft: { position: 'absolute', left: 16, top: 110, width: 30, height: 30, borderRadius: 15, backgroundColor: colour.white, justifyContent: 'center', alignItems: 'center', zIndex: 2 },
-        carouselArrowRight: { position: 'absolute', right: 16, top: 110, width: 30, height: 30, borderRadius: 15, backgroundColor: colour.white, justifyContent: 'center', alignItems: 'center', zIndex: 2 },
-        arrowText: { fontSize: 14, color: colour.grey, fontWeight: 'bold' },
+        carouselArrowLeft: { position: 'absolute', left: 16, top: 120, width: 36, height: 36, borderRadius: 18, backgroundColor: colour.white, justifyContent: 'center', alignItems: 'center', zIndex: 2 },
+        carouselArrowRight: { position: 'absolute', right: 16, top: 120, width: 36, height: 36, borderRadius: 18, backgroundColor: colour.white, justifyContent: 'center', alignItems: 'center', zIndex: 2 },
+        chevronArrowText: { fontSize: 16, color: colour.black, fontFamily: 'Gilroy-Medium' },
+        bestSellingImage: { ...StyleSheet.absoluteFillObject, width: '100%', height: '80%', resizeMode: 'contain', zIndex: 1, top: 20 },
+        bestSellingTextRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', zIndex: 2 },
+        bestSellingTitle: { fontSize: 24, fontFamily: 'Gilroy-Bold', color: '#1D1D1D' },
+        bestSellingOriginalPrice: { fontSize: 12, color: '#555555', textDecorationLine: 'line-through', textAlign: 'right', fontFamily: 'Gilroy-Medium' },
+        bestSellingCurrentPrice: { fontSize: 24, fontFamily: 'Gilroy-Bold', color: '#1D1D1D' },
+        
         brandItemCard: {
-            width: (width - 32) / 3 - 10,
-            height: 120,
-            borderRadius: 12,
-            borderWidth: 1,
-            borderColor: '#E8F8FA',
-            backgroundColor: '#F5FCFD',
-            overflow: 'hidden',
-            marginHorizontal: 4,
+            width: ((width - 32) / 3) - 10, height: 160, borderRadius: 16,
+            backgroundColor: '#E8F8FA', overflow: 'hidden', marginHorizontal: 4,
+            alignItems: 'center', paddingTop: 10
         },
-        brandItemImage: { width: '100%', height: '100%' },
-        gShockContainer: { backgroundColor: colour.black, marginTop: 20, paddingBottom: 20 },
-        gShockMainImage: { width: width, height: 220 },
-        gShockTitle: { color: colour.white, fontSize: 28, fontWeight: 'bold', letterSpacing: 2, position: 'absolute', top: 150, left: 20 },
+        brandLogoText: { fontSize: 20, fontFamily: 'Gilroy-Bold', color: colour.black, zIndex: 1 },
+        brandItemImage: { position: 'absolute', bottom: 0, width: '100%', height: 110 },
+        
+        gShockSectionWrapper: { backgroundColor: colour.black, marginTop: 40, paddingBottom: 30 },
+        gShockTopBanner: { width: width, height: 100 },
         gShockSmallCard: {
-            width: (width - 32 - 16) / 2, backgroundColor: '#1A1A1A', borderRadius: 8, padding: 10, marginBottom: 16, position: 'relative'
+            width: (width - 32 - 16) / 2, borderRadius: 12, padding: 8, marginBottom: 16,
+            flexDirection: 'row', alignItems: 'center'
         },
-        gShockSmallImage: { width: '100%', height: 80 },
-        gShockBadge: { position: 'absolute', right: 10, top: 10, paddingVertical: 2, paddingHorizontal: 6, backgroundColor: colour.white, borderRadius: 12, opacity: 0.8 },
-        gShockBadgeText: { color: colour.black, fontSize: 10, fontWeight: 'bold' },
-        superSaleBanner: { width: width - 32, height: 100, marginHorizontal: 16, borderRadius: 12 },
-        dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#D1D1D1', marginHorizontal: 4 },
-        flashSaleContainer: { backgroundColor: '#458B86', paddingVertical: 20, paddingBottom: 40, marginTop: 10 },
-        flashSaleTitle: { color: colour.white, fontSize: 32, fontWeight: 'bold', paddingHorizontal: 16, opacity: 0.8 },
-        podiumImageBackground: { width: width, height: 200, resizeMode: 'cover', opacity: 0.6, marginTop: -30 },
-        flashSaleItemCard: { alignItems: 'center', marginRight: 16, width: 100 },
-        flashSaleImage: { width: 100, height: 100, borderRadius: 50, backgroundColor: colour.white },
-        flashSaleBadge: { backgroundColor: colour.black, borderRadius: 12, paddingVertical: 4, paddingHorizontal: 8, marginTop: -15, zIndex: 1 },
-        flashSaleBadgeText: { color: colour.white, fontSize: 10, fontWeight: 'bold' },
-        flashSalePrice: { color: colour.white, fontSize: 12, marginTop: 4, fontWeight: 'bold' },
-        bottomTabMenu: { position: 'absolute', bottom: 0, width: width, height: 60, backgroundColor: colour.white, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', borderTopWidth: 1, borderTopColor: colour.lightGrey },
+        gShockSmallImage: { width: 50, height: 50 },
+        
+        superSaleBannerImage: { width: width - 32, height: 120, marginHorizontal: 16, borderRadius: 16 },
+        superSaleDotsContainer: { flexDirection: 'row', justifyContent: 'center', marginTop: 12 },
+        superSalePill: { width: 16, height: 4, borderRadius: 2, backgroundColor: '#A0A0A0', marginHorizontal: 3 },
+        
+        flashSaleContainer: { backgroundColor: '#A4E8DF', paddingBottom: 40, marginTop: 20 },
+        hugeFlashText: { color: colour.white, fontSize: 64, fontFamily: 'Gilroy-Bold', position: 'absolute', bottom: 20, left: -10, opacity: 0.8 },
+        podiumImageBackground: { width: width, height: 260, resizeMode: 'cover', opacity: 0.6 },
+        flashSaleItemCard: { alignItems: 'center', marginRight: 16, width: 110 },
+        flashSaleImage: { width: 100, height: 100, borderRadius: 50, backgroundColor: colour.white, marginBottom: 20 },
+        flashBadgeDark: { backgroundColor: '#2A2A2A', borderRadius: 12, paddingVertical: 4, paddingHorizontal: 12, position: 'absolute', bottom: 25 },
+        flashBadgeTextDark: { color: colour.white, fontSize: 10, fontFamily: 'Gilroy-Bold' },
+        flashSalePrice: { color: colour.white, fontSize: 16, fontFamily: 'Gilroy-Bold' },
 
         // Client Module Styles
         // Shared header styles for all Client screens

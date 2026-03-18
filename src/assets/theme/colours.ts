@@ -23,6 +23,10 @@ const lightColors = {
     themeTeal: '#00A7B3',
     themeBlack: '#000000',
     themeDarkTeal: '#006168',
+    figmaTeal: '#00B4D8',
+    starYellow: '#FFD700',
+    darkCardBackground: '#1F1F1F',
+    homeScreenBackground: '#F2FBFB',
 };
 
 const darkColors = {
@@ -48,6 +52,10 @@ const darkColors = {
     themeTeal: '#00A7B3',
     themeBlack: '#000000',
     themeDarkTeal: '#006168',
+    figmaTeal: '#00B4D8',
+    starYellow: '#FFD700',
+    darkCardBackground: '#1F1F1F',
+    homeScreenBackground: '#F2FBFB',
 };
 
 export const fontColors = {

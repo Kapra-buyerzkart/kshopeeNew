@@ -7,10 +7,10 @@ const colour = colors;
 
 export const fonts = {
     h1: {
-        fontFamily: FontFamilies.bold,
-        fontSize: 32,
+        fontFamily: FontFamilies.gilroyBold,
+        fontSize: 20,
         lineHeight: 40,
-        color: colour.text,
+        color: colour.black,
     },
     h2: {
         fontFamily: FontFamilies.medium,

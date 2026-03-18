@@ -20,10 +20,11 @@ export const styles = StyleSheet.create({
     borderRadius: verticalScale(25),
   },
   text: {
-    fontSize: moderateScale(18),
+    fontSize: moderateScale(16),
     fontFamily: Fonts.gilroyBold,
     color: colors.themeWhite,
     textAlign: 'center',
+    fontWeight: 'bold', // Extra enforcement
   },
   disabled: {
     opacity: 0.6,

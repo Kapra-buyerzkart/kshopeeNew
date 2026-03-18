@@ -37,9 +37,9 @@ const CustomGradientButton: React.FC<CustomGradientButtonProps> = ({
       style={[styles.container, disabled && styles.disabled, style]}
     >
       <LinearGradient
-        colors={[colors.themeTeal, colors.themeDarkTeal]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
+        colors={[colors.themeTeal, colors.themeDarkTeal, colors.themeDarkTeal]}
+        start={{ x: 0.1, y: 1 }}
+        end={{ x: 1, y: 0.5 }}
         style={styles.gradient}
       >
         {loading ? (

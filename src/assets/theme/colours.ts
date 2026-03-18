@@ -50,6 +50,16 @@ const darkColors = {
     themeDarkTeal: '#006168',
 };
 
+export const fontColors = {
+    buttonWhite: '#FFFFFF',
+    themeLightGray: '#DADADA',
+    subtext: '#727783',
+    themeTeal: '#00A7B3',
+    titleBlack: '#000000',
+    themeDarkTeal: '#006168',
+
+}
+
 export const colors = lightColors;
 
 export const getThemeColors = () => colors;

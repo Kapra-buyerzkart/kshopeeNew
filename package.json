@@ -33,8 +33,11 @@
     "react-native-asset": "^2.1.1",
     "react-native-config": "^1.5.5",
     "react-native-linear-gradient": "^2.8.3",
+    "react-native-otp-verify": "^1.1.8",
     "react-native-safe-area-context": "^5.5.2",
     "react-native-screens": "^4.11.1",
+    "react-native-svg": "^15.15.4",
+    "react-native-svg-transformer": "^1.5.3",
     "react-native-url-polyfill": "^3.0.0",
     "react-native-uuid": "^2.0.3",
     "react-native-vector-icons": "^10.2.0"

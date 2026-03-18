@@ -10,7 +10,7 @@ import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import RootStack from './src/navigation/rootnavigation';
-import SplashScreen from './src/components/SplashScreen/SplashScreen';
+import SplashScreen from './src/screens/Splash';
 import NetworkBanner from './src/components/ShowOfflineMessage/index';
 import { useNetworkStatus } from './src/hooks/userNetworkStatus';
 import { DatabaseProvider } from '@nozbe/watermelondb/DatabaseProvider';

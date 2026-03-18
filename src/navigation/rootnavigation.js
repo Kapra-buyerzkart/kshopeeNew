@@ -21,7 +21,7 @@ const Stack = createNativeStackNavigator();
 export default function RootStack() {
   return (
     <CartProvider>
-      <Stack.Navigator initialRouteName="Login">
+      <Stack.Navigator initialRouteName="MainTabs">
         <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen name="OtpScreen" component={OtpScreen} options={{ headerShown: false }} />
@@ -34,7 +34,7 @@ export default function RootStack() {
           options={{ headerShown: false }}
         />
         <Stack.Screen name="Details" component={DetailScreen} />
-        <Stack.Screen name="CheckComponent" component={CheckComponentScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="CheckComponent" component={CheckApiScreen} options={{ headerShown: false }} />
         <Stack.Screen name="CheckApiScreen" component={CheckApiScreen} />
       </Stack.Navigator>
     </CartProvider>

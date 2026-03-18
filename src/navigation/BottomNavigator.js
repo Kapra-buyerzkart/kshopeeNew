@@ -1,11 +1,11 @@
 // src/navigation/BottomTabNavigator.tsx
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import HomeScreen from '../screens/Home';
+import HomeScreen from '../screens/Home/Home';
 import ProfileScreen from '../screens/Profile';
 import DetailScreen from '../screens/Details';
 import { colors } from '../assets/theme/colours';
-import { AppIcons } from '../assets/icons';
+import { Image, View, Text, StyleSheet } from 'react-native';
 
 
 const Tab = createBottomTabNavigator();
@@ -16,27 +16,107 @@ const BottomTabNavigator = () => {
         <Tab.Navigator
             screenOptions={({ route }) => ({
                 headerShown: false,
-                tabBarIcon: ({ color, size }) => {
-                    let iconName = route.name === 'Product' ? 'apps' : route.name === 'SpecialItems' ? 'star' : 'calculator';
-                    return <AppIcons.Home name={iconName} size={size} color={color} />;
-                },
                 tabBarShowLabel: false,
-                tabBarActiveTintColor: colors.primary,
-                tabBarInactiveTintColor: colors.grey,
-                tabBarStyle: { backgroundColor: colors.background, borderTopColor: colors.border, height: 70 },
-                //tabBarLabelStyle: { ...fonts.body2, paddingBottom: 5 },
+                tabBarStyle: { backgroundColor: colors.background, borderTopColor: colors.border, height: 74 },
                 tabBarItemStyle: {
                     justifyContent: 'center',
                     alignItems: 'center',
-                    marginTop: 10
+                },
+                tabBarIcon: ({ focused }) => {
+                    let iconSource;
+                    let label = '';
+                    let isKebra = false;
+
+                    if (route.name === 'HomeScreen') {
+                        iconSource = focused ? require('../assets/images/bottomtab/home_fill.png') : require('../assets/images/bottomtab/home.png');
+                        //label = 'Home';
+                    } else if (route.name === 'ProfileScreen') {
+                        iconSource = focused ? require('../assets/images/bottomtab/category_fill.png') : require('../assets/images/bottomtab/category.png');
+                        //label = 'Category';
+                    } else if (route.name === 'DetailScreen') {
+                        iconSource = focused ? require('../assets/images/bottomtab/wishlist_fill.png') : require('../assets/images/bottomtab/wishlist.png');
+                        //label = 'Wish List';
+                    } else if (route.name === 'KebraScreen') {
+                        iconSource = require('../assets/images/bottomtab/kabra.png');
+                        isKebra = true;
+                    }
+
+                    if (isKebra) {
+                        return (
+                            <View style={styles.kebraContainer}>
+                                <Image source={iconSource} style={iconSource = styles.kebraIcon} resizeMode="contain" />
+                            </View>
+                        );
+                    }
+
+                    return (
+                        <View style={styles.iconContainer}>
+                            {/* {focused && (
+                                <View style={styles.activeArc} />
+                            )} */}
+                            <Image source={iconSource} style={iconSource = focused ? styles.normalIcon : styles.unselectedIcon} resizeMode="contain" />
+                            <Text style={[styles.label, focused && styles.activeLabel]}>{label}</Text>
+                        </View>
+                    );
                 },
             })}
         >
             <Tab.Screen name="HomeScreen" component={HomeScreen} />
             <Tab.Screen name="ProfileScreen" component={ProfileScreen} />
-            <Tab.Screen name="DetailScreen" component={DetailScreen} />
+            <Tab.Screen name="DetailScreen" component={ProfileScreen} />
+            <Tab.Screen name="KebraScreen" component={ProfileScreen} />
         </Tab.Navigator>
     );
 };
+
+const styles = StyleSheet.create({
+    iconContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 70,
+        height: 60,
+        marginTop: 20,
+    },
+    activeArc: {
+        position: 'absolute',
+        top: 0,
+        width: 50,
+        height: 25,
+        borderTopWidth: 1.5,
+        borderLeftWidth: 1.5,
+        borderRightWidth: 1.5,
+        borderColor: colors.themeTeal,
+        borderTopLeftRadius: 25,
+        borderTopRightRadius: 25,
+        borderBottomWidth: 0,
+    },
+    normalIcon: {
+        width: 48,
+        height: 48,
+        marginTop: 20,
+    },
+    unselectedIcon: {
+        width: 35,
+        height: 35,
+        marginTop: 20,
+    },
+    label: {
+        fontSize: 12,
+        color: colors.black,
+        marginTop: 4,
+    },
+    activeLabel: {
+        color: colors.themeTeal,
+    },
+    kebraContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    kebraIcon: {
+        width: 100,
+        height: 50,
+        marginTop: 20,
+    }
+});
 
 export default BottomTabNavigator;

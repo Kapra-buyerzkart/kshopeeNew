@@ -33,17 +33,17 @@ const HomeScreen: React.FC = () => {
   }, [currentSlideIndex]);
 
   const renderSliderItem = ({ item }: { item: any }) => (
-    <Image source={{ uri: item.url }} style={figmaStyles.headerSectionImageBackground} resizeMode="cover" />
+    <Image source={item.image} style={figmaStyles.headerSectionImageBackground} resizeMode="cover" />
   );
 
   const renderGoatDeal = ({ item }: { item: any }) => (
     <TouchableOpacity style={figmaStyles.goatDealCard}>
       <Text style={figmaStyles.goatDealTitle}>{item.title}</Text>
-      <Image source={{ uri: item.url }} style={figmaStyles.goatDealImage} resizeMode="contain" />
+      <Image source={item.image} style={figmaStyles.goatDealImage} resizeMode="contain" />
       <View style={figmaStyles.goatDealBadge}>
         <Text style={figmaStyles.goatDealBadgeText}>{item.badgeText}</Text>
         <View style={figmaStyles.goatDealArrowCircle}>
-          <Text style={{color: figmaTeal, fontSize: 10, fontWeight: 'bold'}}>&gt;</Text>
+          <Text style={{color: figmaTeal, fontSize: 10, fontFamily: 'Gilroy-Bold'}}>&gt;</Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -55,13 +55,13 @@ const HomeScreen: React.FC = () => {
         <View style={figmaStyles.discountCircle}>
           <Text style={figmaStyles.discountCircleText}>{item.discountBadge}</Text>
         </View>
-        <Text style={{color: figmaTeal, fontWeight: 'bold', fontSize: 20}}>W</Text> {/* Bookmark Mock */}
+        <Text style={{color: figmaTeal, fontFamily: 'Gilroy-Bold', fontSize: 20}}>W</Text> {/* Bookmark Mock */}
       </View>
       
-      <Image source={{ uri: item.url }} style={figmaStyles.exploreItemImage} />
+      <Image source={item.image} style={figmaStyles.exploreItemImage} />
       
       <View style={{ padding: 10 }}>
-        <Text style={[styles.caption, { fontWeight: '600', color: colors.black }]} numberOfLines={3}>{item.title}</Text>
+        <Text style={[styles.caption, { fontFamily: 'Gilroy-Medium', color: colors.black }]} numberOfLines={3}>{item.title}</Text>
         
         {/* Mock stars */}
         <View style={{flexDirection: 'row', marginVertical: 6}}>
@@ -82,7 +82,7 @@ const HomeScreen: React.FC = () => {
   const renderBrandItem = ({ item }: { item: any }) => (
     <TouchableOpacity style={figmaStyles.brandItemCard}>
       <Text style={figmaStyles.brandLogoText}>{item.logoText}</Text>
-      <Image source={{ uri: item.url }} style={figmaStyles.brandItemImage} resizeMode="contain"/>
+      <Image source={item.image} style={figmaStyles.brandItemImage} resizeMode="contain"/>
     </TouchableOpacity>
   );
 
@@ -90,10 +90,10 @@ const HomeScreen: React.FC = () => {
     const isDark = item.theme === 'dark';
     return (
       <TouchableOpacity style={[figmaStyles.gShockSmallCard, { backgroundColor: isDark ? '#1F1F1F' : colors.white }]}>
-        <Image source={{ uri: item.url }} style={figmaStyles.gShockSmallImage} resizeMode="contain" />
+        <Image source={item.image} style={figmaStyles.gShockSmallImage} resizeMode="contain" />
         <View style={{ justifyContent: 'center', alignItems: 'flex-start', paddingLeft: 10 }}>
-          <Text style={{ color: isDark ? colors.white : colors.black, fontSize: 10 }}>Only @</Text>
-          <Text style={{ color: figmaTeal, fontSize: 16, fontWeight: 'bold' }}>{item.title}</Text>
+          <Text style={{ fontFamily: 'Gilroy-Medium', color: isDark ? colors.white : colors.black, fontSize: 10 }}>Only @</Text>
+          <Text style={{ fontFamily: 'Gilroy-Bold', color: figmaTeal, fontSize: 16 }}>{item.title}</Text>
         </View>
       </TouchableOpacity>
     );
@@ -101,7 +101,7 @@ const HomeScreen: React.FC = () => {
 
   const renderFlashSaleItem = ({ item }: { item: any }) => (
     <View style={figmaStyles.flashSaleItemCard}>
-      <Image source={{ uri: item.url }} style={figmaStyles.flashSaleImage} />
+      <Image source={item.image} style={figmaStyles.flashSaleImage} />
       <View style={figmaStyles.flashBadgeDark}>
         <Text style={figmaStyles.flashBadgeTextDark}>Off 50%</Text>
       </View>
@@ -194,7 +194,7 @@ const HomeScreen: React.FC = () => {
             <View style={figmaStyles.carouselArrowLeft}><Text style={figmaStyles.chevronArrowText}>&lt;</Text></View>
             <View style={figmaStyles.carouselArrowRight}><Text style={figmaStyles.chevronArrowText}>&gt;</Text></View>
             
-            <Image source={{ uri: bestSellingItem.url }} style={figmaStyles.bestSellingImage} resizeMode="contain" />
+            <Image source={bestSellingItem.image} style={figmaStyles.bestSellingImage} resizeMode="contain" />
             
             <View style={figmaStyles.bestSellingTextRow}>
               <Text style={figmaStyles.bestSellingTitle}>{bestSellingItem.brand}</Text>
@@ -224,7 +224,7 @@ const HomeScreen: React.FC = () => {
 
         {/* G-SHOCK Black Section */}
         <View style={figmaStyles.gShockSectionWrapper}>
-          <Image source={{ uri: gShockData.mainUrl }} style={figmaStyles.gShockTopBanner} resizeMode="cover" />
+          <Image source={gShockData.mainImage} style={figmaStyles.gShockTopBanner} resizeMode="cover" />
           <View style={{ paddingHorizontal: 16, marginTop: 10 }}>
             <FlatList
               data={gShockData.items}
@@ -239,7 +239,7 @@ const HomeScreen: React.FC = () => {
 
         {/* 11.11 SUPER SALE Banner */}
         <View style={{ marginVertical: 20 }}>
-          <Image source={{ uri: superSaleBanner }} style={figmaStyles.superSaleBannerImage} resizeMode="cover" />
+          <Image source={superSaleBanner} style={figmaStyles.superSaleBannerImage} resizeMode="cover" />
           {/* Pills */}
           <View style={figmaStyles.superSaleDotsContainer}>
             <View style={[figmaStyles.superSalePill, { backgroundColor: figmaTeal }]} />
@@ -253,7 +253,7 @@ const HomeScreen: React.FC = () => {
         {/* FLASH SALE */}
         <View style={figmaStyles.flashSaleContainer}>
           <Text style={figmaStyles.hugeFlashText}>FLASH</Text>
-          <Image source={{ uri: 'https://picsum.photos/seed/podium/600/400' }} style={figmaStyles.podiumImageBackground} />
+          <Image source={require('../../assets/images/home/flash_sale.png')} style={figmaStyles.podiumImageBackground} />
           
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, marginTop: -90 }}>
             {flashSaleItems.map((item, index) => (
@@ -309,7 +309,7 @@ const figmaStyles = StyleSheet.create({
     borderColor: figmaLightTeal,
     height: 140,
   },
-  goatDealTitle: { position: 'absolute', top: 12, left: 12, fontSize: 18, fontWeight: 'bold', color: colors.black, zIndex: 1 },
+  goatDealTitle: { position: 'absolute', top: 12, left: 12, fontSize: 18, fontFamily: 'Gilroy-Bold', color: colors.black, zIndex: 1 },
   goatDealImage: { width: '100%', height: 110, marginTop: 20 },
   goatDealBadge: {
     position: 'absolute', bottom: -14, alignSelf: 'center',
@@ -317,7 +317,7 @@ const figmaStyles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center',
     paddingVertical: 5, paddingHorizontal: 12,
   },
-  goatDealBadgeText: { color: colors.white, fontSize: 10, marginRight: 8 },
+  goatDealBadgeText: { color: colors.white, fontSize: 10, marginRight: 8, fontFamily: 'Gilroy-Medium' },
   goatDealArrowCircle: { width: 16, height: 16, borderRadius: 8, backgroundColor: colors.white, justifyContent: 'center', alignItems: 'center' },
   
   exploreItemCard: {
@@ -327,30 +327,30 @@ const figmaStyles = StyleSheet.create({
   },
   exploreTopBadgesRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 10, marginBottom: -10, zIndex: 2 },
   discountCircle: { width: 32, height: 32, borderRadius: 16, borderWidth: 1, borderColor: figmaTeal, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.white },
-  discountCircleText: { color: figmaTeal, fontSize: 10, fontWeight: 'bold' },
+  discountCircleText: { color: figmaTeal, fontSize: 10, fontFamily: 'Gilroy-Bold' },
   exploreItemImage: { width: '100%', height: 120, resizeMode: 'contain' },
   pricePill: { backgroundColor: figmaTeal, borderRadius: 12, paddingVertical: 4, paddingHorizontal: 8 },
-  pricePillText: { color: colors.white, fontSize: 12, fontWeight: 'bold' },
-  originalPriceText: { fontSize: 9, color: colors.grey, textDecorationLine: 'line-through' },
+  pricePillText: { color: colors.white, fontSize: 12, fontFamily: 'Gilroy-Bold' },
+  originalPriceText: { fontSize: 9, color: colors.grey, textDecorationLine: 'line-through', fontFamily: 'Gilroy-Medium' },
   
   bestSellingContainer: {
     marginHorizontal: 16, backgroundColor: '#8ED2C9', borderRadius: 24, height: 280, justifyContent: 'flex-end', padding: 16, overflow: 'hidden'
   },
   carouselArrowLeft: { position: 'absolute', left: 16, top: 120, width: 36, height: 36, borderRadius: 18, backgroundColor: colors.white, justifyContent: 'center', alignItems: 'center', zIndex: 2 },
   carouselArrowRight: { position: 'absolute', right: 16, top: 120, width: 36, height: 36, borderRadius: 18, backgroundColor: colors.white, justifyContent: 'center', alignItems: 'center', zIndex: 2 },
-  chevronArrowText: { fontSize: 16, color: colors.black, fontWeight: '300' },
+  chevronArrowText: { fontSize: 16, color: colors.black, fontFamily: 'Gilroy-Medium' },
   bestSellingImage: { ...StyleSheet.absoluteFillObject, width: '100%', height: '80%', resizeMode: 'contain', zIndex: 1, top: 20 },
   bestSellingTextRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', zIndex: 2 },
-  bestSellingTitle: { fontSize: 24, fontWeight: 'bold', color: '#1D1D1D' },
-  bestSellingOriginalPrice: { fontSize: 12, color: '#555555', textDecorationLine: 'line-through', textAlign: 'right' },
-  bestSellingCurrentPrice: { fontSize: 24, fontWeight: 'bold', color: '#1D1D1D' },
+  bestSellingTitle: { fontSize: 24, fontFamily: 'Gilroy-Bold', color: '#1D1D1D' },
+  bestSellingOriginalPrice: { fontSize: 12, color: '#555555', textDecorationLine: 'line-through', textAlign: 'right', fontFamily: 'Gilroy-Medium' },
+  bestSellingCurrentPrice: { fontSize: 24, fontFamily: 'Gilroy-Bold', color: '#1D1D1D' },
   
   brandItemCard: {
     width: (width - 32) / 3 - 10, height: 160, borderRadius: 16,
     backgroundColor: figmaLightTeal, overflow: 'hidden', marginHorizontal: 4,
     alignItems: 'center', paddingTop: 10
   },
-  brandLogoText: { fontSize: 20, fontWeight: 'bold', color: colors.black, zIndex: 1 },
+  brandLogoText: { fontSize: 20, fontFamily: 'Gilroy-Bold', color: colors.black, zIndex: 1 },
   brandItemImage: { position: 'absolute', bottom: 0, width: '100%', height: 110 },
   
   gShockSectionWrapper: { backgroundColor: colors.black, marginTop: 40, paddingBottom: 30 },
@@ -366,13 +366,13 @@ const figmaStyles = StyleSheet.create({
   superSalePill: { width: 16, height: 4, borderRadius: 2, backgroundColor: '#A0A0A0', marginHorizontal: 3 },
   
   flashSaleContainer: { backgroundColor: '#A4E8DF', paddingBottom: 40, marginTop: 20 },
-  hugeFlashText: { color: colors.white, fontSize: 64, fontWeight: 'bold', position: 'absolute', bottom: 20, left: -10, opacity: 0.8 },
+  hugeFlashText: { color: colors.white, fontSize: 64, fontFamily: 'Gilroy-Bold', position: 'absolute', bottom: 20, left: -10, opacity: 0.8 },
   podiumImageBackground: { width: width, height: 260, resizeMode: 'cover', opacity: 0.6 },
   flashSaleItemCard: { alignItems: 'center', marginRight: 16, width: 110 },
   flashSaleImage: { width: 100, height: 100, borderRadius: 50, backgroundColor: colors.white, marginBottom: 20 },
   flashBadgeDark: { backgroundColor: darkBadgeColor, borderRadius: 12, paddingVertical: 4, paddingHorizontal: 12, position: 'absolute', bottom: 25 },
-  flashBadgeTextDark: { color: colors.white, fontSize: 10, fontWeight: 'bold' },
-  flashSalePrice: { color: colors.white, fontSize: 16, fontWeight: 'bold' },
+  flashBadgeTextDark: { color: colors.white, fontSize: 10, fontFamily: 'Gilroy-Bold' },
+  flashSalePrice: { color: colors.white, fontSize: 16, fontFamily: 'Gilroy-Bold' },
 });
 
 export default HomeScreen;

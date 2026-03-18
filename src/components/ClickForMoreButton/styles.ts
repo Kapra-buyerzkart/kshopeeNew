@@ -26,7 +26,7 @@ export default StyleSheet.create({
   chevronText: {
     fontSize: 16,
     color: figmaTeal,
-    fontWeight: 'bold',
+    fontFamily: 'Gilroy-Bold',
     letterSpacing: 2,
   }
 });

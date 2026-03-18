@@ -13,10 +13,10 @@ import RootStack from './src/navigation/rootnavigation';
 import SplashScreen from './src/components/SplashScreen/SplashScreen';
 import NetworkBanner from './src/components/ShowOfflineMessage/index';
 import { useNetworkStatus } from './src/hooks/userNetworkStatus';
-import { DatabaseProvider } from '@nozbe/watermelondb/DatabaseProvider';
-import database from './src/database';
-import { sync } from './src/database/sync';
-import { startSyncManager, stopSyncManager } from './src/database/syncManager';
+//import { DatabaseProvider } from '@nozbe/watermelondb/DatabaseProvider';
+// import database from './src/database';
+// import { sync } from './src/database/sync';
+//import { startSyncManager, stopSyncManager } from './src/database/syncManager';
 //import { seedDummyClients, seedProducts } from './src/database/seedData';
 import { UserProvider } from './src/context/UserContext';
 import { AlertProvider } from './src/context/AlertContext';
@@ -39,18 +39,18 @@ function App() {
   //   seedProducts();
   // }, []);
 
-  useEffect(() => {
-    if (isConnected) {
-      console.log('App goes online - starting sync manager');
-      startSyncManager();
-    } else {
-      stopSyncManager();
-    }
+  // useEffect(() => {
+  //   if (isConnected) {
+  //     console.log('App goes online - starting sync manager');
+  //     startSyncManager();
+  //   } else {
+  //     stopSyncManager();
+  //   }
 
-    return () => {
-      stopSyncManager();
-    };
-  }, [isConnected]);
+  //   return () => {
+  //     stopSyncManager();
+  //   };
+  // }, [isConnected]);
 
 
   if (showSplash) {
@@ -58,18 +58,16 @@ function App() {
   }
 
   return (
-    <DatabaseProvider database={database}>
-      <QueryClientProvider client={queryClient}>
-        <UserProvider>
-          <AlertProvider>
-            <NavigationContainer>
-              {isConnected && <NetworkBanner />}
-              <RootStack />
-            </NavigationContainer>
-          </AlertProvider>
-        </UserProvider>
-      </QueryClientProvider>
-    </DatabaseProvider>
+    <QueryClientProvider client={queryClient}>
+      <UserProvider>
+        <AlertProvider>
+          <NavigationContainer>
+            {isConnected && <NetworkBanner />}
+            <RootStack />
+          </NavigationContainer>
+        </AlertProvider>
+      </UserProvider>
+    </QueryClientProvider>
   );
 }
 

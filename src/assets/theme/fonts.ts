@@ -11,4 +11,10 @@ export const Fonts = {
     lightItalic: 'Poppins-LightItalic',
     mediumItalic: 'Poppins-MediumItalic',
     // Add other custom fonts here
+    gilroyRegular: 'Gilroy-Regular',
+    gilroyMedium: 'Gilroy-Medium',
+    gilroySemiBold: 'Gilroy-SemiBold',
+    gilroyBold: 'Gilroy-Bold',
+    gilroyExtraBold: 'Gilroy-ExtraBold',
+    gilroyLight: 'Gilroy-Light',
 };

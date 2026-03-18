@@ -15,7 +15,14 @@ const lightColors = {
     red: '#ff0000',
     green: '#11dd11ff',
     blue: '#0000ff',
-    halfTransparent: 'rgba(0, 0, 0, 0.5)'
+    halfTransparent: 'rgba(0, 0, 0, 0.5)',
+    // Custom Colors
+    themeWhite: '#FFFFFF',
+    themeLightGray: '#DADADA',
+    themeDarkGray: '#727783',
+    themeTeal: '#00A7B3',
+    themeBlack: '#000000',
+    themeDarkTeal: '#006168',
 };
 
 const darkColors = {
@@ -33,7 +40,14 @@ const darkColors = {
     red: '#ff6b6b',
     green: '#32d296',
     blue: '#7abaff',
-    halfTransparent: 'rgba(0, 0, 0, 0.5)'
+    halfTransparent: 'rgba(0, 0, 0, 0.5)',
+    // Custom Colors
+    themeWhite: '#FFFFFF',
+    themeLightGray: '#DADADA',
+    themeDarkGray: '#727783',
+    themeTeal: '#00A7B3',
+    themeBlack: '#000000',
+    themeDarkTeal: '#006168',
 };
 
 export const colors = lightColors;

@@ -1,10 +1,11 @@
 // src/theme/fonts.ts
 
 export const Fonts = {
-    regular: 'Poppins-Regular',
-    medium: 'Poppins-Medium',
-    bold: 'Poppins-Bold',
-    extraBold: 'Poppins-ExtraBold',
+    regular: 'Gilroy-Regular',
+    medium: 'Gilroy-Medium',
+    bold: 'Gilroy-Bold',
+    semiBold: 'Gilroy-SemiBold',
+    extraBold: 'Gilroy-ExtraBold',
     italic: 'Poppins-Italic',
     extraBoldItalic: 'Poppins-ExtraBoldItalic',
     light: 'Poppins-Light',

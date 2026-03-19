@@ -5,7 +5,9 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialDesignIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
+import Entypo from 'react-native-vector-icons/Entypo';
 import { ViewStyle, StyleProp } from 'react-native';
 import { colors } from '../theme/colours';
 
@@ -103,7 +105,7 @@ const ArrowLeft = ({ size = defaultSize, color = colors.primary, style }: IconPr
 );
 
 const ChevronRight = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
-    <MaterialIcons name="chevron-right" size={size} color={color} style={style} />
+    <Entypo name="chevron-right" size={size} color={color} style={style} />
 );
 
 const History = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
@@ -160,6 +162,18 @@ const EyeOpen = ({ size = defaultSize, color = colors.primary, style }: IconProp
 const EyeClose = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
     <Ionicons name="eye-off" size={size} color={color} style={style} />
 );
+const Bag = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <Ionicons name="bag-outline" size={size} color={color} style={style} />
+);
+const Bell = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <MaterialDesignIcons name="bell-outline" size={size} color={color} style={style} />
+);
+
+const Microphone = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <FontAwesome name="microphone" size={size} color={color} style={style} />
+);
+
+
 
 const HeartOutline = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
     <Ionicons name="heart-outline" size={size} color={color} style={style} />
@@ -223,5 +237,8 @@ export const AppIcons = {
     Star,
     StarOutline,
     Cart,
-    HeartOutline
+    HeartOutline,
+    Bag,
+    Bell,
+    Microphone
 };

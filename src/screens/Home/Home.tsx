@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, ScrollView, Image, TouchableOpacity, FlatList, Dimensions, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, Image, TouchableOpacity, FlatList, Dimensions, StyleSheet, ImageBackground } from 'react-native';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { useCommonStyles } from '../../assets/styles';
 import { colors } from '../../assets/theme/colours';
@@ -35,11 +35,20 @@ const HomeScreen: React.FC = () => {
   const renderGoatDeal = ({ item }: { item: any }) => (
     <TouchableOpacity style={styles.goatDealCard}>
       <Text style={styles.goatDealTitle}>{item.title}</Text>
-      <Image source={item.image} style={styles.goatDealImage} resizeMode="contain" />
+      <ImageBackground
+        source={require('../../assets/images/home/k_symbol.png')}
+        style={styles.goatDealBg}
+        imageStyle={{ opacity: 0.3 }}
+      >
+        <Image source={item.image} style={styles.goatDealImage} resizeMode="contain" />
+      </ImageBackground>
       <View style={styles.goatDealBadge}>
         <Text style={styles.goatDealBadgeText}>{item.badgeText}</Text>
-        <View style={styles.goatDealArrowCircle}>
-          <Text style={{color: colors.figmaTeal, fontSize: 10, fontFamily: 'Gilroy-Bold'}}>&gt;</Text>
+        <View style={[styles.goatDealArrowCircle]}>
+          <View style={{ bottom: 1, right: 1 }}>
+            <AppIcons.ChevronRight color={colors.black} size={18} />
+          </View>
+
         </View>
       </View>
     </TouchableOpacity>
@@ -51,20 +60,20 @@ const HomeScreen: React.FC = () => {
         <View style={styles.discountCircle}>
           <Text style={styles.discountCircleText}>{item.discountBadge}</Text>
         </View>
-        <Text style={{color: colors.figmaTeal, fontFamily: 'Gilroy-Bold', fontSize: 20}}>W</Text> {/* Bookmark Mock */}
+        <Text style={{ color: colors.figmaTeal, fontFamily: 'Gilroy-Bold', fontSize: 20 }}>W</Text>
       </View>
-      
+
       <Image source={item.image} style={styles.exploreItemImage} />
-      
+
       <View style={{ padding: 10 }}>
         <Text style={[styles.caption, { fontFamily: 'Gilroy-Medium', color: colors.black }]} numberOfLines={3}>{item.title}</Text>
-        
+
         {/* Mock stars */}
-        <View style={{flexDirection: 'row', marginVertical: 6}}>
-           <Text style={{ color: colors.starYellow, fontSize: 12 }}>★</Text>
-           <Text style={{ color: colors.lightGrey, fontSize: 12 }}>★★★★</Text>
+        <View style={{ flexDirection: 'row', marginVertical: 6 }}>
+          <Text style={{ color: colors.starYellow, fontSize: 12 }}>★</Text>
+          <Text style={{ color: colors.lightGrey, fontSize: 12 }}>★★★★</Text>
         </View>
-        
+
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
           <View style={styles.pricePill}>
             <Text style={styles.pricePillText}>{item.currentPrice}</Text>
@@ -78,7 +87,7 @@ const HomeScreen: React.FC = () => {
   const renderBrandItem = ({ item }: { item: any }) => (
     <TouchableOpacity style={styles.brandItemCard}>
       <Text style={styles.brandLogoText}>{item.logoText}</Text>
-      <Image source={item.image} style={styles.brandItemImage} resizeMode="contain"/>
+      <Image source={item.image} style={styles.brandItemImage} resizeMode="contain" />
     </TouchableOpacity>
   );
 
@@ -108,7 +117,7 @@ const HomeScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 80, backgroundColor: colors.homeScreenBackground }}>
-        
+
         {/* Header Section from Screenshot 1 & 5 */}
         <View style={styles.headerSectionWrapper}>
           <FlatList
@@ -123,29 +132,29 @@ const HomeScreen: React.FC = () => {
           />
           <View style={[StyleSheet.absoluteFillObject, { paddingTop: 50 }]}>
             <View style={styles.topBar}>
-              <TouchableOpacity style={styles.profileArea} onPress={() => navigation.navigate('ProfileScreen')}>
-                <Image source={{uri: 'https://picsum.photos/seed/user/100/100'}} style={styles.profileImageReal} />
+              <TouchableOpacity style={styles.profileArea}>
+                <Image source={{ uri: 'https://picsum.photos/seed/user/100/100' }} style={styles.profileImageReal} />
                 <Text style={styles.userName}>Rahul KR</Text>
               </TouchableOpacity>
-              
+
               <View style={styles.actionsPill}>
                 <TouchableOpacity style={styles.actionIcon}>
-                  <AppIcons.User color={colors.black} size={20} /> {/* Mock Bag */}
+                  <AppIcons.Bag color={colors.black} size={20} />
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.actionIcon}>
-                  <View style={styles.notificationDot} />
-                  <AppIcons.User color={colors.black} size={20} /> {/* Mock Bell */}
+                  {/* <View style={styles.notificationDot} /> */}
+                  <AppIcons.Bell color={colors.black} size={20} />
                 </TouchableOpacity>
               </View>
             </View>
 
-            <View style={{ paddingHorizontal: 16, marginTop: 10 }}>
+            <View style={{ paddingHorizontal: 16 }}>
               <HomeSearchBar placeholder="Search product" />
             </View>
 
             <View style={styles.headerDotsContainer}>
               {sliderImages.map((_, index) => (
-                <View key={index} style={[styles.headerDot, currentSlideIndex === index && { backgroundColor: colors.figmaTeal }]} />
+                <View key={index} style={[styles.headerDot, currentSlideIndex === index && { backgroundColor: colors.outlineTeal }]} />
               ))}
             </View>
           </View>
@@ -153,7 +162,7 @@ const HomeScreen: React.FC = () => {
 
         {/* GOAT DEALS */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitleCenter}>GOAT DEALS</Text>
+          <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>GOAT DEALS</Text>
           <View style={styles.horizontalScrollPadding}>
             <FlatList
               data={goatDeals}
@@ -168,7 +177,7 @@ const HomeScreen: React.FC = () => {
 
         {/* EXPLORE */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitleCenter}>EXPLORE</Text>
+          <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>EXPLORE</Text>
           <FlatList
             data={exploreItems}
             renderItem={renderExploreItem}
@@ -177,37 +186,37 @@ const HomeScreen: React.FC = () => {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.horizontalScrollPadding}
           />
-          <View style={{marginTop: 16}}>
-             <ClickForMoreButton onPress={() => {}} title="Click for more" />
+          <View style={{ marginTop: 16 }}>
+            <ClickForMoreButton onPress={() => { }} title="Click for more" />
           </View>
         </View>
 
         {/* BEST SELLING */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitleCenter}>BEST SELLING</Text>
+          <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>BEST SELLING</Text>
           <View style={styles.bestSellingContainer}>
             {/* Arrows */}
             <View style={styles.carouselArrowLeft}><Text style={styles.chevronArrowText}>&lt;</Text></View>
             <View style={styles.carouselArrowRight}><Text style={styles.chevronArrowText}>&gt;</Text></View>
-            
+
             <Image source={bestSellingItem.image} style={styles.bestSellingImage} resizeMode="contain" />
-            
+
             <View style={styles.bestSellingTextRow}>
               <Text style={styles.bestSellingTitle}>{bestSellingItem.brand}</Text>
-              <View style={{alignItems: 'flex-end'}}>
-                 <Text style={styles.bestSellingOriginalPrice}>{bestSellingItem.originalPrice}</Text>
-                 <Text style={styles.bestSellingCurrentPrice}>{bestSellingItem.price}</Text>
+              <View style={{ alignItems: 'flex-end' }}>
+                <Text style={styles.bestSellingOriginalPrice}>{bestSellingItem.originalPrice}</Text>
+                <Text style={styles.bestSellingCurrentPrice}>{bestSellingItem.price}</Text>
               </View>
             </View>
           </View>
-          <View style={{marginTop: 16}}>
-             <ClickForMoreButton onPress={() => {}} title="Click for more offers" />
+          <View style={{ marginTop: 16 }}>
+            <ClickForMoreButton onPress={() => { }} title="Click for more offers" />
           </View>
         </View>
 
         {/* TOP BRANDS */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitleCenter}>TOP BRANDS</Text>
+          <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>TOP BRANDS</Text>
           <FlatList
             data={topBrands}
             renderItem={renderBrandItem}
@@ -250,7 +259,7 @@ const HomeScreen: React.FC = () => {
         <View style={styles.flashSaleContainer}>
           <Text style={styles.hugeFlashText}>FLASH</Text>
           <Image source={require('../../assets/images/home/flash_sale.png')} style={styles.podiumImageBackground} />
-          
+
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, marginTop: -90 }}>
             {flashSaleItems.map((item, index) => (
               <React.Fragment key={item.id}>
@@ -266,3 +275,10 @@ const HomeScreen: React.FC = () => {
 };
 
 export default HomeScreen;
+
+const localStyle = StyleSheet.create({
+  sectionTitleAlignment: {
+    textAlign: 'center',
+    marginBottom: 20,
+  }
+})

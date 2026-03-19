@@ -25,6 +25,7 @@ const lightColors = {
     themeDarkTeal: '#006168',
     themeBg: '#a1d3ce',
     figmaTeal: '#00B4D8',
+    outlineTeal:'#78BFB9',
     starYellow: '#FFD700',
     darkCardBackground: '#1F1F1F',
     homeScreenBackground: '#F2FBFB',

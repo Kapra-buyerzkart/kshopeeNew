@@ -28,6 +28,7 @@ const lightColors = {
     starYellow: '#FFD700',
     darkCardBackground: '#1F1F1F',
     homeScreenBackground: '#F2FBFB',
+    wishlistbg: '#f5fffeff',
 };
 
 const darkColors = {

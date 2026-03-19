@@ -31,7 +31,8 @@ const lightColors = {
     darkCardBackground: '#1F1F1F',
     homeScreenBackground: '#F2FBFB',
     darkFontOne: '#393939',
-    themeBg: '#a1d3ce'
+    themeBg: '#a1d3ce',
+    wishlistbg: '#f5fffeff',
 };
 
 const darkColors = {

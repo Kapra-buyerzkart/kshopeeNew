@@ -16,8 +16,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNOtpVerify from 'react-native-otp-verify';
+import { mergeCustomerIdIntoProfile } from '../../utils/profileUtils';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { hp } from '../../utils/responsive';
 import { colors, fontColors } from '../../assets/theme/colours';
@@ -68,17 +69,6 @@ const setTokens = async (accessToken: string, refreshToken: string) => {
     ]);
 };
 
-const mergeCustomerIdIntoProfile = async (custId: number | string) => {
-    const storedProfile = await AsyncStorage.getItem('profile');
-    const existingProfile = storedProfile ? JSON.parse(storedProfile) : {};
-
-    const updatedProfile = {
-        ...existingProfile,
-        custId,
-    };
-
-    await AsyncStorage.setItem('profile', JSON.stringify(updatedProfile));
-};
 
 const OtpScreen: React.FC = () => {
     const navigation = useNavigation<OtpScreenNavigationProp>();

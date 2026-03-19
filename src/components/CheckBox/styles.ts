@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { colors, fontColors } from '../../assets/theme/colours';
 
 export const getStyles = (colour: any) => StyleSheet.create({
     container: {
@@ -8,9 +9,9 @@ export const getStyles = (colour: any) => StyleSheet.create({
     checkbox: {
         width: 24,
         height: 24,
-        borderRadius: 6,
-        borderWidth: 2,
-        borderColor: colour.lightGrey,
+        borderRadius: 12,
+        borderWidth: 0.7,
+        borderColor: colour.themeTeal,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -23,7 +24,7 @@ export const getStyles = (colour: any) => StyleSheet.create({
     },
     label: {
         marginLeft: 10,
-        fontSize: 16,
-        color: colour.grey,
+        fontSize: 14,
+        color: fontColors.subtext,
     },
 });

@@ -164,6 +164,26 @@ const EyeOpen = ({ size = defaultSize, color = colors.primary, style }: IconProp
 const EyeClose = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
     <Ionicons name="eye-off" size={size} color={color} style={style} />
 );
+
+const HeartOutline = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <Ionicons name="heart-outline" size={size} color={color} style={style} />
+);
+
+const Bookmark = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <MaterialIcons name="bookmark" size={size} color={color} style={style} />
+);
+
+const Star = ({ size = defaultSize, color = '#FFD700', style }: IconProps) => (
+    <FontAwesome name="star" size={size} color={color} style={style} />
+);
+
+const StarOutline = ({ size = defaultSize, color = '#DADADA', style }: IconProps) => (
+    <FontAwesome name="star-o" size={size} color={color} style={style} />
+);
+
+const Cart = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <MaterialIcons name="shopping-cart" size={size} color={color} style={style} />
+);
 const Bag = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
     <Ionicons name="bag-outline" size={size} color={color} style={style} />
 );
@@ -192,28 +212,6 @@ const RightArrow = ({ size = defaultSize, color = colors.primary, style }: IconP
     <Entypo name="chevron-thin-right" size={size} color={color} style={style} />
 );
 
-
-
-
-const HeartOutline = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
-    <Ionicons name="heart-outline" size={size} color={color} style={style} />
-);
-
-const Bookmark = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
-    <MaterialIcons name="bookmark" size={size} color={color} style={style} />
-);
-
-const Star = ({ size = defaultSize, color = '#FFD700', style }: IconProps) => (
-    <FontAwesome name="star" size={size} color={color} style={style} />
-);
-
-const StarOutline = ({ size = defaultSize, color = '#DADADA', style }: IconProps) => (
-    <FontAwesome name="star-o" size={size} color={color} style={style} />
-);
-
-const Cart = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
-    <MaterialIcons name="shopping-cart" size={size} color={color} style={style} />
-);
 
 const FilterIcon = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
     <Ionicons name="options-outline" size={size} color={color} style={style} />

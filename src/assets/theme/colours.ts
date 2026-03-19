@@ -29,6 +29,7 @@ const lightColors = {
     darkCardBackground: '#1F1F1F',
     homeScreenBackground: '#F2FBFB',
     wishlistbg: '#f5fffeff',
+    logoutred: '#Ff4242'
 };
 
 const darkColors = {

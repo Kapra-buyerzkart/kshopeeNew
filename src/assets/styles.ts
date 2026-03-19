@@ -341,16 +341,21 @@ export const useCommonStyles = () => {
             borderRadius: 16,
             marginBottom: 24,
             borderWidth: 1,
-            borderColor: '#E8F8FA',
+            borderColor: colors.outlineTeal,
             height: 140,
+            overflow: 'visible',
+            
         },
         goatDealBg: {
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  right: 0,
-  height: '30%', // 👈 only top 30%
-},
+            position: 'absolute',
+            left: '40%',
+            right: 6,
+            top: 0,
+            bottom: 0,
+            borderTopRightRadius: 14,
+            borderBottomRightRadius: 14,
+            //overflow: 'hidden',
+        },
         goatDealTitle: { 
             position: 'absolute', 
             top: 12, 
@@ -361,9 +366,11 @@ export const useCommonStyles = () => {
             zIndex: 1 
         },
         goatDealImage: { 
-            width: '100%', 
-            height: 110, 
-            marginTop: 20 
+            width: 140, 
+            height: 140,
+            //position:'absolute',
+            right:'25%',
+            borderRadius:25,
         },
         goatDealBadge: {
             position: 'absolute', 
@@ -373,22 +380,25 @@ export const useCommonStyles = () => {
             borderRadius: 20,
             flexDirection: 'row', 
             alignItems: 'center',
-            paddingVertical: 5, 
-            paddingHorizontal: 12,
+            height:32,
+            width:160,
+            justifyContent:'center'
         },
         goatDealBadgeText: { 
             color: colour.white, 
-            fontSize: 10, 
+            fontSize: 16, 
             marginRight: 8, 
-            fontFamily: Fonts.medium
+            fontFamily: Fonts.regular,
+            fontWeight:'400'
          },
         goatDealArrowCircle: { 
             width: 16, 
             height: 16, 
             borderRadius: 8, 
-            backgroundColor: colour.white, 
+            backgroundColor: colour.outlineTeal, 
             justifyContent: 'center', 
-            alignItems: 'center' 
+            alignItems: 'center' ,
+            alignSelf:'center'
         },
         
         exploreItemCard: {

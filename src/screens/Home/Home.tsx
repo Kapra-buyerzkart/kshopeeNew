@@ -34,17 +34,21 @@ const HomeScreen: React.FC = () => {
 
   const renderGoatDeal = ({ item }: { item: any }) => (
     <TouchableOpacity style={styles.goatDealCard}>
-      {/* <ImageBackground
-        source={require('../../assets/images/home/k_symbol.png')} // add separate bg image in your data
-        style={styles.goatDealCard}
-        imageStyle={{ borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
-      /> */}
       <Text style={styles.goatDealTitle}>{item.title}</Text>
-      <Image source={item.image} style={styles.goatDealImage} resizeMode="contain" />
+      <ImageBackground
+        source={require('../../assets/images/home/k_symbol.png')}
+        style={styles.goatDealBg}
+        imageStyle={{ opacity: 0.3 }}
+      >
+        <Image source={item.image} style={styles.goatDealImage} resizeMode="contain" />
+      </ImageBackground>
       <View style={styles.goatDealBadge}>
         <Text style={styles.goatDealBadgeText}>{item.badgeText}</Text>
-        <View style={styles.goatDealArrowCircle}>
-          <Text style={{ color: colors.figmaTeal, fontSize: 10, fontFamily: 'Gilroy-Bold' }}>&gt;</Text>
+        <View style={[styles.goatDealArrowCircle]}>
+          <View style={{ bottom: 1, right: 1 }}>
+            <AppIcons.ChevronRight color={colors.black} size={18} />
+          </View>
+
         </View>
       </View>
     </TouchableOpacity>

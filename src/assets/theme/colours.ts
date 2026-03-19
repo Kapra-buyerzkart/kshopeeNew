@@ -23,6 +23,7 @@ const lightColors = {
     themeTeal: '#00A7B3',
     themeBlack: '#000000',
     themeDarkTeal: '#006168',
+    themeBg: '#a1d3ce'
 };
 
 const darkColors = {

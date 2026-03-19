@@ -105,27 +105,25 @@ const WishlistScreen: React.FC = () => {
                 //     end={{ x: 1, y: 0.9 }}
                 //     style={styles.cartGradient}
                 // >
-                <View style={{ backgroundColor: colors.wishlistbg }}>
-                    <FlatList
-                        data={DATA}
-                        renderItem={({ item }) => (
-                            <ProductCard
-                                title={item.title}
-                                price={item.price}
-                                mrp={item.mrp}
-                                discount={item.discount}
-                                rating={item.rating}
-                                image={item.image}
-                                isWishlisted={true}
-                            />
-                        )}
-                        keyExtractor={(item) => item.id}
-                        numColumns={2}
-                        contentContainerStyle={styles.listContent}
-                        ListFooterComponent={renderFooter}
-                        showsVerticalScrollIndicator={false}
-                    />
-                </View>
+                <FlatList
+                    data={DATA}
+                    renderItem={({ item }) => (
+                        <ProductCard
+                            title={item.title}
+                            price={item.price}
+                            mrp={item.mrp}
+                            discount={item.discount}
+                            rating={item.rating}
+                            image={item.image}
+                            isWishlisted={true}
+                        />
+                    )}
+                    keyExtractor={(item) => item.id}
+                    numColumns={2}
+                    contentContainerStyle={styles.listContent}
+                    ListFooterComponent={renderFooter}
+                    showsVerticalScrollIndicator={false}
+                />
                 // </LinearGradient>
             )}
         </SafeAreaView>

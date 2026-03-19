@@ -10,7 +10,7 @@ const MainTabs: React.FC = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.text}>Welcome to Main Tabs (Dummy Screen)</Text>
-            <TouchableOpacity 
+            <TouchableOpacity
                 style={styles.button}
                 onPress={() => navigation.navigate('Main')}
             >

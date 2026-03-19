@@ -2856,11 +2856,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - simdjson (3.9.4)
   - SocketRocket (0.7.1)
-  - WatermelonDB (0.28.0):
-    - React
-    - simdjson
   - Yoga (0.0.0)
 
 DEPENDENCIES:
@@ -2952,9 +2948,7 @@ DEPENDENCIES:
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
-  - "simdjson (from `../node_modules/@nozbe/simdjson`)"
   - SocketRocket (~> 0.7.1)
-  - "WatermelonDB (from `../node_modules/@nozbe/watermelondb`)"
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -3144,10 +3138,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-svg"
   RNVectorIcons:
     :path: "../node_modules/react-native-vector-icons"
-  simdjson:
-    :path: "../node_modules/@nozbe/simdjson"
-  WatermelonDB:
-    :path: "../node_modules/@nozbe/watermelondb"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -3165,7 +3155,7 @@ SPEC CHECKSUMS:
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   GTMAppAuth: 217a876b249c3c585a54fd6f73e6b58c4f5c4238
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
-  hermes-engine: 9ff478aea39c25a0d59ed3fbb60b05caa18cd49d
+  hermes-engine: 5c1bac55b1cca9c9c06c1763a89f263142802596
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   RCT-Folly: 846fda9475e61ec7bcbf8a3fe81edfcaeb090669
   RCTDeprecation: a41bbdd9af30bf2e5715796b313e44ec43eefff1
@@ -3246,11 +3236,9 @@ SPEC CHECKSUMS:
   RNScreens: 7f643ee0fd1407dc5085c7795460bd93da113b8f
   RNSVG: 3405336c4507ee0bafb02b08058d57216daa2c50
   RNVectorIcons: 791f13226ec4a3fd13062eda9e892159f0981fae
-  simdjson: 7bb9e33d87737cec966e7b427773c67baa4458fe
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
-  WatermelonDB: 75e467adbaf2cb2809780fb3eda7ce4964e11778
   Yoga: 5456bb010373068fc92221140921b09d126b116e
 
-PODFILE CHECKSUM: 931a6f96ebf200306956504678490704e2e2dfe1
+PODFILE CHECKSUM: f6926d0be7c98cbac32618510f3fd7e0be115623
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2

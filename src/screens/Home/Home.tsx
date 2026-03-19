@@ -14,7 +14,7 @@ const { width } = Dimensions.get('window');
 
 const HomeScreen: React.FC = () => {
   const styles = useCommonStyles();
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const navigation = useNavigation<any>();
 
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const slideRef = useRef<FlatList>(null);
@@ -141,7 +141,7 @@ const HomeScreen: React.FC = () => {
           />
           <View style={[StyleSheet.absoluteFillObject, { paddingTop: 50 }]}>
             <View style={styles.topBar}>
-              <TouchableOpacity style={styles.profileArea}>
+              <TouchableOpacity style={styles.profileArea} onPress={() => navigation.navigate('ProfileScreen')}>
                 <Image source={{ uri: 'https://picsum.photos/seed/user/100/100' }} style={styles.profileImageReal} />
                 <Text style={styles.userName}>Rahul KR</Text>
               </TouchableOpacity>

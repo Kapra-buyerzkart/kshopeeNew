@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native';
 import { colors } from '../../assets/theme/colours';
 import { fonts } from '../../assets/theme/typography';
+import { Fonts } from '../../assets/theme/fonts';
 
 export const styles = StyleSheet.create({
   container: {
@@ -17,6 +18,19 @@ export const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 4,
   },
+  searchBarContainer:{
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.white,
+    borderRadius: 24, // Pill shape match from Figma
+    paddingHorizontal: 12,
+    height: 50,
+  },
+  kIcon: {
+    width: 20,
+    height: 17,
+    resizeMode: 'contain',
+  },
   iconLeftContainer: {
     marginRight: 8,
   },
@@ -28,20 +42,12 @@ export const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontFamily: fonts.body1.fontFamily,
-    fontSize: 14,
+    fontFamily: Fonts.regular,
+    fontSize: 16,
     color: colors.text,
+    fontWeight:'400'
   },
-  micButton: {
-    backgroundColor: '#F5F5F5',
-    borderRadius: 20,
-    padding: 6,
-    marginLeft: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 32,
-    height: 32,
-  },
+
   micIconText: {
     fontSize: 12,
     color: colors.black,

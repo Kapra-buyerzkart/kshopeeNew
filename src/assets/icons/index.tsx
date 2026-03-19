@@ -5,6 +5,7 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialDesignIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import { ViewStyle, StyleProp } from 'react-native';
 import { colors } from '../theme/colours';
@@ -160,6 +161,18 @@ const EyeOpen = ({ size = defaultSize, color = colors.primary, style }: IconProp
 const EyeClose = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
     <Ionicons name="eye-off" size={size} color={color} style={style} />
 );
+const Bag = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <Ionicons name="bag-outline" size={size} color={color} style={style} />
+);
+const Bell = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <MaterialDesignIcons name="bell-outline" size={size} color={color} style={style} />
+);
+
+const Microphone = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <FontAwesome name="microphone" size={size} color={color} style={style} />
+);
+
+
 
 // Exporting all as object for named JSX usage
 export const AppIcons = {
@@ -198,5 +211,8 @@ export const AppIcons = {
     Edit,
     Users,
     EyeOpen,
-    EyeClose
+    EyeClose,
+    Bag,
+    Bell,
+    Microphone
 };

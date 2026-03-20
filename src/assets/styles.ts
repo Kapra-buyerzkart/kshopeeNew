@@ -53,7 +53,9 @@ export const useCommonStyles = () => {
         },
         caption: {
             fontSize: 12,
-            color: colour.text,
+            color: colour.black,
+            fontFamily: Fonts.regular,
+            fontWeight: '300',
         },
         label1: {
             fontSize: 16,
@@ -252,14 +254,14 @@ export const useCommonStyles = () => {
         },
 
         // Home Screen specific styles
-        headerSectionWrapper: { 
-            height: 480, 
-            width: width, 
-            position: 'relative' 
+        headerSectionWrapper: {
+            height: 480,
+            width: width,
+            position: 'relative'
         },
-        headerSectionImageBackground: { 
-            height: 480, 
-            width: width 
+        headerSectionImageBackground: {
+            height: 480,
+            width: width
         },
         topBar: {
             flexDirection: 'row',
@@ -268,73 +270,74 @@ export const useCommonStyles = () => {
             paddingHorizontal: 16,
             marginBottom: 10,
         },
-        profileArea: { 
-            flexDirection: 'row', 
-            alignItems: 'center' 
+        profileArea: {
+            flexDirection: 'row',
+            alignItems: 'center'
         },
         profileImageReal: {
-            width: 32, 
-            height: 32, 
-            borderRadius: 30, 
-            backgroundColor: colour.white, 
+            width: 32,
+            height: 32,
+            borderRadius: 30,
+            backgroundColor: colour.white,
             marginRight: 10
         },
-        userName: { 
-            fontFamily: Fonts.medium, 
-            fontSize: 17, 
+        userName: {
+            fontFamily: Fonts.medium,
+            fontSize: 17,
             color: colour.black,
-            fontWeight:'400' 
+            fontWeight: '400'
         },
-        actionsPill: { 
-            flexDirection: 'row', 
+        actionsPill: {
+            flexDirection: 'row',
             justifyContent: 'space-between',
-            alignItems: 'center', 
+            alignItems: 'center',
             backgroundColor: 'rgba(255, 255, 255, 0.4)',
-            borderRadius: 20, 
-            width:101,
-            height:34,
-            paddingHorizontal:10
-          
-        },
-        actionIcon: { 
-            //marginLeft: 12, 
-            position: 'relative' },
-        notificationDot: {
-            position: 'absolute', 
-            top: -2, 
-            right: -2, 
-            width: 8, 
-            height: 8, 
-            borderRadius: 4, 
-            backgroundColor: '#E74C3C', 
-            zIndex: 1
-        },
-        headerDotsContainer: { 
-            flexDirection: 'row', 
-            position: 'absolute', 
-            bottom: 16, 
-            alignSelf: 'center' 
-        },
-        headerDot: { 
-            width: 32, 
-            height: 8, 
-            borderRadius: 3, 
-            backgroundColor: colour.white, 
-            marginHorizontal: 3, 
-            //opacity: 0.8 
-        },
-        
-        sectionContainer: { 
-            marginTop: 30 
-        },
-        sectionTitle: {
-            fontFamily: Fonts.semiBold, 
-            fontSize: 16, 
-            color: colour.black,
-            fontWeight:'400',
+            borderRadius: 20,
+            width: 101,
+            height: 34,
+            paddingHorizontal: 10
 
         },
-        
+        actionIcon: {
+            //marginLeft: 12, 
+            position: 'relative'
+        },
+        notificationDot: {
+            position: 'absolute',
+            top: -2,
+            right: -2,
+            width: 8,
+            height: 8,
+            borderRadius: 4,
+            backgroundColor: '#E74C3C',
+            zIndex: 1
+        },
+        headerDotsContainer: {
+            flexDirection: 'row',
+            position: 'absolute',
+            bottom: 16,
+            alignSelf: 'center'
+        },
+        headerDot: {
+            width: 32,
+            height: 8,
+            borderRadius: 3,
+            backgroundColor: colour.white,
+            marginHorizontal: 3,
+            //opacity: 0.8 
+        },
+
+        sectionContainer: {
+            marginTop: 30
+        },
+        sectionTitle: {
+            fontFamily: Fonts.semiBold,
+            fontSize: 16,
+            color: colour.black,
+            fontWeight: '500',
+
+        },
+
         goatDealCard: {
             width: (width - 32 - 16) / 2,
             backgroundColor: colour.white,
@@ -344,7 +347,7 @@ export const useCommonStyles = () => {
             borderColor: colors.outlineTeal,
             height: 140,
             overflow: 'visible',
-            
+
         },
         goatDealBg: {
             position: 'absolute',
@@ -356,281 +359,307 @@ export const useCommonStyles = () => {
             borderBottomRightRadius: 14,
             //overflow: 'hidden',
         },
-        goatDealTitle: { 
-            position: 'absolute', 
-            top: 12, 
-            left: 12, 
-            fontSize: 18, 
-            fontFamily: Fonts.bold, 
-            color: colour.black, 
-            zIndex: 1 
+        goatDealTitle: {
+            position: 'absolute',
+            top: 12,
+            left: 12,
+            fontSize: 18,
+            fontFamily: Fonts.bold,
+            color: colour.black,
+            zIndex: 1
         },
-        goatDealImage: { 
-            width: 140, 
+        goatDealImage: {
+            width: 140,
             height: 140,
             //position:'absolute',
-            right:'25%',
-            borderRadius:25,
+            right: '25%',
+            borderRadius: 25,
         },
         goatDealBadge: {
-            position: 'absolute', 
-            bottom: -14, 
+            position: 'absolute',
+            bottom: -14,
             alignSelf: 'center',
-            backgroundColor: '#2A2A2A', 
+            backgroundColor: '#2A2A2A',
             borderRadius: 20,
-            flexDirection: 'row', 
+            flexDirection: 'row',
             alignItems: 'center',
-            height:32,
-            width:160,
-            justifyContent:'center'
+            height: 32,
+            width: 160,
+            justifyContent: 'center'
         },
-        goatDealBadgeText: { 
-            color: colour.white, 
-            fontSize: 16, 
-            marginRight: 8, 
+        goatDealBadgeText: {
+            color: colour.white,
+            fontSize: 16,
+            marginRight: 8,
             fontFamily: Fonts.regular,
-            fontWeight:'400'
-         },
-        goatDealArrowCircle: { 
-            width: 16, 
-            height: 16, 
-            borderRadius: 8, 
-            backgroundColor: colour.outlineTeal, 
-            justifyContent: 'center', 
-            alignItems: 'center' ,
-            alignSelf:'center'
+            fontWeight: '400'
         },
-        
+        goatDealArrowCircle: {
+            width: 16,
+            height: 16,
+            borderRadius: 8,
+            backgroundColor: colour.outlineTeal,
+            justifyContent: 'center',
+            alignItems: 'center',
+            alignSelf: 'center'
+        },
+
         exploreItemCard: {
-            width: 150, 
-            marginRight: 16, 
+            width: 150,
+            //height:250,
+            marginRight: 16,
             backgroundColor: colour.white,
-            borderRadius: 16, 
-            borderWidth: 1, 
+            borderRadius: 16,
+            borderWidth: 1,
             borderColor: '#E8F8FA',
             paddingTop: 10,
         },
-        exploreTopBadgesRow: { 
-            flexDirection: 'row', 
-            justifyContent: 'space-between', 
-            paddingHorizontal: 10, 
-            marginBottom: -10, 
-            zIndex: 2 
+        exploreTopBadgesRow: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            paddingHorizontal: 10,
+            marginBottom: '-25%',
+            zIndex: 2
         },
-        discountCircle: { 
-            width: 32, 
-            height: 32, 
-            borderRadius: 16, 
-            borderWidth: 1, 
-            borderColor: '#00B4D8', 
-            justifyContent: 'center', 
-            alignItems: 'center', 
-            backgroundColor: colour.white },
-        discountCircleText: { 
-            color: '#00B4D8', 
-            fontSize: 10, 
-            fontFamily: Fonts.bold
+        discountCircle: {
+            width: 27,
+            height: 27,
+            borderRadius: 14,
+            borderWidth: 2,
+            borderColor: colors.tealIconFont,
+            justifyContent: 'center',
+            alignItems: 'center',
+            alignContent: 'center',
+            backgroundColor: colour.white,
+            //flex: 1
         },
-        exploreItemImage: { 
-            width: '100%', 
-            height: 120, 
-            resizeMode: 'contain' 
+        discountCircleText: {
+            color: colors.tealIconFont,
+            fontSize: 9,
+            fontFamily: Fonts.medium,
+            fontWeight: '400',
+            textAlign: 'center',
+            textAlignVertical: 'center',
+            includeFontPadding: false,
         },
-        pricePill: { 
-            backgroundColor: '#00B4D8', 
-            borderRadius: 12, 
-            paddingVertical: 4, 
-            paddingHorizontal: 8 },
-        pricePillText: { 
-            color: colour.white, 
-            fontSize: 12, 
-            fontFamily: Fonts.bold 
+        exploreItemImage: {
+            width: '100%',
+            height: 132,
+            resizeMode: 'contain'
         },
-        originalPriceText: { 
-            fontSize: 9, 
-            color: colour.grey, 
-            textDecorationLine: 'line-through', 
-            fontFamily: Fonts.medium 
+        pricePill: {
+            backgroundColor: colors.themeTealTwo,
+            borderRadius: 12,
+            paddingHorizontal: 2,
+            height: 29,
+            //width: 65,
+            elevation: 2,
+            shadowColor: colors.black,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.85,
+            shadowRadius: 2,
+            alignItems: 'center',
+            justifyContent: 'center'
         },
-        
+        pricePillText: {
+            color: colour.white,
+            fontSize: 14,
+            fontFamily: Fonts.extraBold,
+            fontWeight: 'bold'
+        },
+        originalPriceText: {
+            fontSize: 10,
+            color: colour.grey,
+            textDecorationLine: 'line-through',
+            fontFamily: Fonts.regular,
+            fontWeight: '300'
+        },
+
         bestSellingContainer: {
-            marginHorizontal: 16, 
-            backgroundColor: '#8ED2C9', 
-            borderRadius: 24, 
-            height: 280, 
-            justifyContent: 'flex-end', 
-            padding: 16, 
+            marginHorizontal: 16,
+            backgroundColor: '#8ED2C9',
+            borderRadius: 24,
+            height: 280,
+            justifyContent: 'flex-end',
+            padding: 16,
             overflow: 'hidden'
         },
-        carouselArrowLeft: { 
-            position: 'absolute', 
-            left: 16, 
-            top: 120, 
-            width: 36, 
-            height: 36, 
-            borderRadius: 18, 
-            backgroundColor: colour.white, 
-            justifyContent: 'center', 
-            alignItems: 'center', 
-            zIndex: 2 
+        carouselArrowLeft: {
+            position: 'absolute',
+            left: 16,
+            top: 120,
+            width: 36,
+            height: 36,
+            borderRadius: 18,
+            backgroundColor: colour.white,
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 2
         },
-        carouselArrowRight: { 
-            position: 'absolute', 
-            right: 16, 
-            top: 120, 
-            width: 36, 
-            height: 36, 
-            borderRadius: 18, 
-            backgroundColor: colour.white, 
-            justifyContent: 'center', 
-            alignItems: 'center', 
-            zIndex: 2 
+        carouselArrowRight: {
+            position: 'absolute',
+            right: 16,
+            top: 120,
+            width: 36,
+            height: 36,
+            borderRadius: 18,
+            backgroundColor: colour.white,
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 2
         },
-        chevronArrowText: { 
-            fontSize: 16, 
-            color: colour.black, 
-            fontFamily:Fonts.medium
-        },
-        bestSellingImage: { 
-            ...StyleSheet.absoluteFillObject, 
-            width: '100%', 
-            height: '80%', 
-            resizeMode: 'contain', 
-            zIndex: 1, 
-            top: 20 
-        },
-        bestSellingTextRow: { 
-            flexDirection: 'row', 
-            justifyContent: 'space-between', 
-            alignItems: 'flex-end', 
-            zIndex: 2 
-        },
-        bestSellingTitle: { 
-            fontSize: 24, 
-            fontFamily: Fonts.bold, 
-            color: '#1D1D1D' 
-        },
-        bestSellingOriginalPrice: { 
-            fontSize: 12, 
-            color: '#555555', 
-            textDecorationLine: 'line-through', 
-            textAlign: 'right', 
+        chevronArrowText: {
+            fontSize: 16,
+            color: colour.black,
             fontFamily: Fonts.medium
         },
-        bestSellingCurrentPrice: { 
-            fontSize: 24, 
-            fontFamily: Fonts.bold, 
-            color: '#1D1D1D' },
-        
+        bestSellingImage: {
+            ...StyleSheet.absoluteFillObject,
+            width: '100%',
+            height: '80%',
+            resizeMode: 'contain',
+            zIndex: 1,
+            top: 20
+        },
+        bestSellingTextRow: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'flex-end',
+            zIndex: 2
+        },
+        bestSellingTitle: {
+            fontSize: 24,
+            fontFamily: Fonts.bold,
+            color: '#1D1D1D'
+        },
+        bestSellingOriginalPrice: {
+            fontSize: 12,
+            color: '#555555',
+            textDecorationLine: 'line-through',
+            textAlign: 'right',
+            fontFamily: Fonts.medium
+        },
+        bestSellingCurrentPrice: {
+            fontSize: 24,
+            fontFamily: Fonts.bold,
+            color: '#1D1D1D'
+        },
+
         brandItemCard: {
-            width: ((width - 32) / 3) - 10, 
-            height: 160, 
+            width: ((width - 32) / 3) - 10,
+            height: 160,
             borderRadius: 16,
-            backgroundColor: '#E8F8FA', 
-            overflow: 'hidden', 
+            backgroundColor: '#E8F8FA',
+            overflow: 'hidden',
             marginHorizontal: 4,
-            alignItems: 'center', 
+            alignItems: 'center',
             paddingTop: 10
         },
-        brandLogoText: { 
-            fontSize: 20, 
-            fontFamily: Fonts.bold, 
-            color: colour.black, 
-            zIndex: 1 },
-        brandItemImage: { 
-            position: 'absolute', 
-            bottom: 0, 
-            width: '100%', 
-            height: 110 
+        brandLogoText: {
+            fontSize: 20,
+            fontFamily: Fonts.bold,
+            color: colour.black,
+            zIndex: 1
         },
-        
-        gShockSectionWrapper: { 
-            backgroundColor: colour.black, 
-            marginTop: 40, 
-            paddingBottom: 30 
+        brandItemImage: {
+            position: 'absolute',
+            bottom: 0,
+            width: '100%',
+            height: 110
         },
-        gShockTopBanner: { 
-            width: width, 
-            height: 100 
+
+        gShockSectionWrapper: {
+            backgroundColor: colour.black,
+            marginTop: 40,
+            paddingBottom: 30
+        },
+        gShockTopBanner: {
+            width: width,
+            height: 100
         },
         gShockSmallCard: {
-            width: (width - 32 - 16) / 2, 
-            borderRadius: 12, 
-            padding: 8, 
+            width: (width - 32 - 16) / 2,
+            borderRadius: 12,
+            padding: 8,
             marginBottom: 16,
-            flexDirection: 'row', 
+            flexDirection: 'row',
             alignItems: 'center'
         },
-        gShockSmallImage: { 
-            width: 50, 
-            height: 50 
+        gShockSmallImage: {
+            width: 50,
+            height: 50
         },
-        
-        superSaleBannerImage: { 
-            width: width - 32, 
-            height: 120, 
-            marginHorizontal: 16, 
-            borderRadius: 16 
+
+        superSaleBannerImage: {
+            width: width - 32,
+            height: 120,
+            marginHorizontal: 16,
+            borderRadius: 16
         },
-        superSaleDotsContainer: { 
-            flexDirection: 'row', 
-            justifyContent: 'center', 
-            marginTop: 12 },
-        superSalePill: { 
-            width: 16, 
-            height: 4, 
-            borderRadius: 2, 
-            backgroundColor: '#A0A0A0', 
-            marginHorizontal: 3 
+        superSaleDotsContainer: {
+            flexDirection: 'row',
+            justifyContent: 'center',
+            marginTop: 12
+        },
+        superSalePill: {
+            width: 16,
+            height: 4,
+            borderRadius: 2,
+            backgroundColor: '#A0A0A0',
+            marginHorizontal: 3
 
         },
-        
-        flashSaleContainer: { 
-            backgroundColor: '#A4E8DF', 
-            paddingBottom: 40, 
-            marginTop: 20 },
-        hugeFlashText: { 
-            color: colour.white, 
-            fontSize: 64, 
-            fontFamily: Fonts.bold, 
-            position: 'absolute', 
-            bottom: 20, 
-            left: -10, 
-            opacity: 0.8 },
-        podiumImageBackground: { 
-            width: width, 
-            height: 260, 
-            resizeMode: 'cover', 
-            opacity: 0.6 
+
+        flashSaleContainer: {
+            backgroundColor: '#A4E8DF',
+            paddingBottom: 40,
+            marginTop: 20
+        },
+        hugeFlashText: {
+            color: colour.white,
+            fontSize: 64,
+            fontFamily: Fonts.bold,
+            position: 'absolute',
+            bottom: 20,
+            left: -10,
+            opacity: 0.8
+        },
+        podiumImageBackground: {
+            width: width,
+            height: 260,
+            resizeMode: 'cover',
+            opacity: 0.6
 
         },
-        flashSaleItemCard: { 
-            alignItems: 'center', 
-            marginRight: 16, 
-            width: 110 },
-        flashSaleImage: { 
-            width: 100, 
-            height: 100, 
-            borderRadius: 50, 
-            backgroundColor: colour.white, 
-            marginBottom: 20 
+        flashSaleItemCard: {
+            alignItems: 'center',
+            marginRight: 16,
+            width: 110
+        },
+        flashSaleImage: {
+            width: 100,
+            height: 100,
+            borderRadius: 50,
+            backgroundColor: colour.white,
+            marginBottom: 20
 
         },
-        flashBadgeDark: { 
-            backgroundColor: '#2A2A2A', 
-            borderRadius: 12, 
-            paddingVertical: 4, 
-            paddingHorizontal: 12, 
-            position: 'absolute', bottom: 25 },
-        flashBadgeTextDark: { 
-            color: colour.white, 
-            fontSize: 10, 
+        flashBadgeDark: {
+            backgroundColor: '#2A2A2A',
+            borderRadius: 12,
+            paddingVertical: 4,
+            paddingHorizontal: 12,
+            position: 'absolute', bottom: 25
+        },
+        flashBadgeTextDark: {
+            color: colour.white,
+            fontSize: 10,
             fontFamily: Fonts.bold
 
         },
-        flashSalePrice: { 
-            color: colour.white, 
-            fontSize: 16, 
+        flashSalePrice: {
+            color: colour.white,
+            fontSize: 16,
             fontFamily: Fonts.bold
 
         },

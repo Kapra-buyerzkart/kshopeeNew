@@ -21,13 +21,16 @@ const lightColors = {
     themeLightGray: '#DADADA',
     themeDarkGray: '#727783',
     themeTeal: '#00A7B3',
+    themeTealTwo: '#00A0B5',
+    tealIconFont: '#00A7B3',
     themeBlack: '#000000',
     themeDarkTeal: '#006168',
     figmaTeal: '#00B4D8',
-    outlineTeal:'#78BFB9',
+    outlineTeal: '#78BFB9',
     starYellow: '#FFD700',
     darkCardBackground: '#1F1F1F',
     homeScreenBackground: '#F2FBFB',
+    darkFontOne: '#393939',
 };
 
 const darkColors = {

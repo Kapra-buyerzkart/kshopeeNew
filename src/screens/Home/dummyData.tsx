@@ -21,7 +21,8 @@ export const exploreItems = [
     image: require('../../assets/images/home/explore.png'), 
     originalPrice: 'MRP ₹394.00', 
     currentPrice: '₹324.00',
-    discountBadge: '-17%'
+    discountBadge: '-17%',
+    rating: 1
   },
   { 
     id: '2', 
@@ -29,7 +30,8 @@ export const exploreItems = [
     image: require('../../assets/images/home/explore.png'), 
     originalPrice: 'MRP ₹394.00', 
     currentPrice: '₹324.00',
-    discountBadge: '-17%'
+    discountBadge: '-17%',
+    rating: 1
   },
   { 
     id: '3', 
@@ -37,7 +39,8 @@ export const exploreItems = [
     image: require('../../assets/images/home/explore.png'), 
     originalPrice: 'MRP ₹394.00', 
     currentPrice: '₹324.00',
-    discountBadge: '-17%'
+    discountBadge: '-17%',
+    rating: 1
   },
 ];
 

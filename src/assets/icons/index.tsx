@@ -8,6 +8,8 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import MaterialDesignIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
+import Fontisto from 'react-native-vector-icons/Fontisto';
+import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import { ViewStyle, StyleProp } from 'react-native';
 import { colors } from '../theme/colours';
 
@@ -173,6 +175,24 @@ const Microphone = ({ size = defaultSize, color = colors.primary, style }: IconP
     <FontAwesome name="microphone" size={size} color={color} style={style} />
 );
 
+const BookmarkOutline = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <Fontisto name="bookmark" size={size} color={color} style={style} />
+);
+
+const BookmarkFilled = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <Fontisto name="bookmark-alt" size={size} color={color} style={style} />
+);
+
+const TrippleRight = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <MaterialDesignIcons name="chevron-triple-right" size={size} color={color} style={style} />
+);
+
+
+const RightArrow = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <Entypo name="chevron-thin-right" size={size} color={color} style={style} />
+);
+
+
 
 
 // Exporting all as object for named JSX usage
@@ -215,5 +235,9 @@ export const AppIcons = {
     EyeClose,
     Bag,
     Bell,
-    Microphone
+    Microphone,
+    BookmarkFilled,
+    BookmarkOutline,
+    TrippleRight,
+    RightArrow
 };

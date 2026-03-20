@@ -8,6 +8,7 @@ import HomeSearchBar from '../../components/HomeSearchBar/HomeSearchBar';
 import ClickForMoreButton from '../../components/ClickForMoreButton/ClickForMoreButton';
 import { sliderImages, goatDeals, exploreItems, bestSellingItem, topBrands, gShockData, superSaleBanner, flashSaleItems } from './dummyData';
 import { AppIcons } from '../../assets/icons';
+import { Rating } from 'react-native-ratings';
 
 const { width } = Dimensions.get('window');
 
@@ -58,23 +59,31 @@ const HomeScreen: React.FC = () => {
     <TouchableOpacity style={styles.exploreItemCard}>
       <View style={styles.exploreTopBadgesRow}>
         <View style={styles.discountCircle}>
-          <Text style={styles.discountCircleText}>{item.discountBadge}</Text>
+          <Text style={[styles.discountCircleText]}>{item.discountBadge}</Text>
         </View>
-        <Text style={{ color: colors.figmaTeal, fontFamily: 'Gilroy-Bold', fontSize: 20 }}>W</Text>
+        {/* <Text style={{ color: colors.figmaTeal, fontFamily: 'Gilroy-Bold', fontSize: 20 }}>W</Text> */}
+        <AppIcons.BookmarkOutline color={colors.tealIconFont} size={24} />
       </View>
 
       <Image source={item.image} style={styles.exploreItemImage} />
 
       <View style={{ padding: 10 }}>
-        <Text style={[styles.caption, { fontFamily: 'Gilroy-Medium', color: colors.black }]} numberOfLines={3}>{item.title}</Text>
+        <Text style={[styles.caption]} numberOfLines={3}>{item.title}</Text>
 
-        {/* Mock stars */}
-        <View style={{ flexDirection: 'row', marginVertical: 6 }}>
-          <Text style={{ color: colors.starYellow, fontSize: 12 }}>★</Text>
-          <Text style={{ color: colors.lightGrey, fontSize: 12 }}>★★★★</Text>
-        </View>
+        {/* react-native-ratings stars */}
+        <Rating
+          type='custom'
+          readonly
+          startingValue={item.rating || 1}
+          ratingCount={5}
+          imageSize={12}
+          ratingColor={colors.starYellow}
+          ratingBackgroundColor={colors.lightGrey}
+          tintColor={colors.white}
+          style={{ alignSelf: 'flex-start', marginVertical: 6 }}
+        />
 
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, gap: 2 }}>
           <View style={styles.pricePill}>
             <Text style={styles.pricePillText}>{item.currentPrice}</Text>
           </View>

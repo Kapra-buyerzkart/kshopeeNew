@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, ScrollView, Image, TouchableOpacity, FlatList, Dimensions, StyleSheet, ImageBackground } from 'react-native';
+import { View, Text, ScrollView, Image, TouchableOpacity, FlatList, Dimensions, StyleSheet, ImageBackground, Animated, PanResponder } from 'react-native';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { useCommonStyles } from '../../assets/styles';
 import { colors } from '../../assets/theme/colours';
 import { RootStackParamList } from '../../types/types';
 import HomeSearchBar from '../../components/HomeSearchBar/HomeSearchBar';
 import ClickForMoreButton from '../../components/ClickForMoreButton/ClickForMoreButton';
-import { sliderImages, goatDeals, exploreItems, bestSellingItem, topBrands, gShockData, superSaleBanner, flashSaleItems } from './dummyData';
+import { sliderImages, goatDeals, exploreItems, bestSellingItems, topBrands, gShockData, superSaleBanners, flashSaleItems } from './dummyData';
 import { AppIcons } from '../../assets/icons';
 import { Rating } from 'react-native-ratings';
+import LinearGradient from 'react-native-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
@@ -18,6 +19,82 @@ const HomeScreen: React.FC = () => {
 
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const slideRef = useRef<FlatList>(null);
+  const [superSaleIndex, setSuperSaleIndex] = useState(0);
+  const superSaleRef = useRef<FlatList>(null);
+
+  // Best Selling Carousel
+  const [bestSellingIndex, setBestSellingIndex] = useState(0);
+  const bestSellingIndexRef = useRef(0); // avoid stale closure in PanResponder
+  const swipeAnim = useRef(new Animated.Value(0)).current;        // tracks drag delta
+  const centerScale = useRef(new Animated.Value(1)).current;      // center item scale
+  const centerTranslateX = useRef(new Animated.Value(0)).current; // center item slide
+
+  // direction: 1 = going forward (next), -1 = going backward (prev)
+  const goToIndex = (nextIdx: number, direction: 1 | -1 = 1) => {
+    const slideOut = direction * -width * 0.7;  // exit direction  (next→leave left, prev→leave right)
+    const slideIn = direction * width * 0.7;  // entry start pos (next→enter from right, prev→enter from left)
+
+    // 1️⃣ Slide current item OUT (shrink + translate)
+    Animated.parallel([
+      Animated.timing(centerTranslateX, {
+        toValue: slideOut,
+        duration: 220,
+        useNativeDriver: true,
+      }),
+      Animated.timing(centerScale, {
+        toValue: 0.78,
+        duration: 220,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      // 2️⃣ Snap new item to entry side, invisible size, then flip state
+      centerTranslateX.setValue(slideIn);
+      centerScale.setValue(0.78);
+      bestSellingIndexRef.current = nextIdx;
+      setBestSellingIndex(nextIdx);
+
+      // 3️⃣ Spring new item INTO center
+      Animated.parallel([
+        Animated.spring(centerTranslateX, {
+          toValue: 0,
+          useNativeDriver: true,
+          friction: 7,
+          tension: 80,
+        }),
+        Animated.spring(centerScale, {
+          toValue: 1,
+          useNativeDriver: true,
+          friction: 7,
+          tension: 80,
+        }),
+      ]).start();
+    });
+  };
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => false,
+      onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 8 && Math.abs(g.dx) > Math.abs(g.dy),
+      onPanResponderMove: (_, g) => {
+        swipeAnim.setValue(g.dx);
+        const t = Math.abs(g.dx) / 120;
+        centerScale.setValue(Math.max(0.88, 1 - t * 0.12));
+      },
+      onPanResponderRelease: (_, g) => {
+        const cur = bestSellingIndexRef.current;
+        if (g.dx < -50 && cur < bestSellingItems.length - 1) {
+          goToIndex(cur + 1, 1);
+        } else if (g.dx > 50 && cur > 0) {
+          goToIndex(cur - 1, -1);
+        } else {
+          Animated.parallel([
+            Animated.spring(swipeAnim, { toValue: 0, useNativeDriver: true }),
+            Animated.spring(centerScale, { toValue: 1, useNativeDriver: true }),
+          ]).start();
+        }
+      },
+    })
+  ).current;
 
   useEffect(() => {
     const slideInterval = setInterval(() => {
@@ -94,20 +171,41 @@ const HomeScreen: React.FC = () => {
   );
 
   const renderBrandItem = ({ item }: { item: any }) => (
-    <TouchableOpacity style={styles.brandItemCard}>
-      <Text style={styles.brandLogoText}>{item.logoText}</Text>
-      <Image source={item.image} style={styles.brandItemImage} resizeMode="contain" />
+    <TouchableOpacity style={[styles.brandItemCard, { backgroundColor: 'transparent' }]}>
+      <LinearGradient
+        colors={[colors.outlineTeal, colors.white]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={localStyle.brandGradient}
+      >
+        {/* Decorative background watermark — top 70%, no children */}
+        <ImageBackground
+          source={require('../../assets/images/logo_02.png')}
+          style={styles.brandImageArea}
+          imageStyle={{ opacity: 0.25 }}
+        />
+
+        {/* Brand logo sits on top of the watermark */}
+        <Image source={item.logo} style={[styles.brandLogo, { zIndex: 2 }]} resizeMode="contain" />
+
+        {/* Product image: bottom 70% of the card */}
+        <Image
+          source={item.image}
+          style={localStyle.brandProductImage}
+          resizeMode="contain"
+        />
+      </LinearGradient>
     </TouchableOpacity>
   );
 
   const renderGShockCard = ({ item }: { item: any }) => {
     const isDark = item.theme === 'dark';
     return (
-      <TouchableOpacity style={[styles.gShockSmallCard, { backgroundColor: isDark ? colors.darkCardBackground : colors.white }]}>
+      <TouchableOpacity style={[styles.gShockSmallCard, { backgroundColor: isDark ? colors.darkCardBackground : colors.white, height: 90, borderRadius: 20 }]}>
         <Image source={item.image} style={styles.gShockSmallImage} resizeMode="contain" />
-        <View style={{ justifyContent: 'center', alignItems: 'flex-start', paddingLeft: 10 }}>
-          <Text style={{ fontFamily: 'Gilroy-Medium', color: isDark ? colors.white : colors.black, fontSize: 10 }}>Only @</Text>
-          <Text style={{ fontFamily: 'Gilroy-Bold', color: colors.figmaTeal, fontSize: 16 }}>{item.title}</Text>
+        <View style={{ justifyContent: 'center', alignItems: 'flex-end', paddingLeft: 10, alignContent: 'flex-end', paddingRight: 6 }}>
+          <Text style={[styles.onlyAt, { color: isDark ? colors.white : colors.black }]}>Only @</Text>
+          <Text style={[styles.priceOnly]}>{item.title}</Text>
         </View>
       </TouchableOpacity>
     );
@@ -116,10 +214,10 @@ const HomeScreen: React.FC = () => {
   const renderFlashSaleItem = ({ item }: { item: any }) => (
     <View style={styles.flashSaleItemCard}>
       <Image source={item.image} style={styles.flashSaleImage} />
-      <View style={styles.flashBadgeDark}>
+      {/* <View style={styles.flashBadgeDark}>
         <Text style={styles.flashBadgeTextDark}>Off 50%</Text>
       </View>
-      <Text style={styles.flashSalePrice}>{item.price}</Text>
+      <Text style={styles.flashSalePrice}>{item.price}</Text> */}
     </View>
   );
 
@@ -203,21 +301,65 @@ const HomeScreen: React.FC = () => {
         {/* BEST SELLING */}
         <View style={styles.sectionContainer}>
           <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>BEST SELLING</Text>
-          <View style={styles.bestSellingContainer}>
-            {/* Arrows */}
-            <View style={styles.carouselArrowLeft}><Text style={styles.chevronArrowText}>&lt;</Text></View>
-            <View style={styles.carouselArrowRight}><Text style={styles.chevronArrowText}>&gt;</Text></View>
 
-            <Image source={bestSellingItem.image} style={styles.bestSellingImage} resizeMode="contain" />
+          {/* Single card — prev/next images peek inside at 50% opacity */}
+          <View style={localStyle.bestSellingCard} {...panResponder.panHandlers}>
 
-            <View style={styles.bestSellingTextRow}>
-              <Text style={styles.bestSellingTitle}>{bestSellingItem.brand}</Text>
+            {/* Prev item — left side, 50% opacity */}
+            {bestSellingIndex > 0 && (
+              <Image
+                source={bestSellingItems[bestSellingIndex - 1].image}
+                style={[localStyle.sideImage, localStyle.sideImageLeft]}
+                resizeMode="contain"
+              />
+            )}
+
+            {/* Next item — right side, 50% opacity */}
+            {bestSellingIndex < bestSellingItems.length - 1 && (
+              <Image
+                source={bestSellingItems[bestSellingIndex + 1].image}
+                style={[localStyle.sideImage, localStyle.sideImageRight]}
+                resizeMode="contain"
+              />
+            )}
+
+            {/* Center (active) image with slide + scale animation */}
+            <Animated.Image
+              source={bestSellingItems[bestSellingIndex].image}
+              style={[localStyle.centerImage, { transform: [{ translateX: centerTranslateX }, { scale: centerScale }] }]}
+              resizeMode="contain"
+            />
+
+            {/* Left Arrow */}
+            {bestSellingIndex > 0 && (
+              <TouchableOpacity
+                style={[styles.carouselArrowLeft, localStyle.arrowOverlay]}
+                onPress={() => goToIndex(bestSellingIndex - 1, -1)}
+              >
+                <AppIcons.RightArrow color={colors.outlineTeal} size={20} style={{ transform: [{ scaleX: -1 }] }} />
+              </TouchableOpacity>
+            )}
+
+            {/* Right Arrow */}
+            {bestSellingIndex < bestSellingItems.length - 1 && (
+              <TouchableOpacity
+                style={[styles.carouselArrowRight, localStyle.arrowOverlay]}
+                onPress={() => goToIndex(bestSellingIndex + 1, 1)}
+              >
+                <AppIcons.RightArrow color={colors.outlineTeal} size={20} />
+              </TouchableOpacity>
+            )}
+
+            {/* Text row at the bottom */}
+            <View style={[styles.bestSellingTextRow, { zIndex: 3, bottom: 20 }]}>
+              <Text style={styles.bestSellingTitle}>{bestSellingItems[bestSellingIndex].brand}</Text>
               <View style={{ alignItems: 'flex-end' }}>
-                <Text style={styles.bestSellingOriginalPrice}>{bestSellingItem.originalPrice}</Text>
-                <Text style={styles.bestSellingCurrentPrice}>{bestSellingItem.price}</Text>
+                <Text style={styles.bestSellingOriginalPrice}>{bestSellingItems[bestSellingIndex].originalPrice}</Text>
+                <Text style={styles.bestSellingCurrentPrice}>{bestSellingItems[bestSellingIndex].price}</Text>
               </View>
             </View>
           </View>
+
           <View style={{ marginTop: 16 }}>
             <ClickForMoreButton onPress={() => { }} title="Click for more offers" />
           </View>
@@ -239,7 +381,7 @@ const HomeScreen: React.FC = () => {
         {/* G-SHOCK Black Section */}
         <View style={styles.gShockSectionWrapper}>
           <Image source={gShockData.mainImage} style={styles.gShockTopBanner} resizeMode="cover" />
-          <View style={{ paddingHorizontal: 16, marginTop: 10 }}>
+          <View style={{ paddingHorizontal: 16, marginTop: -10 }}>
             <FlatList
               data={gShockData.items}
               renderItem={renderGShockCard}
@@ -252,32 +394,62 @@ const HomeScreen: React.FC = () => {
         </View>
 
         {/* 11.11 SUPER SALE Banner */}
-        <View style={{ marginVertical: 20 }}>
-          <Image source={superSaleBanner} style={styles.superSaleBannerImage} resizeMode="cover" />
-          {/* Pills */}
+        <View style={{ marginVertical: 20, alignItems: 'center' }}>
+          <FlatList
+            ref={superSaleRef}
+            data={superSaleBanners}
+            keyExtractor={(item) => item.id}
+            horizontal
+            snapToInterval={width - 12}
+            decelerationRate="fast"
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 6 }}
+            onMomentumScrollEnd={(e) => {
+              const idx = Math.round(e.nativeEvent.contentOffset.x / (width - 12));
+              setSuperSaleIndex(Math.max(0, Math.min(idx, superSaleBanners.length - 1)));
+            }}
+            renderItem={({ item }) => (
+              <Image source={item.image} style={styles.superSaleBannerImage} resizeMode="cover" />
+            )}
+          />
+          {/* Dots */}
           <View style={styles.superSaleDotsContainer}>
-            <View style={[styles.superSalePill, { backgroundColor: colors.figmaTeal }]} />
-            <View style={styles.superSalePill} />
-            <View style={styles.superSalePill} />
-            <View style={styles.superSalePill} />
-            <View style={styles.superSalePill} />
+            {superSaleBanners.map((_, index) => (
+              <View key={index} style={[styles.superSalePill, superSaleIndex === index && { backgroundColor: colors.outlineTeal }]} />
+            ))}
           </View>
         </View>
 
         {/* FLASH SALE */}
         <View style={styles.flashSaleContainer}>
-          <Text style={styles.hugeFlashText}>FLASH</Text>
-          <Image source={require('../../assets/images/home/flash_sale.png')} style={styles.podiumImageBackground} />
+          {/* <Text style={styles.hugeFlashText}>FLASH</Text> */}
+          <Image source={require('../../assets/images/home/flashSale.png')} style={styles.podiumImageBackground} />
 
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, marginTop: -90 }}>
+          {/* <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, marginTop: -90 }}>
             {flashSaleItems.map((item, index) => (
               <React.Fragment key={item.id}>
                 {renderFlashSaleItem({ item })}
               </React.Fragment>
             ))}
-          </ScrollView>
+          </ScrollView> */}
+          <ClickForMoreButton onPress={() => { }} title="View all Flash Deals" />
         </View>
 
+        {/* EXPLORE */}
+        <View style={styles.sectionContainer}>
+          <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>EXPLORE</Text>
+          <FlatList
+            data={exploreItems}
+            renderItem={renderExploreItem}
+            keyExtractor={(item) => item.id}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.horizontalScrollPadding}
+          />
+          <View style={{ marginTop: 16 }}>
+            <ClickForMoreButton onPress={() => { }} title="Click for more" />
+          </View>
+        </View>
       </ScrollView>
     </View>
   );
@@ -289,5 +461,115 @@ const localStyle = StyleSheet.create({
   sectionTitleAlignment: {
     textAlign: 'center',
     marginBottom: 20,
-  }
+  },
+  bestSellingCard: {
+    marginHorizontal: 16,
+    backgroundColor: '#8ED2C9',
+    borderRadius: 24,
+    height: 390,
+    justifyContent: 'flex-end',
+    padding: 16,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  // Center (active) image — large, in the middle
+  centerImage: {
+    position: 'absolute',
+    alignSelf: 'center',
+    width: '65%',
+    height: '75%',
+    top: 20,
+    zIndex: 2,
+  },
+  // Adjacent item images peeking from left/right at 50% opacity
+  sideImage: {
+    position: 'absolute',
+    width: '42%',
+    height: '62%',
+    top: 46,
+    opacity: 0.5,
+    zIndex: 1,
+  },
+  sideImageLeft: {
+    left: -30,
+  },
+  sideImageRight: {
+    right: -30,
+  },
+  arrowOverlay: {
+    position: 'absolute',
+    top: '42%',
+    zIndex: 4,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+  },
+  brandGradient: {
+    flex: 1,
+    width: '100%',
+    alignItems: 'center',
+    paddingTop: 14,
+    overflow: 'hidden',
+    position: 'relative',
+    borderRadius: 20
+  },
+  // Watermark background: pinned to top, 70% height, full width
+  brandImageArea: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    width: '100%',
+    height: '70%',
+  },
+  // Product image: pinned to bottom, 70% height
+  brandProductImage: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    width: '100%',
+    height: '80%',
+    zIndex: 1,
+  },
+  brandGradientLogo: {
+    marginBottom: 6,
+  },
+  superSaleCard: {
+    width: width - 20,
+    height: 200,
+    marginHorizontal: 10,
+    borderRadius: 20,
+    padding: 20,
+    justifyContent: 'flex-end',
+  },
+  superSaleBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    marginBottom: 10,
+  },
+  superSaleBadgeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontFamily: 'Gilroy-Bold',
+    fontWeight: '700',
+  },
+  superSaleTitle: {
+    color: '#fff',
+    fontSize: 28,
+    fontFamily: 'Gilroy-ExtraBold',
+    fontWeight: '800',
+    letterSpacing: 1,
+  },
+  superSaleSubtitle: {
+    color: 'rgba(255,255,255,0.85)',
+    fontSize: 13,
+    fontFamily: 'Gilroy-Medium',
+    marginTop: 4,
+  },
 })

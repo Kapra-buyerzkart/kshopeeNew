@@ -34,7 +34,6 @@ const lightColors = {
     themeBg: '#a1d3ce',
     wishlistbg: '#f5fffeff',
     logoutred: '#Ff4242',
-    darkFontOne: '#393939',
 };
 
 const darkColors = {
@@ -64,6 +63,7 @@ const darkColors = {
     starYellow: '#FFD700',
     darkCardBackground: '#1F1F1F',
     homeScreenBackground: '#F2FBFB',
+    darkFontOne: '#656565',
 };
 
 export const fontColors = {

@@ -409,9 +409,9 @@ export const useCommonStyles = () => {
             //height:250,
             marginRight: 16,
             backgroundColor: colour.white,
-            borderRadius: 16,
+            borderRadius: 14,
             borderWidth: 1,
-            borderColor: '#E8F8FA',
+            borderColor: colors.outlineTeal,
             paddingTop: 10,
         },
         exploreTopBadgesRow: {
@@ -488,9 +488,9 @@ export const useCommonStyles = () => {
             position: 'absolute',
             left: 16,
             top: 120,
-            width: 36,
-            height: 36,
-            borderRadius: 18,
+            width: 46,
+            height: 46,
+            borderRadius: 23,
             backgroundColor: colour.white,
             justifyContent: 'center',
             alignItems: 'center',
@@ -500,9 +500,9 @@ export const useCommonStyles = () => {
             position: 'absolute',
             right: 16,
             top: 120,
-            width: 36,
-            height: 36,
-            borderRadius: 18,
+            width: 46,
+            height: 46,
+            borderRadius: 23,
             backgroundColor: colour.white,
             justifyContent: 'center',
             alignItems: 'center',
@@ -528,32 +528,53 @@ export const useCommonStyles = () => {
             zIndex: 2
         },
         bestSellingTitle: {
-            fontSize: 24,
+            fontSize: 26,
             fontFamily: Fonts.bold,
-            color: '#1D1D1D'
+            color: colors.darkFontOne,
+            fontWeight: '600'
         },
         bestSellingOriginalPrice: {
             fontSize: 12,
-            color: '#555555',
+            color: colors.darkFontOne,
             textDecorationLine: 'line-through',
             textAlign: 'right',
-            fontFamily: Fonts.medium
+            fontFamily: Fonts.medium,
+            fontWeight: '500'
         },
         bestSellingCurrentPrice: {
-            fontSize: 24,
-            fontFamily: Fonts.bold,
-            color: '#1D1D1D'
+            fontSize: 30,
+            fontFamily: Fonts.semiBold,
+            color: colors.darkFontOne,
+            fontWeight: '600'
         },
-
+        topBrandBg: {
+            position: 'absolute',
+            left: '1%',
+            right: 6,
+            top: 0,
+            bottom: 0,
+            borderTopRightRadius: 14,
+            borderBottomRightRadius: 14,
+            //overflow: 'hidden',
+        },
         brandItemCard: {
-            width: ((width - 32) / 3) - 10,
-            height: 160,
+            width: ((width - 32) / 3) - 6,
+            height: 225,
             borderRadius: 16,
-            backgroundColor: '#E8F8FA',
+            backgroundColor: colors.outlineTeal,
             overflow: 'hidden',
             marginHorizontal: 4,
             alignItems: 'center',
             paddingTop: 10
+        },
+        brandImageArea: {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            //width: '100%',
+            width: ((width - 32) / 3) - 6,
+            height: '80%',
         },
         brandLogoText: {
             fontSize: 20,
@@ -567,6 +588,10 @@ export const useCommonStyles = () => {
             width: '100%',
             height: 110
         },
+        brandLogo: {
+            width: 25,
+            height: 19
+        },
 
         gShockSectionWrapper: {
             backgroundColor: colour.black,
@@ -575,26 +600,43 @@ export const useCommonStyles = () => {
         },
         gShockTopBanner: {
             width: width,
-            height: 100
+            height: 400
         },
         gShockSmallCard: {
             width: (width - 32 - 16) / 2,
             borderRadius: 12,
-            padding: 8,
+            //padding: 8,
             marginBottom: 16,
             flexDirection: 'row',
-            alignItems: 'center'
+            alignItems: 'center',
+            justifyContent: 'space-between'
         },
         gShockSmallImage: {
-            width: 50,
-            height: 50
+            width: 100,
+            height: 90,
+            start: -5
         },
+        onlyAt:
+        {
+            fontFamily: Fonts.medium,
+            fontSize: 16,
+            color: colors.black,
+            fontWeight: '400'
+        },
+        priceOnly: {
+            fontFamily: Fonts.regular,
+            color: colors.outlineTeal,
+            fontSize: 21,
+            fontWeight: '600'
+        },
+
 
         superSaleBannerImage: {
             width: width - 32,
-            height: 120,
-            marginHorizontal: 16,
-            borderRadius: 16
+            height: 200,
+            marginHorizontal: 10,
+            borderRadius: 20,
+            alignSelf: 'center'
         },
         superSaleDotsContainer: {
             flexDirection: 'row',
@@ -602,12 +644,11 @@ export const useCommonStyles = () => {
             marginTop: 12
         },
         superSalePill: {
-            width: 16,
-            height: 4,
-            borderRadius: 2,
-            backgroundColor: '#A0A0A0',
-            marginHorizontal: 3
-
+            width: 32,
+            height: 8,
+            borderRadius: 3,
+            backgroundColor: colors.grey,
+            marginHorizontal: 5
         },
 
         flashSaleContainer: {
@@ -626,7 +667,7 @@ export const useCommonStyles = () => {
         },
         podiumImageBackground: {
             width: width,
-            height: 260,
+            height: 868,
             resizeMode: 'cover',
             opacity: 0.6
 

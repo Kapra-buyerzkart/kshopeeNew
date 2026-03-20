@@ -165,6 +165,10 @@ const EyeClose = ({ size = defaultSize, color = colors.primary, style }: IconPro
     <Ionicons name="eye-off" size={size} color={color} style={style} />
 );
 
+
+
+
+
 const HeartOutline = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
     <Ionicons name="heart-outline" size={size} color={color} style={style} />
 );

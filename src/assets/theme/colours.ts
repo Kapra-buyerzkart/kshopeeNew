@@ -34,6 +34,7 @@ const lightColors = {
     themeBg: '#a1d3ce',
     wishlistbg: '#f5fffeff',
     logoutred: '#Ff4242',
+    darkFontOne: '#393939',
 };
 
 const darkColors = {

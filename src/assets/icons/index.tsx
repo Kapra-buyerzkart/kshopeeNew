@@ -215,6 +215,12 @@ const Cart = ({ size = defaultSize, color = colors.primary, style }: IconProps) 
     <MaterialIcons name="shopping-cart" size={size} color={color} style={style} />
 );
 
+const FilterIcon = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <Ionicons name="options-outline" size={size} color={color} style={style} />
+);
+
+
+
 // Exporting all as object for named JSX usage
 export const AppIcons = {
     Home,
@@ -264,5 +270,6 @@ export const AppIcons = {
     BookmarkFilled,
     BookmarkOutline,
     TrippleRight,
-    RightArrow
+    RightArrow,
+    FilterIcon
 };

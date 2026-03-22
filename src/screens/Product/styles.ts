@@ -1,0 +1,614 @@
+import { StyleSheet, Dimensions } from 'react-native';
+import { colors } from '../../assets/theme/colours';
+import { Fonts } from '../../assets/theme/fonts';
+
+const { width } = Dimensions.get('window');
+
+export const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: colors.themeWhite,
+    },
+    // Header
+    headerContainer: {
+        //position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 10,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingTop: 50, // Assuming safe area or notch spacing
+        paddingBottom: 2,
+    },
+    headerIconBg: {
+        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    headerRightIcons: {
+        flexDirection: 'row',
+        gap: 12,
+    },
+    // Image Carousel Area
+    imageContainer: {
+        //width: width,
+        height: width * 1.05, // Aspect ratio
+        backgroundColor: colors.white,
+        justifyContent: 'center',
+        alignItems: 'center',
+        margin: 12,
+        borderRadius: 20
+    },
+
+    productImage: {
+        width: '100%',
+        height: '100%',
+        resizeMode: 'cover',
+    },
+    paginationContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'absolute',
+        bottom: 16,
+        left: 0,
+        right: 0,
+    },
+    paginationDotActive: {
+        width: 24,
+        height: 4,
+        backgroundColor: colors.themeTeal,
+        borderRadius: 2,
+        marginHorizontal: 3,
+    },
+    paginationDotInactive: {
+        width: 4,
+        height: 4,
+        backgroundColor: '#C4C4C4',
+        borderRadius: 2,
+        marginHorizontal: 3,
+    },
+    // Main Content
+    contentScroll: {
+        flex: 1,
+        paddingBottom: 100, // Make room for sticky footer
+    },
+    contentPadding: {
+        padding: 16,
+    },
+    title: {
+        fontFamily: Fonts.gilroyBold,
+        fontSize: 20,
+        color: colors.themeBlack,
+        marginBottom: 8,
+        fontWeight: '600'
+    },
+    description: {
+        fontFamily: Fonts.regular,
+        fontSize: 16,
+        color: colors.black,
+        lineHeight: 25,
+        fontWeight: '300'
+    },
+    // Select Variants
+    sectionTitle: {
+        fontFamily: Fonts.gilroySemiBold,
+        fontSize: 18,
+        color: colors.themeBlack,
+        marginTop: 20,
+        marginBottom: 10,
+        fontWeight: '400'
+    },
+    colorRow: {
+        flexDirection: 'row',
+        gap: 12,
+    },
+    colorThumbnail: {
+        width: 100,
+        height: 70,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: colors.themeLightGray,
+        overflow: 'hidden',
+    },
+    colorThumbnailActive: {
+        borderColor: colors.themeTeal,
+        borderWidth: 2,
+    },
+    colorImage: {
+        width: '100%',
+        height: '100%',
+        resizeMode: 'cover',
+    },
+    sizeRow: {
+        flexDirection: 'row',
+        gap: 12,
+    },
+    sizeCircle: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: colors.themeLightGray,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: colors.themeWhite,
+    },
+    sizeCircleActive: {
+        borderColor: colors.themeTeal,
+        borderWidth: 2,
+    },
+    sizeText: {
+        fontFamily: Fonts.gilroyMedium,
+        fontSize: 16,
+        color: colors.themeDarkGray,
+        fontWeight: '300'
+    },
+    sizeTextActive: {
+        color: colors.themeTeal,
+        fontFamily: Fonts.gilroyBold,
+    },
+    // Accordion Sections
+    accordionHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 24,
+        marginBottom: 8,
+    },
+    accordionTitle: {
+        fontFamily: Fonts.gilroySemiBold,
+        fontSize: 16,
+        color: colors.themeBlack,
+    },
+    detailsRow: {
+        flexDirection: 'row',
+        marginTop: 8,
+        alignItems: 'flex-start',
+    },
+    detailsLabel: {
+        fontFamily: Fonts.gilroyMedium,
+        fontSize: 16,
+        color: colors.grey,
+        fontWeight: '300',
+        width: 100,
+    },
+    detailsValue: {
+        fontFamily: Fonts.gilroyRegular,
+        fontSize: 14,
+        color: colors.themeDarkGray,
+        flex: 1,
+        lineHeight: 25,
+        fontWeight: '300',
+    },
+    detailsValueLink: {
+        fontFamily: Fonts.gilroyMedium,
+        fontSize: 13,
+        color: colors.themeTeal,
+    },
+    viewMoreOverlay: {
+        height: 110,
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        marginTop: -40,
+        paddingBottom: 15,
+        borderBottomLeftRadius: 20,
+        borderBottomRightRadius: 20,
+    },
+    viewMoreButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        gap: 8
+    },
+    viewMoreText: {
+        fontFamily: Fonts.regular,
+        fontSize: 16,
+        color: colors.black,
+        fontWeight: '300',
+    },
+    // Delivery Section
+    deliveryFeaturesRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: colors.white,
+        borderRadius: 20,
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
+        borderWidth: 0.6,
+        borderColor: colors.themeLightGray,
+        marginHorizontal: 16,
+        marginTop: 20,
+        marginBottom: 8,
+        paddingVertical: 16,
+        paddingHorizontal: 8,
+    },
+    deliveryFeatureItem: {
+        alignItems: 'center',
+        flex: 1,
+    },
+    deliveryFeatureIcon: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    deliveryFeatureText: {
+        fontFamily: Fonts.regular,
+        fontSize: 12,
+        color: colors.black,
+        textAlign: 'center',
+        lineHeight: 16,
+        fontWeight: '300',
+    },
+    locationCard: {
+        backgroundColor: colors.white,
+        borderRadius: 20,
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
+        padding: 16,
+        marginHorizontal: 16,
+        marginTop: 16,
+        marginBottom: 8,
+        borderWidth: 0.6,
+        borderColor: colors.themeLightGray,
+    },
+    locationHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    locationLeftRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    locationTitleText: {
+        fontFamily: Fonts.gilroySemiBold,
+        fontSize: 14,
+        color: colors.themeBlack,
+        fontWeight: '300'
+    },
+    locationChangeText: {
+        fontFamily: Fonts.gilroyMedium,
+        fontSize: 12,
+        color: colors.themeTeal,
+        fontWeight: '300',
+        textDecorationLine: 'underline',
+    },
+    addressText: {
+        fontFamily: Fonts.gilroyRegular,
+        fontSize: 14,
+        color: colors.black,
+        lineHeight: 20,
+        fontWeight: '300',
+        letterSpacing: 0.6
+    },
+    deliveryDateRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: colors.white,
+        borderRadius: 20,
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
+        padding: 16,
+        marginHorizontal: 16,
+        marginTop: 16,
+        marginBottom: 16,
+        gap: 8,
+        borderWidth: 0.6,
+        borderColor: colors.themeLightGray,
+    },
+    calendarIconBg: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: '#E6FBFC',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 8,
+    },
+    deliveryDatePrefix: {
+        fontFamily: Fonts.gilroyMedium,
+        fontSize: 13,
+        color: colors.black,
+        fontWeight: '300'
+    },
+    deliveryDateValue: {
+        fontFamily: Fonts.gilroyBold,
+        fontSize: 13,
+        color: colors.black,
+        fontWeight: '400'
+    },
+    // Ratings Section
+    ratingOverviewRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginHorizontal: 16,
+        marginBottom: 16,
+        gap: 12,
+    },
+    bigRatingBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: colors.tealIconFont,
+        borderRadius: 25,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        height: 46,
+        width: 90,
+        gap: 4,
+    },
+    bigRatingText: {
+        fontFamily: Fonts.gilroyBold,
+        fontSize: 26,
+        color: colors.themeBlack,
+        fontWeight: '400'
+    },
+    ratingOverviewStats: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    ratingStatsText: {
+        fontFamily: Fonts.regular,
+        fontSize: 16,
+        color: colors.black,
+        fontWeight: '300',
+    },
+    ratingStatsDivider: {
+        width: 1,
+        height: 16,
+        backgroundColor: colors.black,
+    },
+    reviewFiltersScroll: {
+        paddingHorizontal: 16,
+        marginBottom: 16,
+    },
+    reviewFilterPill: {
+        paddingHorizontal: 16,
+        paddingVertical: 6,
+        borderRadius: 10,
+        backgroundColor: colors.themeWhite,
+        borderWidth: 1,
+        borderColor: colors.themeLightGray,
+        marginRight: 12,
+    },
+    reviewFilterPillActiveGradient: {
+        //paddingHorizontal: 16,
+        //paddingVertical: 8,
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignContent: 'center',
+        marginRight: 12,
+        borderWidth: 1,
+        borderColor: 'transparent',
+        // width: 100,
+        // height: 50
+    },
+    reviewFilterText: {
+        fontFamily: Fonts.regular,
+        fontSize: 14,
+        color: colors.black,
+        fontWeight: '300',
+    },
+    reviewFilterTextActive: {
+        fontFamily: Fonts.regular,
+        fontSize: 14,
+        color: colors.themeWhite,
+        fontWeight: '500',
+        marginHorizontal: 20,
+
+    },
+    reviewItem: {
+        paddingHorizontal: 16,
+        marginBottom: 16,
+    },
+    reviewerHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 4,
+        gap: 8,
+    },
+    reviewerName: {
+        fontFamily: Fonts.regular,
+        fontSize: 18,
+        color: colors.black,
+        fontWeight: '300'
+    },
+    reviewText: {
+        fontFamily: Fonts.gilroyRegular,
+        fontSize: 14,
+        color: colors.themeDarkGray,
+        lineHeight: 18,
+        fontWeight: '300',
+        marginTop: 4,
+    },
+    reviewTime: {
+        fontFamily: Fonts.semiBold,
+        fontSize: 15,
+        color: colors.grey,
+        marginTop: 6,
+        fontWeight: '500'
+    },
+    viewAllReviewsButton: {
+        borderWidth: 1,
+        borderColor: colors.themeLightGray,
+        borderRadius: 20,
+        paddingVertical: 10,
+        marginHorizontal: 16,
+        alignItems: 'center',
+        marginBottom: 24,
+    },
+    viewAllReviewsText: {
+        fontFamily: Fonts.regular,
+        fontSize: 16,
+        color: colors.themeTeal,
+        fontWeight: '400',
+    },
+    // Similar Products
+    similarProductsContainer: {
+        paddingHorizontal: 16,
+        paddingBottom: 24,
+        marginBottom: 60
+    },
+    similarProductsScroll: {
+        marginTop: 12,
+    },
+    // We override category card styles a bit for horizontal scrolling
+    similarProductCard: {
+        width: 160,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 12,
+        padding: 8,
+        marginRight: 12,
+        borderWidth: 1,
+        borderColor: '#F0F0F0',
+    },
+    similarProductImage: {
+        width: '100%',
+        height: 120,
+        resizeMode: 'contain',
+        backgroundColor: '#F9F9F9',
+        borderRadius: 8,
+        marginBottom: 8,
+    },
+    similarDiscountBadge: {
+        position: 'absolute',
+        top: 8,
+        left: 8,
+        backgroundColor: colors.themeTeal,
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 4,
+        zIndex: 5,
+    },
+    similarDiscountText: {
+        color: colors.themeWhite,
+        fontFamily: Fonts.gilroyBold,
+        fontSize: 10,
+    },
+    similarBookmarkBtn: {
+        position: 'absolute',
+        top: 8,
+        right: 8,
+        zIndex: 5,
+        backgroundColor: 'rgba(255,255,255,0.7)',
+        borderRadius: 12,
+        padding: 4,
+    },
+    similarTitle: {
+        fontFamily: Fonts.gilroyMedium,
+        fontSize: 12,
+        color: colors.themeBlack,
+    },
+    similarPriceRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 4,
+        gap: 6,
+    },
+    similarPrice: {
+        fontFamily: Fonts.gilroyBold,
+        fontSize: 14,
+        color: colors.themeTeal,
+    },
+    similarOldPrice: {
+        fontFamily: Fonts.gilroyMedium,
+        fontSize: 10,
+        color: '#A0A0A0',
+        textDecorationLine: 'line-through',
+    },
+    clickForMoreBtn: {
+        alignSelf: 'center',
+        borderWidth: 1,
+        borderColor: '#F0F0F0',
+        borderRadius: 20,
+        paddingVertical: 8,
+        paddingHorizontal: 24,
+        marginTop: 16,
+    },
+    clickForMoreText: {
+        fontFamily: Fonts.gilroySemiBold,
+        fontSize: 13,
+        color: colors.themeDarkGray,
+    },
+    // Sticky Footer
+    stickyFooter: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: colors.themeWhite,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderTopWidth: 1,
+        borderTopColor: '#F0F0F0',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingBottom: 24, // Safe area for bottom
+    },
+    footerPriceCol: {
+        flex: 1,
+    },
+    footerPriceText: {
+        fontFamily: Fonts.bold,
+        fontSize: 18,
+        color: colors.black,
+        fontWeight: '600'
+    },
+    footerOldPriceText: {
+        fontFamily: Fonts.regular,
+        fontSize: 16,
+        color: colors.grey,
+        textDecorationLine: 'line-through',
+        fontWeight: '300'
+    },
+    footerActionsRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+    },
+    footerBagIcon: {
+        width: 40,
+        height: 40,
+        borderRadius: 22,
+        borderWidth: 1,
+        borderColor: colors.themeTeal,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    footerBuyBtn: {
+        backgroundColor: colors.themeTeal,
+        paddingHorizontal: 24,
+        height: 44,
+        borderRadius: 22,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    footerBuyBtnText: {
+        fontFamily: Fonts.gilroyBold,
+        fontSize: 14,
+        color: colors.themeWhite,
+    },
+});

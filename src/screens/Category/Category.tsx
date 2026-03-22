@@ -24,7 +24,7 @@ const CategoryScreen = () => {
     };
 
     const renderProduct = ({ item }: { item: any }) => (
-        <TouchableOpacity style={styles.exploreItemCard}>
+        <TouchableOpacity style={styles.exploreItemCard} onPress={() => { navigation.navigate('ProductDetails', { item }) }}>
             <View style={styles.exploreTopBadgesRow}>
                 <View style={styles.discountCircle}>
                     <Text style={[styles.discountCircleText]}>{item.discount}</Text>

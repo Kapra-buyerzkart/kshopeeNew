@@ -12,6 +12,7 @@ import OtpScreen from '../screens/Otp/OtpScreen';
 import MainTabs from '../screens/MainTabs';
 import RegistrationScreen from '../screens/Registration';
 import WishlistScreen from '../screens/Wishlist';
+import ProductDetails from '../screens/Product/ProductDetails';
 // import ChangePwdScreen from '../screens/ChangePwdScreen';
 // import LoginPwdScreen from '../screens/LoginPwdScreen';
 import { CartProvider } from '../context/CartContext';
@@ -28,6 +29,7 @@ export default function RootStack() {
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen name="OtpScreen" component={OtpScreen} options={{ headerShown: false }} />
         <Stack.Screen name="RegistraionScreen" component={RegistrationScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="ProductDetails" component={ProductDetails} options={{ headerShown: false }} />
         {/* <Stack.Screen name="ChangePwdScreen" component={ChangePwdScreen} options={{ headerShown: false }} /> */}
         {/* <Stack.Screen name="LoginPwdScreen" component={LoginPwdScreen} options={{ headerShown: false }} /> */}
         <Stack.Screen

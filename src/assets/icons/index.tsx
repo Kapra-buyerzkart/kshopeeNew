@@ -221,6 +221,24 @@ const FilterIcon = ({ size = defaultSize, color = colors.primary, style }: IconP
     <Ionicons name="options-outline" size={size} color={color} style={style} />
 );
 
+const Reload = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <Ionicons name="reload" size={size} color={color} style={style} />
+);
+
+const Lock = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <MaterialCommunityIcons name="lock" size={size} color={color} style={style} />
+);
+
+const Cash = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <MaterialCommunityIcons name="cash-multiple" size={size} color={color} style={style} />
+);
+
+const Location = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <Ionicons name="location-sharp" size={size} color={color} style={style} />
+);
+
+
+
 
 
 // Exporting all as object for named JSX usage
@@ -273,5 +291,9 @@ export const AppIcons = {
     BookmarkOutline,
     TrippleRight,
     RightArrow,
-    FilterIcon
+    FilterIcon,
+    Reload,
+    Lock,
+    Cash,
+    Location
 };

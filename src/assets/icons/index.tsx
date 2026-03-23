@@ -252,25 +252,7 @@ const ArrowBack = ({ size = defaultSize, color = colors.primary, style }: IconPr
 
 
 
-const HeartOutline = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
-    <Ionicons name="heart-outline" size={size} color={color} style={style} />
-);
 
-const Bookmark = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
-    <MaterialIcons name="bookmark" size={size} color={color} style={style} />
-);
-
-const Star = ({ size = defaultSize, color = '#FFD700', style }: IconProps) => (
-    <FontAwesome name="star" size={size} color={color} style={style} />
-);
-
-const StarOutline = ({ size = defaultSize, color = '#DADADA', style }: IconProps) => (
-    <FontAwesome name="star-o" size={size} color={color} style={style} />
-);
-
-const Cart = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
-    <MaterialIcons name="shopping-cart" size={size} color={color} style={style} />
-);
 
 // Exporting all as object for named JSX usage
 export const AppIcons = {

@@ -13,7 +13,7 @@ const lightColors = {
     grey: '#808080',
     lightGrey: '#d3d3d3',
     red: '#ff0000',
-    green: '#11dd11ff',
+    green: '#0cA201',
     blue: '#0000ff',
     halfTransparent: 'rgba(0, 0, 0, 0.5)',
     // Custom Colors

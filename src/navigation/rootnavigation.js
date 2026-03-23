@@ -12,6 +12,8 @@ import OtpScreen from '../screens/Otp/OtpScreen';
 import MainTabs from '../screens/MainTabs';
 import RegistrationScreen from '../screens/Registration';
 import WishlistScreen from '../screens/Wishlist';
+import CartScreen from '../screens/Cart/CartScreen';
+// import RegistraionScreen from '../screens/RegistraionScreen';
 import ProductDetails from '../screens/Product/ProductDetails';
 import MyOrder from '../screens/Order/MyOrder';
 import MyOrderDetails from '../screens/Order/MyOrderDetails';
@@ -32,6 +34,8 @@ export default function RootStack() {
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen name="OtpScreen" component={OtpScreen} options={{ headerShown: false }} />
         <Stack.Screen name="RegistraionScreen" component={RegistrationScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Cart" component={CartScreen} options={{ headerShown: false }} />
+
         <Stack.Screen name="ProductDetails" component={ProductDetails} options={{ headerShown: false }} />
         <Stack.Screen name="MyOrder" component={MyOrder} options={{ headerShown: false }} />
         <Stack.Screen name="MyOrderDetails" component={MyOrderDetails} options={{ headerShown: false }} />

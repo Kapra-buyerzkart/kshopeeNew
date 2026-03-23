@@ -245,7 +245,10 @@ const HomeScreen: React.FC = () => {
               </TouchableOpacity>
 
               <View style={styles.actionsPill}>
-                <TouchableOpacity style={styles.actionIcon}>
+                <TouchableOpacity 
+                  style={styles.actionIcon}
+                  onPress={() => navigation.navigate('Cart')}
+                >
                   <AppIcons.Bag color={colors.black} size={20} />
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.actionIcon}>

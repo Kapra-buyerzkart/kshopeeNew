@@ -8,6 +8,8 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import MaterialDesignIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import Entypo from 'react-native-vector-icons/Entypo';
+import Fontisto from 'react-native-vector-icons/Fontisto';
+import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import { ViewStyle, StyleProp } from 'react-native';
 import { colors } from '../theme/colours';
 
@@ -162,6 +164,30 @@ const EyeOpen = ({ size = defaultSize, color = colors.primary, style }: IconProp
 const EyeClose = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
     <Ionicons name="eye-off" size={size} color={color} style={style} />
 );
+
+
+
+
+
+const HeartOutline = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <Ionicons name="heart-outline" size={size} color={color} style={style} />
+);
+
+const Bookmark = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <MaterialIcons name="bookmark" size={size} color={color} style={style} />
+);
+
+const Star = ({ size = defaultSize, color = '#FFD700', style }: IconProps) => (
+    <FontAwesome name="star" size={size} color={color} style={style} />
+);
+
+const StarOutline = ({ size = defaultSize, color = '#DADADA', style }: IconProps) => (
+    <FontAwesome name="star-o" size={size} color={color} style={style} />
+);
+
+const Cart = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <MaterialIcons name="shopping-cart" size={size} color={color} style={style} />
+);
 const Bag = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
     <Ionicons name="bag-outline" size={size} color={color} style={style} />
 );
@@ -172,6 +198,57 @@ const Bell = ({ size = defaultSize, color = colors.primary, style }: IconProps) 
 const Microphone = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
     <FontAwesome name="microphone" size={size} color={color} style={style} />
 );
+
+const BookmarkOutline = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <Fontisto name="bookmark" size={size} color={color} style={style} />
+);
+
+const BookmarkFilled = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <Fontisto name="bookmark-alt" size={size} color={color} style={style} />
+);
+
+const TrippleRight = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <MaterialDesignIcons name="chevron-triple-right" size={size} color={color} style={style} />
+);
+
+
+const RightArrow = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <Entypo name="chevron-thin-right" size={size} color={color} style={style} />
+);
+
+
+const FilterIcon = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <Ionicons name="options-outline" size={size} color={color} style={style} />
+);
+
+const Reload = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <Ionicons name="reload" size={size} color={color} style={style} />
+);
+
+const Lock = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <MaterialCommunityIcons name="lock" size={size} color={color} style={style} />
+);
+
+const Cash = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <MaterialCommunityIcons name="cash-multiple" size={size} color={color} style={style} />
+);
+
+const Location = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <Ionicons name="location-sharp" size={size} color={color} style={style} />
+);
+
+const ArrowUpBold = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <Entypo name="arrow-bold-up" size={size} color={color} style={style} />
+);
+
+const ArrowDownBold = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <Entypo name="arrow-bold-down" size={size} color={color} style={style} />
+);
+
+const ArrowBack = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <Ionicons name="arrow-back" size={size} color={color} style={style} />
+);
+
 
 
 
@@ -240,5 +317,17 @@ export const AppIcons = {
     HeartOutline,
     Bag,
     Bell,
-    Microphone
+    Microphone,
+    BookmarkFilled,
+    BookmarkOutline,
+    TrippleRight,
+    RightArrow,
+    FilterIcon,
+    Reload,
+    Lock,
+    Cash,
+    Location,
+    ArrowUpBold,
+    ArrowDownBold,
+    ArrowBack
 };

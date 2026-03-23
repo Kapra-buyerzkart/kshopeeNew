@@ -1,4 +1,6 @@
 import { StyleSheet } from 'react-native';
+import { Fonts } from '../../assets/theme/fonts';
+import { colors } from '../../assets/theme/colours';
 
 const figmaTeal = '#00B4D8';
 
@@ -12,15 +14,17 @@ export default StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginHorizontal: 16,
+    height: 50
   },
   contentRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   buttonText: {
-    fontFamily: 'Gilroy-Medium',
-    fontSize: 14,
-    color: '#333333',
+    fontFamily: Fonts.regular,
+    fontSize: 17,
+    color: colors.darkFontOne,
+    fontWeight: '300',
     marginRight: 6,
   },
   chevronText: {

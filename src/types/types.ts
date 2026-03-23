@@ -1,5 +1,5 @@
-import Employee from "../database/models/Employee";
-import Client from "../database/models/Client";
+// import Employee from "../database/models/Employee";
+// import Client from "../database/models/Client";
 import { UserData } from "./dataType";
 
 // types.ts
@@ -20,11 +20,11 @@ export type RootStackParamList = {
     paymentMethod: 'Cash' | 'Card' | 'UPI';
     balance?: number;
   };
-  Clients: undefined;
-  ClientAdd: { client?: Client } | undefined;
-  Employees: undefined;
-  EmployeeDetails: { data: string, dataOne: any };
-  EmployeeAdd: { employee?: Employee } | undefined;
+  // Clients: undefined;
+  // ClientAdd: { client?: Client } | undefined;
+  // Employees: undefined;
+  // EmployeeDetails: { data: string, dataOne: any };
+  // EmployeeAdd: { employee?: Employee } | undefined;
   Report: undefined;
   ManageStore: undefined;
   OrderReport: undefined;
@@ -34,4 +34,5 @@ export type RootStackParamList = {
   Support: undefined;
   StoreItemsList: undefined;
   AddStoreItem: { product?: string } | undefined;
+  ProductDetails: { item?: any } | undefined;
 };

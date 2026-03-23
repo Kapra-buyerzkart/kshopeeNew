@@ -84,7 +84,7 @@ const ProfileScreen: React.FC = () => {
                         <Image source={require('../../assets/icons/profile/cart.png')} style={{ width: 22, height: 22 }} />
                         <Text style={styles.actionText}>Cart</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.actionCard}>
+                    <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('MyOrder')}>
                         <Image source={require('../../assets/icons/profile/orders.png')} style={{ width: 22, height: 22 }} />
                         <Text style={styles.actionText}>My Order</Text>
                     </TouchableOpacity>

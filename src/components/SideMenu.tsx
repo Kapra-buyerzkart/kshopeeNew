@@ -13,7 +13,7 @@ interface SideMenuProps {
 }
 
 const { width } = Dimensions.get('window');
-const iconPath = '../assets/images/appIcon.png'
+const iconPath = '../assets/images/appicon.png'
 
 const SideMenu: React.FC<SideMenuProps> = ({ isVisible, onClose }) => {
     const { user } = useUser();

@@ -13,10 +13,14 @@ import MainTabs from '../screens/MainTabs';
 import RegistrationScreen from '../screens/Registration';
 import WishlistScreen from '../screens/Wishlist';
 // import RegistraionScreen from '../screens/RegistraionScreen';
+import ProductDetails from '../screens/Product/ProductDetails';
+import MyOrder from '../screens/Order/MyOrder';
+import MyOrderDetails from '../screens/Order/MyOrderDetails';
 // import ChangePwdScreen from '../screens/ChangePwdScreen';
 // import LoginPwdScreen from '../screens/LoginPwdScreen';
 import { CartProvider } from '../context/CartContext';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -30,6 +34,11 @@ export default function RootStack() {
         <Stack.Screen name="OtpScreen" component={OtpScreen} options={{ headerShown: false }} />
         <Stack.Screen name="RegistraionScreen" component={RegistrationScreen} options={{ headerShown: false }} />
 
+        <Stack.Screen name="ProductDetails" component={ProductDetails} options={{ headerShown: false }} />
+        <Stack.Screen name="MyOrder" component={MyOrder} options={{ headerShown: false }} />
+        <Stack.Screen name="MyOrderDetails" component={MyOrderDetails} options={{ headerShown: false }} />
+        {/* <Stack.Screen name="ChangePwdScreen" component={ChangePwdScreen} options={{ headerShown: false }} /> */}
+        {/* <Stack.Screen name="LoginPwdScreen" component={LoginPwdScreen} options={{ headerShown: false }} /> */}
         <Stack.Screen
           name="Main"
           component={BottomTabNavigator}

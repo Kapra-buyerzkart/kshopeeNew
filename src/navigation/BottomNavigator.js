@@ -21,7 +21,7 @@ const BottomTabNavigator = () => {
             screenOptions={({ route }) => ({
                 headerShown: false,
                 tabBarShowLabel: false,
-                tabBarStyle: { backgroundColor: colors.background, borderTopColor: colors.border, height: 74 },
+                tabBarStyle: { backgroundColor: colors.background, borderTopColor: colors.border, height: 74, paddingHorizontal: 10, paddingRight: 20 },
                 tabBarItemStyle: {
                     justifyContent: 'center',
                     alignItems: 'center',

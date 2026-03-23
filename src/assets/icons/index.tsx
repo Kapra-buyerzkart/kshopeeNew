@@ -241,6 +241,14 @@ const ArrowUpBold = ({ size = defaultSize, color = colors.primary, style }: Icon
     <Entypo name="arrow-bold-up" size={size} color={color} style={style} />
 );
 
+const ArrowDownBold = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <Entypo name="arrow-bold-down" size={size} color={color} style={style} />
+);
+
+const ArrowBack = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <Ionicons name="arrow-back" size={size} color={color} style={style} />
+);
+
 
 
 
@@ -299,5 +307,7 @@ export const AppIcons = {
     Lock,
     Cash,
     Location,
-    ArrowUpBold
+    ArrowUpBold,
+    ArrowDownBold,
+    ArrowBack
 };

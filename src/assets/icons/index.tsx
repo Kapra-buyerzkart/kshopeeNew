@@ -252,6 +252,8 @@ const ArrowBack = ({ size = defaultSize, color = colors.primary, style }: IconPr
 
 
 
+
+
 // Exporting all as object for named JSX usage
 export const AppIcons = {
     Home,

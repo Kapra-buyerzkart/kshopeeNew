@@ -48,7 +48,7 @@ const BottomTabNavigator = () => {
                     if (isKebra) {
                         return (
                             <View style={styles.kebraContainer}>
-                                <Image source={iconSource} style={iconSource = styles.kebraIcon} resizeMode="contain" />
+                                <Image source={iconSource} style={styles.kebraIcon} resizeMode="contain" />
                             </View>
                         );
                     }
@@ -58,7 +58,7 @@ const BottomTabNavigator = () => {
                             {/* {focused && (
                                 <View style={styles.activeArc} />
                             )} */}
-                            <Image source={iconSource} style={iconSource = focused ? styles.normalIcon : styles.unselectedIcon} resizeMode="contain" />
+                            <Image source={iconSource} style={focused ? styles.normalIcon : styles.unselectedIcon} resizeMode="contain" />
                             <Text style={[styles.label, focused && styles.activeLabel]}>{label}</Text>
                         </View>
                     );

@@ -53,3 +53,31 @@ export const productsData: Record<string, any[]> = {
     'b1': [],
     'b2': [],
 };
+
+export const filterOptions = {
+    'Prize': [
+        'Below ₹500',
+        '₹500 - ₹1000',
+        '₹1000 - ₹2000',
+        'Above ₹2000'
+    ],
+    'Brands': [
+        'Nike',
+        'Puma',
+        'Zara',
+        'Adidas'
+    ],
+    'Discount Range': [
+        '10% and above',
+        '20% and above',
+        '30% and above',
+        '40% and above'
+    ],
+    'Size': [
+        'S',
+        'M',
+        'L',
+        'XL',
+        'XXL'
+    ]
+};

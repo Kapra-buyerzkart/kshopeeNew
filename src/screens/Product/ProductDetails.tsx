@@ -483,10 +483,10 @@ const ProductDetails = () => {
                         colors={[colors.themeTeal, colors.themeDarkTeal]}
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 0 }}
-                        style={[styles.reviewFilterPillActiveGradient, { borderRadius: 50 }]}
+                        style={[homeStyles.reviewFilterPillActiveGradient, { borderRadius: 50 }]}
                     >
                         <TouchableOpacity onPress={() => { }} style={{ padding: 10 }} >
-                            <Text style={[styles.reviewFilterText, styles.reviewFilterTextActive]}>Buy Now</Text>
+                            <Text style={[homeStyles.reviewFilterText, homeStyles.reviewFilterTextActive]}>Buy Now</Text>
                         </TouchableOpacity>
                     </LinearGradient>
                 </View>

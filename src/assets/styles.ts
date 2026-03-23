@@ -705,6 +705,35 @@ export const useCommonStyles = () => {
 
         },
 
+        //Review linear radient
+        reviewFilterPillActiveGradient: {
+            //paddingHorizontal: 16,
+            //paddingVertical: 8,
+            borderRadius: 10,
+            justifyContent: 'center',
+            alignItems: 'center',
+            alignContent: 'center',
+            //marginRight: 12,
+            //borderWidth: 1,
+            borderColor: 'transparent',
+            width: 100,
+            flex: 1,
+        },
+        reviewFilterText: {
+            fontFamily: Fonts.regular,
+            fontSize: 14,
+            color: colors.black,
+            fontWeight: '300',
+        },
+        reviewFilterTextActive: {
+            fontFamily: Fonts.regular,
+            fontSize: 18,
+            color: colors.themeWhite,
+            fontWeight: '600',
+            //marginHorizontal: 20,
+
+        },
+
         // Client Module Styles
         // Shared header styles for all Client screens
 

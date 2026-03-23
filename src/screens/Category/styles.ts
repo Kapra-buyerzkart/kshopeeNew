@@ -252,4 +252,184 @@ export const styles = StyleSheet.create({
         fontFamily: Fonts.regular,
         fontWeight: '300',
     },
+    // Filter Modal Styles
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.4)',
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start',
+    },
+    modalContainer: {
+        width: '85%',
+        height: '100%',
+        backgroundColor: colors.themeWhite,
+        borderTopRightRadius: 24,
+        borderBottomRightRadius: 0,
+        overflow: 'hidden',
+    },
+    modalTopHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingTop: 55, // padding for safe area
+        paddingBottom: 20,
+    },
+    modalTopTitle: {
+        fontFamily: Fonts.bold,
+        fontSize: 20,
+        fontWeight: '700',
+        color: colors.themeBlack,
+        marginLeft: 15,
+    },
+    modalCategoryProfile: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingBottom: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: '#E8E8E8',
+    },
+    modalCategoryImage: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+    },
+    modalCategoryName: {
+        fontFamily: Fonts.gilroyMedium,
+        fontSize: 22,
+        color: colors.themeTeal,
+        marginLeft: 15,
+        fontWeight: '400'
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 20,
+        paddingVertical: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#E8E8E8',
+    },
+    modalHeaderLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    modalTitle: {
+        fontFamily: Fonts.medium,
+        fontSize: 16,
+        color: colors.themeBlack,
+        marginLeft: 8,
+        fontWeight: '300'
+    },
+    modalBody: {
+        flexDirection: 'row',
+        flex: 1,
+    },
+    modalSidebar: {
+        width: 120,
+        backgroundColor: colors.themeWhite,
+        borderRightWidth: 1,
+        borderRightColor: '#E8E8E8',
+    },
+    modalTab: {
+        paddingVertical: 16,
+        paddingHorizontal: 12,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    modalTabActive: {
+        backgroundColor: colors.themeTeal,
+    },
+    modalTabText: {
+        fontFamily: Fonts.medium,
+        fontSize: 16,
+        color: colors.themeBlack,
+        fontWeight: '300'
+    },
+    modalTabTextActive: {
+        color: colors.white,
+        fontFamily: Fonts.gilroySemiBold,
+        fontWeight: '400',
+        fontSize: 16,
+    },
+    modalTabBadge: {
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: colors.themeTeal,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    modalTabBadgeText: {
+        color: colors.themeTeal,
+        fontSize: 10,
+        fontFamily: Fonts.gilroyMedium,
+    },
+    modalContent: {
+        flex: 1,
+        backgroundColor: colors.themeWhite,
+        paddingHorizontal: 20,
+        paddingTop: 10,
+    },
+    checkboxRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 12,
+    },
+    checkbox: {
+        width: 20,
+        height: 20,
+        borderRadius: 4,
+        borderWidth: 1.5,
+        borderColor: '#C0C0C0',
+        marginRight: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    checkboxActive: {
+        borderColor: colors.themeTeal,
+    },
+    checkboxLabel: {
+        fontFamily: Fonts.regular,
+        fontSize: 14,
+        color: colors.themeBlack,
+        fontWeight: '300'
+    },
+    modalFooter: {
+        flexDirection: 'row',
+        height: 60,
+        borderTopWidth: 1,
+        borderTopColor: '#E8E8E8',
+    },
+    resetBtn: {
+        //flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: colors.themeWhite,
+        width: 120
+    },
+    resetBtnText: {
+        fontFamily: Fonts.bold,
+        fontSize: 18,
+        color: colors.black,
+        marginLeft: 8,
+        fontWeight: '600'
+    },
+    saveBtn: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: colors.themeDarkTeal, // The image shows a darker teal for save button
+    },
+    saveBtnText: {
+        fontFamily: Fonts.bold,
+        fontSize: 18,
+        color: colors.white,
+        //marginLeft: 8,
+        fontWeight: '600'
+    },
 });

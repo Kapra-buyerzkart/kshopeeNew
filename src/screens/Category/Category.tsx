@@ -7,11 +7,14 @@ import { useNavigation } from '@react-navigation/native';
 import { topFilters, subCategories, productsData } from './dummyData';
 import { AppIcons } from '../../assets/icons';
 import { Rating } from 'react-native-ratings';
+import FilterModal from './FilterModal';
 
 const CategoryScreen = () => {
-    const navigation = useNavigation();
+    const navigation = useNavigation<any>();
     const [selectedTopFilter, setSelectedTopFilter] = useState('1');
     const [selectedSubCategory, setSelectedSubCategory] = useState(subCategories['1'][0]?.id || '');
+    const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
+
 
     const handleTopFilterPress = (id: string) => {
         setSelectedTopFilter(id);
@@ -82,7 +85,7 @@ const CategoryScreen = () => {
 
             {/* Top Filters */}
             <View style={styles.topFilterContainer}>
-                <TouchableOpacity style={styles.optionsIconContainer}>
+                <TouchableOpacity style={styles.optionsIconContainer} onPress={() => setIsFilterModalVisible(true)}>
                     <View style={styles.optionsBadge}>
                         <Text style={styles.optionsBadgeText}>1</Text>
                     </View>
@@ -153,6 +156,18 @@ const CategoryScreen = () => {
                     />
                 </View>
             </View>
+
+            {/* Filter Modal */}
+            <FilterModal 
+                visible={isFilterModalVisible} 
+                onClose={() => setIsFilterModalVisible(false)} 
+                onApply={(filters) => {
+                    console.log('Applied filters:', filters);
+                    setIsFilterModalVisible(false);
+                }}
+                categoryName={topFilters.find(f => f.id === selectedTopFilter)?.name}
+                categoryImage={topFilters.find(f => f.id === selectedTopFilter)?.image}
+            />
         </View>
     );
 };

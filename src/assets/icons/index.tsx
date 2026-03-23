@@ -237,6 +237,9 @@ const Location = ({ size = defaultSize, color = colors.primary, style }: IconPro
     <Ionicons name="location-sharp" size={size} color={color} style={style} />
 );
 
+const ArrowUpBold = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <Entypo name="arrow-bold-up" size={size} color={color} style={style} />
+);
 
 
 
@@ -295,5 +298,6 @@ export const AppIcons = {
     Reload,
     Lock,
     Cash,
-    Location
+    Location,
+    ArrowUpBold
 };

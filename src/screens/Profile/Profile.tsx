@@ -24,8 +24,8 @@ import { hp, wp } from '../../utils/responsive';
 const ProfileScreen: React.FC = () => {
     const navigation = useNavigation<any>();
 
-    const renderMenuItem = (icon: any, title: string, showBadge?: boolean, badgeValue?: string, iconBgColor?: string) => (
-        <TouchableOpacity style={styles.menuItem}>
+    const renderMenuItem = (icon: any, title: string, showBadge?: boolean, badgeValue?: string, iconBgColor?: string, onPress?: () => void) => (
+        <TouchableOpacity style={styles.menuItem} onPress={onPress}>
             <View style={[styles.menuIconContainer, iconBgColor ? { backgroundColor: iconBgColor } : null]}>
                 {icon}
             </View>
@@ -116,7 +116,7 @@ const ProfileScreen: React.FC = () => {
                 <View style={styles.sectionContainer}>
                     <Text style={styles.sectionTitle}>Informations</Text>
                     <View style={styles.menuCard}>
-                        {renderMenuItem(<Image source={require('../../assets/icons/profile/profile.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />, 'Edit profile', true, '1')}
+                        {renderMenuItem(<Image source={require('../../assets/icons/profile/profile.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />, 'Edit profile', true, '1', undefined, () => navigation.navigate('EditProfile'))}
                         {renderMenuItem(<Image source={require('../../assets/icons/profile/lock.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />, 'Privacy Policy')}
                         {renderMenuItem(<Image source={require('../../assets/icons/profile/terms.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />, 'Terms and conditions')}
                         {renderMenuItem(<Image source={require('../../assets/icons/profile/info.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />, 'About us')}

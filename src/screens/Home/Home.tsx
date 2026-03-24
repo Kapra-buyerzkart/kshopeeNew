@@ -239,13 +239,13 @@ const HomeScreen: React.FC = () => {
           />
           <View style={[StyleSheet.absoluteFillObject, { paddingTop: 50 }]}>
             <View style={styles.topBar}>
-              <TouchableOpacity style={styles.profileArea} onPress={() => navigation.navigate('ProfileScreen')}>
+              <TouchableOpacity style={styles.profileArea} onPress={() => navigation.navigate('KebraScreen')}>
                 <Image source={{ uri: 'https://picsum.photos/seed/user/100/100' }} style={styles.profileImageReal} />
                 <Text style={styles.userName}>Rahul KR</Text>
               </TouchableOpacity>
 
               <View style={styles.actionsPill}>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.actionIcon}
                   onPress={() => navigation.navigate('Cart')}
                 >

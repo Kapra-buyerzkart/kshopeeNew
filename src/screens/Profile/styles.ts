@@ -222,4 +222,68 @@ export const styles = StyleSheet.create({
         paddingBottom: hp('7.5%'),
         overflow: 'hidden',
     },
+    // Edit Profile specific styles
+    editProfileContainer: {
+        flex: 1,
+        backgroundColor: colors.white,
+    },
+    editProfileHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        //paddingHorizontal: 10,
+        marginEnd: 16,
+        //paddingTop: Platform.OS === 'ios' ? hp('6%') : hp('6%'),
+        paddingBottom: hp('2%'),
+        backgroundColor: colors.white,
+    },
+    editProfileTitle: {
+        fontSize: 18,
+        fontFamily: Fonts.gilroyBold,
+        color: fontColors.titleBlack,
+        flex: 1,
+        marginLeft: wp('4%'),
+    },
+    editProfileCartIconBg: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: colors.themeTeal,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    editProfileFormContainer: {
+        paddingHorizontal: wp('5%'),
+        marginTop: hp('3%'),
+    },
+    inputGroup: {
+        marginBottom: hp('2.5%'),
+    },
+    inputLabel: {
+        fontSize: 14,
+        fontFamily: Fonts.regular,
+        color: fontColors.titleBlack,
+        fontWeight: '400',
+        marginBottom: hp('1%'),
+    },
+    inputWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#E5E5E5',
+        borderRadius: 25,
+        paddingHorizontal: wp('4%'),
+        height: hp('6%'),
+        backgroundColor: colors.white,
+    },
+    textInput: {
+        flex: 1,
+        fontSize: 14,
+        fontFamily: Fonts.gilroyMedium,
+        color: fontColors.titleBlack,
+        height: '100%',
+    },
+    eyeIconContainer: {
+        padding: 5,
+    },
 });

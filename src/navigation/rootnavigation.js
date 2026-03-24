@@ -17,6 +17,7 @@ import CartScreen from '../screens/Cart/CartScreen';
 import ProductDetails from '../screens/Product/ProductDetails';
 import MyOrder from '../screens/Order/MyOrder';
 import MyOrderDetails from '../screens/Order/MyOrderDetails';
+import EditProfile from '../screens/Profile/EditProfile';
 // import ChangePwdScreen from '../screens/ChangePwdScreen';
 // import LoginPwdScreen from '../screens/LoginPwdScreen';
 import { CartProvider } from '../context/CartContext';
@@ -39,6 +40,7 @@ export default function RootStack() {
         <Stack.Screen name="ProductDetails" component={ProductDetails} options={{ headerShown: false }} />
         <Stack.Screen name="MyOrder" component={MyOrder} options={{ headerShown: false }} />
         <Stack.Screen name="MyOrderDetails" component={MyOrderDetails} options={{ headerShown: false }} />
+        <Stack.Screen name="EditProfile" component={EditProfile} options={{ headerShown: false }} />
         {/* <Stack.Screen name="ChangePwdScreen" component={ChangePwdScreen} options={{ headerShown: false }} /> */}
         {/* <Stack.Screen name="LoginPwdScreen" component={LoginPwdScreen} options={{ headerShown: false }} /> */}
         <Stack.Screen

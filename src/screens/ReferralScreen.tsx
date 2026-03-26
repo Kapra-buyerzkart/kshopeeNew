@@ -7,10 +7,11 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-nat
 import { useNavigation } from '@react-navigation/native';
 import { FONTS } from '../styles/typography';
 // @ts-ignore
-import { getReferralHistoryApi } from '../api/userService';
+import { getReferralHistoryApi } from '../api/services';
+import { useUser } from '../context/UserContext';
+import { LoaderContext } from '../context/loaderContext';
 import { colors } from '../assets/theme/colours';
 import { AppIcons } from '../assets/icons';
-// @ts-ignore
 import CONFIG from '../globals/config';
 
 interface ReferralItem {
@@ -22,24 +23,13 @@ interface ReferralItem {
 
 const ReferralScreen: React.FC = () => {
     const navigation = useNavigation<any>();
-    
-    // Dummy showLoader for missing LoaderContext
-    const showLoader = (loading: boolean) => {
-        console.log('Loader status:', loading);
-    };
-    
-    // Dummy data since AppContext is missing in the current project structure
-    const isStoreUnavailable = false;
-    const storeUnavailableData = { image: null, text: '' };
-    const profile = {
-        referralCode: 'WELCOME',
-        referralEarning: '0.00',
-        custName: 'User'
-    };
+    const { profile } = useUser();
+    const { showLoader } = useContext(LoaderContext);
 
     const [referrals, setReferrals] = useState<ReferralItem[]>([]);
     const [isLocationModalVisible, setIsLocationModalVisible] = useState(false);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
+
 
     useEffect(() => {
         fetchReferralHistory();
@@ -119,14 +109,14 @@ const ReferralScreen: React.FC = () => {
 
     return (
         <SafeAreaView style={styles.mainContainer}>
-            <ImageBackground style={styles.backgroundImageStyle} source={require('../assets/icons/profile/topbg.png')}>
-                <View style={styles.headerContainer}>
-                    <TouchableOpacity onPress={() => navigation.goBack()}>
-                        <AppIcons.Back size={wp('6%')} color={colors.themeWhite} />
-                    </TouchableOpacity>
-                    <Text style={[styles.headerText, { color: colors.themeWhite }]}>Referral</Text>
-                </View>
-            </ImageBackground>
+            {/* <ImageBackground style={styles.backgroundImageStyle} source={require('../assets/icons/profile/topbg.png')}> */}
+            <View style={styles.headerContainer}>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <AppIcons.Back size={wp('6%')} color={colors.black} />
+                </TouchableOpacity>
+                <Text style={[styles.headerText, { color: colors.black }]}>Referral</Text>
+            </View>
+            {/* </ImageBackground> */}
             <View style={styles.innerContainer}>
                 <View style={{ flex: 1 }}>
                     <View style={styles.unifiedCard}>
@@ -156,25 +146,25 @@ const ReferralScreen: React.FC = () => {
                         </TouchableOpacity>
                     </View>
 
-                <Text style={[styles.referEarnText, {
-                    marginTop: hp('3%'),
-                    marginBottom: hp('1%')
-                }]}>Referral History</Text>
+                    <Text style={[styles.referEarnText, {
+                        marginTop: hp('3%'),
+                        marginBottom: hp('1%')
+                    }]}>Referral History</Text>
 
-                <FlatList
-                    data={referrals}
-                    keyExtractor={(item, index) => `${item.referrerCustId}-${index}`}
-                    renderItem={renderItem}
-                    ListEmptyComponent={renderEmpty}
-                    ItemSeparatorComponent={() => <View style={styles.divider} />}
-                    ListFooterComponent={() => referrals.length > 0 ? <View style={{ height: hp('2%') }} /> : null}
-                    style={referrals.length > 0 ? [styles.historyListCard, { flex: 1 }] : { flex: 1 }}
-                    contentContainerStyle={referrals.length === 0 ? styles.emptyListContent : styles.listContent}
-                    showsVerticalScrollIndicator={false}
-                />
+                    <FlatList
+                        data={referrals}
+                        keyExtractor={(item, index) => `${item.referrerCustId}-${index}`}
+                        renderItem={renderItem}
+                        ListEmptyComponent={renderEmpty}
+                        ItemSeparatorComponent={() => <View style={styles.divider} />}
+                        ListFooterComponent={() => referrals.length > 0 ? <View style={{ height: hp('2%') }} /> : null}
+                        style={referrals.length > 0 ? [styles.historyListCard, { flex: 1 }] : { flex: 1 }}
+                        contentContainerStyle={referrals.length === 0 ? styles.emptyListContent : styles.listContent}
+                        showsVerticalScrollIndicator={false}
+                    />
+                </View>
             </View>
-        </View>
-    </SafeAreaView>
+        </SafeAreaView>
     );
 }
 
@@ -206,7 +196,6 @@ const styles = StyleSheet.create({
         flex: 1,
         borderTopLeftRadius: wp('10%'),
         borderTopRightRadius: wp('10%'),
-        marginTop: -hp('4%'),
         paddingTop: hp('2%'),
     },
     referEarnText: {

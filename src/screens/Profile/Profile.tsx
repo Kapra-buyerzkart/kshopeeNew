@@ -26,8 +26,12 @@ import ConfirmationModal from '../../components/ConfirmationModal';
 
 const ProfileScreen: React.FC = () => {
     const navigation = useNavigation<any>();
-    const { logout } = useUser();
+    const { logout, profile, loadProfile } = useUser();
     const [isLogoutModalVisible, setIsLogoutModalVisible] = React.useState(false);
+
+    React.useEffect(() => {
+        loadProfile();
+    }, []);
 
     const handleLogout = async () => {
         setIsLogoutModalVisible(false);
@@ -71,19 +75,28 @@ const ProfileScreen: React.FC = () => {
                                 </View>
                                 <View style={styles.userDetails}>
                                     <Text style={styles.welcomeText}>Hey</Text>
-                                    <Text style={styles.userName}>Fathima</Text>
-                                    <Text style={styles.userPhone}>8795647558</Text>
+                                    <Text style={styles.userName} numberOfLines={2}>{profile?.custName || 'User'}</Text>
+                                    <Text style={styles.userPhone}>{profile?.phoneNo || ''}</Text>
                                 </View>
                             </View>
 
                             <View style={styles.headerRightActions}>
-                                {/* <TouchableOpacity style={styles.coinPill}> */}
-                                <Image source={require('../../assets/icons/profile/bcoin.png')} style={{ width: 90, height: 90, top: -15 }} resizeMode="contain" />
-                                {/* <Text style={styles.coinText}>0.00</Text> */}
-                                {/* </TouchableOpacity> */}
+                                <TouchableOpacity onPress={() => navigation.navigate('BCoin')}>
+                                    <Image source={require('../../assets/icons/profile/bcoin.png')} style={{ width: 90, height: 90, top: -15 }} resizeMode="contain" />
+                                    {/* <Text style={[styles.coinText, { position: 'absolute', right: wp('2%'), top: hp('1.5%'), color: colors.black, fontWeight: 'bold' }]}>
+                                        {profile?.totalBCoins || '0.00'}
+                                    </Text> */}
+                                </TouchableOpacity>
                                 <TouchableOpacity style={styles.notificationBell}>
                                     <Ionicons name="notifications" size={24} color={colors.black} style={{ top: -15 }} />
                                 </TouchableOpacity>
+                                {/* <TouchableOpacity onPress={() => navigation.navigate('EditProfile')} style={{ marginLeft: wp('2%') }}>
+                                    <Image
+                                        source={require('../../assets/images/edit_icon.png')}
+                                        style={{ width: 18, height: 18, top: -15 }}
+                                        tintColor={colors.black}
+                                    />
+                                </TouchableOpacity> */}
                             </View>
                         </View>
                     </View></ImageBackground>

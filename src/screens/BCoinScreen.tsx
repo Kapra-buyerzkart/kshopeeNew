@@ -8,7 +8,8 @@ import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-nat
 import { FONTS } from '../styles/typography';
 import { useNavigation } from '@react-navigation/native';
 // @ts-ignore
-import { getWalletDataApi, redeemBCoinsApi, getBCoinValueChangesApi } from '../api/userService';
+import { getWalletDataApi, redeemBCoinsApi, getBCoinValueChangesApi } from '../api/services';
+import { useUser } from '../context/UserContext';
 import { colors } from '../assets/theme/colours';
 import { AppIcons } from '../assets/icons';
 
@@ -44,15 +45,11 @@ const BCoinScreen: React.FC = () => {
     const [isRedeeming, setIsRedeeming] = useState(false);
 
     const navigation = useNavigation<any>();
+    const { profile } = useUser();
 
-    // Dummy data since AppContext is missing in the current project structure
+    // Dummy data removed, using profile from context
     const isStoreUnavailable = false;
     const storeUnavailableData = { image: null, text: '' };
-    const profile = {
-        custId: 'dummy-id',
-        referralCode: 'WELCOME',
-        referralEarning: '0.00'
-    };
     const generalSettings = {
         show_temporary_message: '0'
     };
@@ -69,10 +66,10 @@ const BCoinScreen: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        if (profile?.custId) {
+        if (profile) {
             fetchWalletData();
         }
-    }, [profile?.custId]);
+    }, [profile]);
 
     const fetchWalletData = async () => {
         if (!isMounted.current) return;

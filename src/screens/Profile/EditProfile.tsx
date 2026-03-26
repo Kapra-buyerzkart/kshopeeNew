@@ -15,8 +15,11 @@ import { styles } from './styles';
 import { AppIcons } from '../../assets/icons';
 import InputField from '../../components/TextField';
 
+import { useUser } from '../../context/UserContext';
+
 const EditProfile: React.FC = () => {
     const navigation = useNavigation();
+    const { profile } = useUser();
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
     return (
@@ -40,6 +43,7 @@ const EditProfile: React.FC = () => {
                         label="Name"
                         placeholder="Enter name"
                         placeholderTextColor={colors.lightGrey}
+                        value={profile?.custName || ''}
                     />
 
                     <InputField
@@ -48,6 +52,7 @@ const EditProfile: React.FC = () => {
                         placeholderTextColor={colors.lightGrey}
                         keyboardType="email-address"
                         autoCapitalize="none"
+                        value={profile?.emailId || ''}
                     />
 
                     <InputField
@@ -71,10 +76,12 @@ const EditProfile: React.FC = () => {
                         placeholderTextColor={colors.lightGrey}
                         keyboardType="numeric"
                         maxLength={6}
+                        value={profile?.pincode || ''}
                     />
                 </View>
             </ScrollView>
         </SafeAreaView>
+
     );
 };
 

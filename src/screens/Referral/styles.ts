@@ -1,0 +1,243 @@
+import { StyleSheet } from 'react-native';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { colors } from '../../assets/theme/colours';
+import { FONTS } from '../../styles/typography';
+
+export const styles = StyleSheet.create({
+    mainContainer: {
+        flex: 1,
+        backgroundColor: "#FFFFFF"
+    },
+    headerContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginLeft: wp('6%'),
+        marginTop: hp('2%'),
+    },
+    headerText: {
+        color: '#000000',
+        fontFamily: FONTS.poppins.semiBold,
+        fontSize: wp('4.65%'),
+        marginLeft: wp('4%'),
+    },
+    backgroundImageStyle: {
+        height: hp('35%'),
+        resizeMode: 'cover',
+    },
+    innerContainer: {
+        backgroundColor: colors.themeWhite,
+        flex: 1,
+        borderTopLeftRadius: wp('10%'),
+        borderTopRightRadius: wp('10%'),
+        paddingTop: hp('2%'),
+    },
+    referEarnText: {
+        fontFamily: FONTS.poppins.medium,
+        fontSize: wp('4.19%'),
+        color: '#000000',
+        alignSelf: 'center',
+        marginTop: hp('2%')
+    },
+    divider: {
+        height: 1,
+        backgroundColor: '#F2F2F2',
+        marginHorizontal: wp('4%'),
+    },
+    historyListCard: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 12,
+        marginHorizontal: wp('4%'),
+        marginBottom: hp('1.5%'),
+        shadowColor: '#000',
+        shadowOpacity: 0.05,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 5,
+        elevation: 2,
+        borderWidth: 1,
+        borderColor: '#F2F2F2',
+    },
+    listItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: wp('4%'),
+    },
+    listItemLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    listItemRight: {
+        alignItems: 'flex-end',
+    },
+    menuIconContainer: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    userInitialText: {
+        color: colors.themeTeal,
+        fontFamily: FONTS.poppins.bold,
+        fontSize: wp('4%'),
+    },
+    listItemText: {
+        fontFamily: FONTS.poppins.medium,
+        fontSize: wp('3.8%'),
+        color: '#000000',
+    },
+    registeredLabelMini: {
+        fontFamily: FONTS.poppins.regular,
+        fontSize: wp('2.4%'),
+        color: '#777777',
+        marginBottom: -hp('0.2%'),
+    },
+    dateEndText: {
+        fontFamily: FONTS.poppins.medium,
+        fontSize: wp('3.2%'),
+        color: colors.themeTeal,
+    },
+    listContent: {
+        paddingBottom: hp('5%'),
+    },
+    emptyListContent: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingBottom: hp('10%')
+    },
+    emptyContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    emptyText: {
+        fontFamily: FONTS.poppins.medium,
+        fontSize: wp('4%'),
+        color: '#616161',
+        marginTop: hp('2%')
+    },
+    unifiedCard: {
+        width: wp('92%'),
+        backgroundColor: colors.themeWhite,
+        borderRadius: wp('8%'),
+        alignSelf: 'center',
+        padding: wp('5%'),
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 5,
+        borderWidth: 1,
+        borderColor: '#EFEFEF',
+        marginTop: hp('1%'),
+    },
+    solidHeaderRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: hp('2%')
+    },
+    solidSpeakerIcon: {
+        width: wp('15%'),
+        height: wp('15%'),
+        resizeMode: 'contain',
+    },
+    solidTitleCol: {
+        marginLeft: wp('3%'),
+        flex: 1
+    },
+    solidReferTitle: {
+        fontFamily: FONTS.poppins.bold,
+        fontSize: wp('5.5%'),
+        color: '#1A1A1A',
+    },
+    solidSubTitle: {
+        fontFamily: FONTS.poppins.regular,
+        fontSize: wp('3%'),
+        color: '#666666',
+        marginTop: hp('0.5%'),
+    },
+    solidRewardBox: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: wp('3%'),
+        padding: wp('3%'),
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 5,
+        elevation: 2,
+    },
+    solidRewardLabel: {
+        fontFamily: FONTS.poppins.medium,
+        fontSize: wp('3.2%'),
+        color: '#777777',
+        marginBottom: hp('0.5%')
+    },
+    solidRewardAmountRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    solidCoinIcon: {
+        width: wp('6%'),
+        height: wp('6%'),
+        resizeMode: 'contain',
+        marginRight: wp('1.5%')
+    },
+    solidRewardValue: {
+        fontFamily: FONTS.poppins.bold,
+        fontSize: wp('7%'),
+        color: '#1A1A1A',
+    },
+    solidInviteBtn: {
+        backgroundColor: colors.themeTeal,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: wp('10%'),
+        paddingVertical: hp('1.5%'),
+        marginTop: hp('2.5%'),
+        shadowColor: colors.themeTeal,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 6,
+        elevation: 5
+    },
+    solidBtnText: {
+        fontFamily: FONTS.poppins.bold,
+        fontSize: wp('4.2%'),
+        color: '#FFFFFF',
+        marginLeft: wp('2%')
+    },
+    referralCodeRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: hp('0.5%'),
+    },
+    codeContainer: {
+        backgroundColor: '#F9F9F9',
+        borderWidth: 1,
+        borderColor: '#DADADA',
+        borderRadius: wp('2%'),
+        paddingHorizontal: wp('4%'),
+        paddingVertical: hp('0.8%'),
+        flex: 1,
+        marginRight: wp('2%'),
+    },
+    referralCodeText: {
+        fontFamily: FONTS.poppins.bold,
+        fontSize: wp('4%'),
+        color: '#000000',
+        textAlign: 'center',
+    },
+    copyIconWrapper: {
+        width: wp('10%'),
+        height: wp('10%'),
+        borderRadius: wp('5%'),
+        backgroundColor: colors.wishlistbg,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: colors.outlineTeal,
+    }
+});

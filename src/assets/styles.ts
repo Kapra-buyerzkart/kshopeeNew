@@ -422,9 +422,9 @@ export const useCommonStyles = () => {
             zIndex: 2
         },
         discountCircle: {
-            width: 27,
-            height: 27,
-            borderRadius: 14,
+            width: 36,
+            height: 36,
+            borderRadius: 18,
             borderWidth: 2,
             borderColor: colors.tealIconFont,
             justifyContent: 'center',

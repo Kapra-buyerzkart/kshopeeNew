@@ -61,23 +61,39 @@ export const filterOptions = {
         '₹1000 - ₹2000',
         'Above ₹2000'
     ],
-    'Brands': [
-        'Nike',
-        'Puma',
-        'Zara',
-        'Adidas'
-    ],
-    'Discount Range': [
-        '10% and above',
-        '20% and above',
-        '30% and above',
-        '40% and above'
-    ],
-    'Size': [
-        'S',
-        'M',
-        'L',
-        'XL',
-        'XXL'
+    // 'Brands': [
+    //     'Nike',
+    //     'Puma',
+    //     'Zara',
+    //     'Adidas'
+    // ],
+    // 'Discount Range': [
+    //     '10% and above',
+    //     '20% and above',
+    //     '30% and above',
+    //     '40% and above'
+    // ],
+    // 'Size': [
+    //     'S',
+    //     'M',
+    //     'L',
+    //     'XL',
+    //     'XXL'
+    // ],
+    'Sort by': [
+        'relevance',
+        'price_low_to_high',
+        'price_high_to_low',
+        'rating',
+        'newest'
     ]
 };
+
+export const SORT_OPTIONS = [
+    { label: 'Relevance', value: 'relevance' },
+    { label: 'Latest', value: 'latest' },
+    { label: 'A to Z', value: 'a-z' },
+    { label: 'Z to A', value: 'z-a' },
+    { label: 'Price: Low to High', value: 'lowToHigh' },
+    { label: 'Price: High to Low', value: 'highToLow' },
+];

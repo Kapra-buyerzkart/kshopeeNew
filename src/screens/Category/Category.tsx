@@ -15,6 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import CONFIG from '../../globals/config';
 import { addToWishlistApi, removeFromWishlistApi } from '../../api/services/wishlistService';
 import { useWishlist } from '../../context/WishlistContext';
+import { SORT_OPTIONS } from './dummyData';
 
 const CategoryScreen = () => {
     const navigation = useNavigation<any>();
@@ -191,7 +192,7 @@ const CategoryScreen = () => {
     };
 
     const imageSource = (item: any) => {
-        console.log("Item image url--->", item)
+        // console.log("Item image url--->", item)
         const img = item?.imageUrl || item?.featuredImage;
         if (!img) {
             return require('../../assets/images/bill_icon.png');
@@ -205,7 +206,7 @@ const CategoryScreen = () => {
 
     const renderProduct = ({ item }: { item: any }) => (
 
-        <TouchableOpacity style={styles.exploreItemCard} onPress={() => { navigation.navigate('ProductDetailsScreen', { productId: item.productId || item.id, product: item }) }}>
+        <TouchableOpacity style={styles.exploreItemCard} onPress={() => { navigation.navigate('ProductDetailsScreen', { productId: item?.productId, product: item }) }}>
             <View style={styles.exploreTopBadgesRow}>
                 <View style={[styles.discountCircle, { opacity: item.discountPercent ? 1 : 0 }]}>
                     <Text style={[styles.discountCircleText]}>
@@ -269,7 +270,7 @@ const CategoryScreen = () => {
                 const isActive = selectedCategoryId === cat.catId?.toString();
                 return (
                     isActive && (
-                        <View style={styles.bannerContainer}>
+                        <View key={cat.catId?.toString() || index} style={styles.bannerContainer}>
                             <ImageBackground
                                 //source={require('../../assets/images/category/men.jpg')}
                                 source={getImageUrl(cat.mobBannerImgUrl)}
@@ -301,11 +302,11 @@ const CategoryScreen = () => {
                 </TouchableOpacity>
 
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.topFilterList}>
-                    {subCategoriesList.map((sub: any) => {
+                    {subCategoriesList.map((sub: any, index: number) => {
                         const isActive = selectedSubCategoryId === sub.catId?.toString();
                         return (
                             <TouchableOpacity
-                                key={sub.catId?.toString()}
+                                key={sub.catId?.toString() || index}
                                 style={styles.filterItemContainer}
                                 onPress={() => setSelectedSubCategoryId(isActive ? null : sub.catId?.toString())}
                             >
@@ -377,16 +378,27 @@ const CategoryScreen = () => {
                 visible={isFilterModalVisible}
                 onClose={() => setIsFilterModalVisible(false)}
                 onApply={(appliedFilters: Record<string, string[]>) => {
-                    let min = 0, max = 5000;
+                    let min = 0, max = 50000;
+                    let sortBy = 'relevance';
+
                     if (appliedFilters['Prize'] && appliedFilters['Prize'].length > 0) {
                         const priceOpt = appliedFilters['Prize'][0];
                         if (priceOpt === 'Below ₹500') { max = 500; }
                         else if (priceOpt === '₹500 - ₹1000') { min = 500; max = 1000; }
                         else if (priceOpt === '₹1000 - ₹2000') { min = 1000; max = 2000; }
-                        else if (priceOpt === 'Above ₹2000') { min = 2000; max = 10000; }
+                        else if (priceOpt === 'Above ₹2000') { min = 2000; max = 50000; }
                     }
-                    setFilters({ sortBy: 'relevance', priceMin: min, priceMax: max });
+
+                    if (appliedFilters['Sort by'] && appliedFilters['Sort by'].length > 0) {
+                        sortBy = appliedFilters['Sort by'][0];
+                    }
+
                     setIsFilterModalVisible(false);
+
+                    // Delay setting filters so Modal has time to dismiss. Prevents iOS freeze when overlapping Modals.
+                    setTimeout(() => {
+                        setFilters({ sortBy, priceMin: min, priceMax: max });
+                    }, 400);
                 }}
                 categoryName={categoryName}
                 categoryImage={categoriesList.find(c => c.catId?.toString() === selectedCategoryId)?.imageUrl}

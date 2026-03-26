@@ -7,7 +7,7 @@ import { useAddresses } from './useAddresses';
 
 export const useCartScreen = () => {
     const navigation = useNavigation<any>();
-    const { cartItems, loadCart, cartTotal, cartCount, cartSummary, getCartSummary, clearCart, error: cartError } = useCart();
+    const { cartItems, loadCart, cartTotal, cartCount, cartSummary, getCartSummary, clearCart, error: cartError, fetchAddresses } = useCart();
 
     // ─── Composed hooks ───
     const deliveryHook = useDeliverySlot();
@@ -114,6 +114,7 @@ export const useCartScreen = () => {
         getCartSummary,
         clearCart,
         cartError,
+        fetchAddresses,
         navigation,
 
         // Composed hooks (spread for backward compat)

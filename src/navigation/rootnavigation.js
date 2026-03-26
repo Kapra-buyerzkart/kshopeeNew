@@ -16,9 +16,12 @@ import CartScreen from '../screens/Cart/CartScreen';
 import ProductDetails from '../screens/Product/ProductDetails';
 import MyOrder from '../screens/Order/MyOrder';
 import MyOrderDetails from '../screens/Order/MyOrderDetails';
-import ReferralScreen from '../screens/ReferralScreen';
-import BCoinScreen from '../screens/BCoinScreen';
+import ReferralScreen from '../screens/Referral';
+import BCoinScreen from '../screens/BCoin';
 import EditProfile from '../screens/Profile/EditProfile';
+import SavedAddressScreen from '../screens/SavedAddress';
+import AddLocationScreen from '../screens/AddLocation';
+
 // import ChangePwdScreen from '../screens/ChangePwdScreen';
 // import LoginPwdScreen from '../screens/LoginPwdScreen';
 import { CartProvider } from '../context/CartContext';
@@ -73,6 +76,8 @@ export default function RootStack() {
         <Stack.Screen name="Referral" component={ReferralScreen} options={{ headerShown: false }} />
         <Stack.Screen name="BCoin" component={BCoinScreen} options={{ headerShown: false }} />
         <Stack.Screen name="EditProfile" component={EditProfile} options={{ headerShown: false }} />
+        <Stack.Screen name="SavedAddressScreen" component={SavedAddressScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="AddLocationScreen" component={AddLocationScreen} options={{ headerShown: false }} />
         {/* <Stack.Screen name="ChangePwdScreen" component={ChangePwdScreen} options={{ headerShown: false }} /> */}
         {/* <Stack.Screen name="LoginPwdScreen" component={LoginPwdScreen} options={{ headerShown: false }} /> */}
 

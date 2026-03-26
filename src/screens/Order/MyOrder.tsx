@@ -11,6 +11,7 @@ import { myOrders, Order, OrderItem } from './dummydata';
 import { AppIcons } from '../../assets/icons';
 import { LoaderContext } from '../../context/loaderContext';
 import { getMyOrdersApi } from '../../api/services/orderService';
+import CONFIG from '../../globals/config';
 
 const DashedSeparator = () => (
     <View style={styles.separatorContainer}>
@@ -29,11 +30,16 @@ const MyOrder = () => {
     const renderStatusIcon = (status: string) => {
         switch (status) {
             case 'Out For Order':
+            case 'Out for Delivery':
+            case 'Delivery Agent Assigned':
                 return <MaterialCommunityIcons name="truck-fast" size={20} color="#F39C12" />;
             case 'Cancelled':
                 return <Ionicons name="close-circle" size={20} color={colors.red} />;
             case 'Delivered':
                 return <Ionicons name="checkmark-circle" size={20} color={colors.green} />;
+            case 'Order Placed':
+            case 'Order Pending':
+                return <MaterialCommunityIcons name="clock-outline" size={20} color="#3498DB" />;
             default:
                 return null;
         }
@@ -63,15 +69,19 @@ const MyOrder = () => {
     };
 
 
-    const renderOrderItem = (item: OrderItem, order: Order) => (
-        <TouchableOpacity key={item.id} style={styles.itemContainer} onPress={() => navigation.navigate('MyOrderDetails', { order, selectedItem: item })}>
-            <Image source={item.image} style={styles.itemImage} resizeMode="contain" />
+    const getImageUrl = (imagePath: string) => {
+        if (!imagePath) return require("../../assets/images/category/nike.png"); // Adjust fullback if needed
+        if (typeof imagePath !== 'string') return imagePath;
+        if (imagePath.startsWith('http')) return { uri: imagePath };
+        return { uri: `${CONFIG.image_base_url}/${imagePath}`.replace(/([^:]\/)\/+/g, "$1") };
+    };
+
+    const renderOrderItem = (item: any, order: any, index: number) => (
+        <TouchableOpacity key={index} style={styles.itemContainer} onPress={() => navigation.navigate('MyOrderDetails', { order, selectedItem: item })}>
+            <Image source={getImageUrl(item.featuredImage)} style={styles.itemImage} resizeMode="contain" />
             <View style={styles.itemDetails}>
-                <Text style={styles.itemName} numberOfLines={1}>{item.name}</Text>
-                <View style={styles.originalPriceContainer}>
-                    <Text style={styles.originalPrice}>₹{item.originalPrice.toFixed(2)}</Text>
-                </View>
-                <Text style={styles.discountedPrice}>₹{item.discountedPrice.toFixed(2)}</Text>
+                <Text style={styles.itemName} numberOfLines={1}>{item.productName}</Text>
+                <Text style={styles.discountedPrice}>₹{item.lineTotal?.toFixed(2)}</Text>
             </View>
             <TouchableOpacity style={styles.chevronContainer}>
                 <AppIcons.RightArrow color={colors.themeTeal} size={20} />
@@ -79,34 +89,41 @@ const MyOrder = () => {
         </TouchableOpacity>
     );
 
-    const renderOrderCard = ({ item }: { item: Order }) => (
-        <View style={styles.card}>
-            <View style={styles.cardHeader}>
-                <View style={styles.statusContainer}>
-                    {renderStatusIcon(item.status)}
-                    <Text style={styles.statusText}>{item.status}</Text>
+    const renderOrderCard = ({ item }: { item: any }) => {
+        let parsedItems = [];
+        try {
+            parsedItems = item.items ? JSON.parse(item.items) : [];
+        } catch(e) {}
+        
+        return (
+            <View style={styles.card}>
+                <View style={styles.cardHeader}>
+                    <View style={styles.statusContainer}>
+                        {renderStatusIcon(item.orderStatusText)}
+                        <Text style={styles.statusText}>{item.orderStatusText}</Text>
+                    </View>
+                    <Text style={styles.dateText}>{item.orderDate ? new Date(item.orderDate).toLocaleDateString() : ''}</Text>
                 </View>
-                <Text style={styles.dateText}>{item.date}</Text>
+
+                <DashedSeparator />
+
+                {parsedItems.map((product: any, idx: number) => renderOrderItem(product, item, idx))}
+
+                <DashedSeparator />
+
+                <View style={styles.cardFooter}>
+                    <View style={styles.footerLeft}>
+                        <Text style={styles.footerLabel}>Order ID :</Text>
+                        <Text style={styles.orderIdText}>{item.orderNumber}</Text>
+                    </View>
+                    <View style={styles.footerRight}>
+                        <Text style={styles.footerLabel}>Total Amount :</Text>
+                        <Text style={styles.totalAmountText}>₹{item.grandTotal?.toFixed(2)}</Text>
+                    </View>
+                </View>
             </View>
-
-            <DashedSeparator />
-
-            {item.items.map(product => renderOrderItem(product, item))}
-
-            <DashedSeparator />
-
-            <View style={styles.cardFooter}>
-                <View style={styles.footerLeft}>
-                    <Text style={styles.footerLabel}>Order ID :</Text>
-                    <Text style={styles.orderIdText}>{item.orderId}</Text>
-                </View>
-                <View style={styles.footerRight}>
-                    <Text style={styles.footerLabel}>Total Amount :</Text>
-                    <Text style={styles.totalAmountText}>₹{item.totalAmount.toFixed(2)}</Text>
-                </View>
-            </View>
-        </View>
-    );
+        );
+    };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -120,8 +137,8 @@ const MyOrder = () => {
             </View>
 
             <FlatList
-                data={myOrders}
-                keyExtractor={(item) => item.orderId + item.status}
+                data={orderData?.items || []}
+                keyExtractor={(item, index) => item.orderId ? item.orderId.toString() : index.toString()}
                 renderItem={renderOrderCard}
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}

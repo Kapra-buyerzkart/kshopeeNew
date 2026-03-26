@@ -571,7 +571,7 @@ const CartScreen = () => {
             {/* <AddressModal visible={showAddressModal} onClose={() => setShowAddressModal(false)} addresses={addresses} onSelectAddress={onSelectAddress} /> */}
             <DeliverySlotModal visible={showSlotModal} onClose={() => setShowSlotModal(false)} onSelectSlot={(slot: any) => { setChosenSlot(slot); setSelectedDeliveryType('slot'); }} />
             <CouponModal visible={showCouponModal} onClose={() => setShowCouponModal(false)} isGiftCard={isGiftCard} availableCoupons={availableCoupons} availableGiftCards={availableGiftCards} onCouponClick={handleCouponClick} />
-            <ConfirmationModal visible={isClearCartModalVisible} onClose={() => setIsClearCartModalVisible(false)} onConfirm={() => { clearCart(); setIsClearCartModalVisible(false); }} title="Clear Cart" message="Are you sure you want to remove all items?" /> */}
+            <ConfirmationModal visible={isClearCartModalVisible} onClose={() => setIsClearCartModalVisible(false)} onConfirm={() => { clearCart(); setIsClearCartModalVisible(false); }} title="Clear Cart" message="Are you sure you want to remove all items?" />
 
             {/* <AddressConfirmationModal
                 visible={!!addressConfirmationData || serviceabilityTrigger}

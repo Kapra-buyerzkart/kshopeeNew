@@ -397,56 +397,56 @@ const ProductDetails = () => {
             <View style={styles.container}>
                 <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
-            {renderHeader()}
+                {renderHeader()}
 
-            <ScrollView style={styles.contentScroll} showsVerticalScrollIndicator={false}>
+                <ScrollView style={styles.contentScroll} showsVerticalScrollIndicator={false}>
 
-                {/* Image Section */}
-                {renderImageSection()}
+                    {/* Image Section */}
+                    {renderImageSection()}
 
-                {/* Main Content Info */}
-                <View style={styles.contentPadding}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Text style={styles.title}>{ProductTitle}</Text>
-                        {productDetails?.product.discountPercentage ? (
-                            <View style={[homeStyles.discountCircle, { opacity: 1, paddingHorizontal: 6, position: 'relative', alignSelf: 'flex-end' }]}>
-                                <Text style={homeStyles.discountCircleText}>
-                                    {Math.round(productDetails.product.discountPercentage)}% OFF
-                                </Text>
-                            </View>
-                        ) : null}
-                    </View>
-
-                    {productDetails?.product && (
-                        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6, marginBottom: 4, gap: 8 }}>
-                            <View style={[homeStyles.pricePill, { minHeight: 35, minWidth: 70 }]}>
-                                <Text style={homeStyles.pricePillText}>
-                                    ₹{productDetails.product.specialPrice?.toFixed(2) || productDetails.product.unitPrice?.toFixed(2)}
-                                </Text>
-                            </View>
-                            {productDetails.product.unitPrice && productDetails.product.specialPrice && productDetails.product.unitPrice > productDetails.product.specialPrice ? (
-                                <Text style={homeStyles.originalPriceText}>
-                                    MRP ₹{productDetails.product.unitPrice.toFixed(2)}
-                                </Text>
+                    {/* Main Content Info */}
+                    <View style={styles.contentPadding}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Text style={styles.title}>{ProductTitle}</Text>
+                            {productDetails?.product?.discountPercentage ? (
+                                <View style={[homeStyles.discountCircle, { opacity: 1, paddingHorizontal: 6, position: 'relative', alignSelf: 'flex-end' }]}>
+                                    <Text style={homeStyles.discountCircleText}>
+                                        {Math.round(productDetails?.product?.discountPercentage)}% OFF
+                                    </Text>
+                                </View>
                             ) : null}
-
                         </View>
-                    )}
-                    <Text style={[styles.description, { marginTop: 4 }]}>{ProductDesc}</Text>
-                    <LinearGradient
-                        colors={[colors.themeTeal, colors.themeDarkTeal]}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
-                        style={[homeStyles.reviewFilterPillActiveGradient, { borderRadius: 50, alignSelf: 'flex-end', top: 10 }]}
-                    >
-                        <TouchableOpacity onPress={() => { addToCartFunction(productId) }} style={{ padding: 10, flexDirection: 'row' }} >
-                            <AppIcons.Add size={20} color={colors.themeWhite} />
-                            <Text style={[homeStyles.reviewFilterText, homeStyles.reviewFilterTextActive, { marginHorizontal: 5 }]}>Add</Text>
-                        </TouchableOpacity>
-                    </LinearGradient>
+
+                        {productDetails?.product && (
+                            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6, marginBottom: 4, gap: 8 }}>
+                                <View style={[homeStyles.pricePill, { minHeight: 35, minWidth: 70 }]}>
+                                    <Text style={homeStyles.pricePillText}>
+                                        ₹{productDetails?.product?.specialPrice?.toFixed(2) || productDetails?.product?.unitPrice?.toFixed(2)}
+                                    </Text>
+                                </View>
+                                {productDetails?.product?.unitPrice && productDetails?.product?.specialPrice && productDetails?.product?.unitPrice > productDetails?.product?.specialPrice ? (
+                                    <Text style={homeStyles.originalPriceText}>
+                                        MRP ₹{productDetails?.product?.unitPrice?.toFixed(2)}
+                                    </Text>
+                                ) : null}
+
+                            </View>
+                        )}
+                        <Text style={[styles.description, { marginTop: 4 }]}>{ProductDesc}</Text>
+                        <LinearGradient
+                            colors={[colors.themeTeal, colors.themeDarkTeal]}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                            style={[homeStyles.reviewFilterPillActiveGradient, { borderRadius: 50, alignSelf: 'flex-end', top: 10 }]}
+                        >
+                            <TouchableOpacity onPress={() => { addToCartFunction(productId) }} style={{ padding: 10, flexDirection: 'row' }} >
+                                <AppIcons.Add size={20} color={colors.themeWhite} />
+                                <Text style={[homeStyles.reviewFilterText, homeStyles.reviewFilterTextActive, { marginHorizontal: 5 }]}>Add</Text>
+                            </TouchableOpacity>
+                        </LinearGradient>
 
 
-                    {/* <Text style={styles.sectionTitle}>Select Color</Text>
+                        {/* <Text style={styles.sectionTitle}>Select Color</Text>
                     <View style={styles.colorRow}>
                         {[0, 1, 2].map((index) => (
                             <TouchableOpacity
@@ -516,13 +516,13 @@ const ProductDetails = () => {
                             </LinearGradient>
                         )}
                     </View> */}
-                </View>
+                    </View>
 
-                {/* Delivery and Service */}
-                {/* {deliveryAndService()} */}
+                    {/* Delivery and Service */}
+                    {/* {deliveryAndService()} */}
 
 
-                {/* <TouchableOpacity style={[styles.accordionHeader, { paddingHorizontal: 16, marginTop: 24 }]}>
+                    {/* <TouchableOpacity style={[styles.accordionHeader, { paddingHorizontal: 16, marginTop: 24 }]}>
                     <Text style={styles.accordionTitle}>Rating & Reviews :</Text>
                     <Ionicons name="chevron-down" size={20} color={colors.themeDarkGray} />
                 </TouchableOpacity>
@@ -540,8 +540,8 @@ const ProductDetails = () => {
                     </View>
                 </View> */}
 
-                {/* Filters */}
-                {/* <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.reviewFiltersScroll}>
+                    {/* Filters */}
+                    {/* <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.reviewFiltersScroll}>
                     {['All', 'Latest', 'Positive', 'Negative Rating'].map((filter, index) => {
                         const isActive = selectedReviewFilter === filter;
                         if (isActive) {
@@ -572,8 +572,8 @@ const ProductDetails = () => {
                     })}
                 </ScrollView> */}
 
-                {/* Review List */}
-                {/* {dummyReviews.map((review, index) => (
+                    {/* Review List */}
+                    {/* {dummyReviews.map((review, index) => (
                     <View key={index} style={styles.reviewItem}>
                         <View style={styles.reviewerHeader}>
                             <Text style={styles.reviewerName}>{review.name}</Text>
@@ -593,33 +593,33 @@ const ProductDetails = () => {
                     </View>
                 ))} */}
 
-                {/* <TouchableOpacity style={styles.viewAllReviewsButton}>
+                    {/* <TouchableOpacity style={styles.viewAllReviewsButton}>
                     <Text style={styles.viewAllReviewsText}>View all</Text>
                 </TouchableOpacity> */}
 
-                {/* Similar Products */}
-                <View style={styles.similarProductsContainer}>
-                    <Text style={[styles.accordionTitle, { marginBottom: 4 }]}>Similar Products</Text>
+                    {/* Similar Products */}
+                    <View style={styles.similarProductsContainer}>
+                        <Text style={[styles.accordionTitle, { marginBottom: 4 }]}>Similar Products</Text>
 
-                    <FlatList
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.similarProductsScroll}
-                        data={relatedProducts?.items || similarProducts}
-                        keyExtractor={(item, index) => item.productId ? item.productId.toString() : index.toString()}
-                        renderItem={renderExploreItem}
-                    />
+                        <FlatList
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.similarProductsScroll}
+                            data={relatedProducts?.items || similarProducts}
+                            keyExtractor={(item, index) => item?.productId ? item?.productId.toString() : index.toString()}
+                            renderItem={renderExploreItem}
+                        />
 
-                    {/* <View style={{ marginVertical: 10 }}>
+                        {/* <View style={{ marginVertical: 10 }}>
                         <ClickForMoreButton onPress={() => { }} title='Click for more' />
                     </View> */}
 
-                </View>
+                    </View>
 
-            </ScrollView>
+                </ScrollView>
 
-            {/* Sticky Footer */}
-            {/* <View style={styles.stickyFooter}>
+                {/* Sticky Footer */}
+                {/* <View style={styles.stickyFooter}>
                 <View style={styles.footerPriceCol}>
                     <Text style={styles.footerPriceText}>{item?.price}</Text>
                     <Text style={styles.footerOldPriceText}>{item?.oldPrice}</Text>
@@ -643,7 +643,7 @@ const ProductDetails = () => {
                 </View>
             </View> */}
 
-        </View >
+            </View >
             <FloatingCartButton />
         </>
     );

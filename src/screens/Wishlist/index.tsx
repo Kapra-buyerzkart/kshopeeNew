@@ -9,12 +9,38 @@ import { wp } from '../../utils/responsive';
 import LinearGradient from 'react-native-linear-gradient';
 
 import { useWishlist } from '../../context/WishlistContext';
+import { useCart } from '../../context/CartContext';
+import { addToCartApi, removeFromCartApi } from '../../api/services/cartService';
 import FloatingCartButton from '../../components/FloatingCartButton/FloatingCartButton';
-
+import { Alert } from 'react-native';
 
 const WishlistScreen: React.FC = () => {
-    const navigation = useNavigation();
+    const navigation = useNavigation<any>();
     const { wishlistItems, loadWishlist, isLoading } = useWishlist();
+    const { cartItems, cartSummary, loadCart } = useCart();
+
+    const handleCartToggle = async (item: any) => {
+        const productId = item.productId || item.id;
+        const existingCartItem = cartItems.find(c => c.productId === productId);
+
+        try {
+            if (existingCartItem) {
+                // Item is already in cart, remove it
+                await removeFromCartApi(
+                    existingCartItem.cartItemId,
+                    cartSummary?.cartVersion,
+                    productId
+                );
+            } else {
+                // Item is not in cart, add it
+                await addToCartApi(productId, 1);
+            }
+            await loadCart();
+        } catch (error) {
+            console.error('Error toggling cart item:', error);
+            Alert.alert('Error', 'Failed to update cart. Please try again.');
+        }
+    };
 
     useFocusEffect(
         React.useCallback(() => {
@@ -34,7 +60,8 @@ const WishlistScreen: React.FC = () => {
                 <TouchableOpacity style={styles.headerIcon}>
                     <AppIcons.Search size={24} color="black" />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.cartIconContainer}>
+                <TouchableOpacity style={styles.cartIconContainer}
+                    onPress={() => navigation.navigate('Cart')}>
                     <AppIcons.ShoppingCart size={18} color="white" />
                 </TouchableOpacity>
             </View>
@@ -80,6 +107,8 @@ const WishlistScreen: React.FC = () => {
                             <ProductCard
                                 item={item}
                                 isWishlisted={true}
+                                isInCart={cartItems.some(c => c.productId === (item.productId || item.id))}
+                                onAddToCart={() => handleCartToggle(item)}
                             />
                         )}
                         keyExtractor={(item) => (item.productId || item.id).toString()}

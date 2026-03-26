@@ -123,15 +123,14 @@ const ReferralScreen: React.FC = () => {
                         </View>
 
                         <View style={[styles.solidRewardBox, { marginTop: hp('1.5%') }]}>
-                            <Text style={styles.solidRewardLabel}>Your Referral Code</Text>
-                            <TouchableOpacity style={styles.referralCodeRow} onPress={copyToClipboard}>
-                                <View style={styles.codeContainer}>
-                                    <Text style={styles.referralCodeText}>{profile?.referralCode || 'WELCOME'}</Text>
+                            <Text style={styles.solidRewardLabel}>Referral Points Earned</Text>
+                            <View style={styles.referralCodeRow}>
+                                <View style={[styles.codeContainer, { width: '100%', alignItems: 'center', backgroundColor: '#E0F7FA', paddingVertical: hp('1%') }]}>
+                                    <Text style={styles.referralCodeText}>
+                                        {referrals.reduce((sum, item) => sum + Number(item.totalTokensEarned || 0), 0)}
+                                    </Text>
                                 </View>
-                                <View style={styles.copyIconWrapper}>
-                                    <MaterialCommunityIcons name="content-copy" size={wp('4%')} color={colors.themeTeal} />
-                                </View>
-                            </TouchableOpacity>
+                            </View>
                         </View>
 
                         <TouchableOpacity style={styles.solidInviteBtn} onPress={onShare}>

@@ -1,53 +1,53 @@
 // styles.ts
 import { StyleSheet } from 'react-native';
 import { fonts } from '../../assets/theme/typography';
+import { Fonts } from '../../assets/theme/fonts';
+import { fontColors } from '../../assets/theme/colours';
 
 export const getStyles = (colour: any) => StyleSheet.create({
     container: {
         marginBottom: 20,
     },
     label: {
-        ...fonts.body2,
+        fontFamily: Fonts.regular,
         fontSize: 14,
-        color: colour.text,
-        marginBottom: 5,
-        fontWeight: '600',
+        color: fontColors.titleBlack,
+        marginBottom: 8,
+        fontWeight: '400',
     },
     input: {
-        ...fonts.body2,
-        height: 50,
-        //backgroundColor: colour.inputBackground,
-        borderRadius: 8,
+        fontFamily: Fonts.regular,
+        height: 40,
+        borderRadius: 25,
         paddingHorizontal: 15,
-        fontSize: 16,
-        color: colour.text,
-        borderWidth: 1,
-        borderColor: 'transparent',
+        fontSize: 14,
+        color: fontColors.titleBlack,
+        borderWidth: 0,
+        fontWeight: '500',
         flex: 1,
     },
     focused: {
-        borderColor: colour.secondary,
+        borderColor: colour.outlineTeal || colour.secondary,
     },
     error: {
         borderColor: colour.red,
     },
     errorText: {
-        ...fonts.body2,
+        fontFamily: Fonts.regular,
         color: colour.red,
         fontSize: 12,
         marginTop: 5,
     },
     iconContainer: {
-        paddingHorizontal: 10,
+        paddingHorizontal: 15,
     },
     inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    backgroundColor: colour.inputBackground,
-},
-
-
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#E5E5E5',
+        borderRadius: 25,
+        backgroundColor: colour.themeWhite || '#FFFFFF',
+        height: 40,
+    },
 });

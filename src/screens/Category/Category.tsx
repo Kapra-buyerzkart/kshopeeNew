@@ -1,44 +1,186 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, Image, TouchableOpacity, FlatList, ImageBackground } from 'react-native';
+import React, { useState, useContext, useEffect, useMemo } from 'react';
+import { View, Text, ScrollView, Image, TouchableOpacity, FlatList, ImageBackground, ActivityIndicator } from 'react-native';
 import { styles } from './styles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { colors } from '../../assets/theme/colours';
-import { useNavigation } from '@react-navigation/native';
-import { topFilters, subCategories, productsData } from './dummyData';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { AppIcons } from '../../assets/icons';
 import { Rating } from 'react-native-ratings';
 import FilterModal from './FilterModal';
+import { getCategoriesApi } from '../../api/services/categoryService';
+import { searchProductsApi } from '../../api/services/productService';
+import { LoaderContext } from '../../context/loaderContext';
+import { useDebounce } from '../../hooks/useDebounce';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import CONFIG from '../../globals/config';
 
 const CategoryScreen = () => {
     const navigation = useNavigation<any>();
-    const [selectedTopFilter, setSelectedTopFilter] = useState('1');
-    const [selectedSubCategory, setSelectedSubCategory] = useState(subCategories['1'][0]?.id || '');
+    const route = useRoute();
+    const { catId } = (route.params as any) || {};
     const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
 
+    // API State Map: Sidebar -> Categories, Top Filter -> Sub Categories, Grid -> Products 
+    const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(catId?.toString() || null);
+    const [selectedSubCategoryId, setSelectedSubCategoryId] = useState<string | null>(null);
+    const [categoriesList, setCategoriesList] = useState<any[]>([]);
+    const [subCategoriesList, setSubCategoriesList] = useState<any[]>([]);
+    const [productsList, setProductsList] = useState<any[]>([]);
 
-    const handleTopFilterPress = (id: string) => {
-        setSelectedTopFilter(id);
-        const subs = subCategories[id] || [];
-        if (subs.length > 0) {
-            setSelectedSubCategory(subs[0].id);
-        } else {
-            setSelectedSubCategory('');
+    const [loading, setLoading] = useState(true);
+    const [searchText, setSearchText] = useState("");
+    const [pincodeAreaId, setPincodeAreaId] = useState<number | null>(null);
+    const [pageNumber, setPageNumber] = useState(1);
+    const [pageSize, setPageSize] = useState(20);
+    const { showLoader } = useContext(LoaderContext) || { showLoader: () => { } };
+
+    const [filters, setFilters] = useState({
+        sortBy: 'relevance',
+        priceMin: 0,
+        priceMax: 5000
+    });
+
+    const debouncedSearchText = useDebounce(searchText, 500);
+
+    const getImageUrl = (imagePath: string) => {
+        if (!imagePath) return require("../../assets/images/category/men.jpg");
+        if (imagePath.startsWith('http')) return { uri: imagePath };
+        return { uri: `${CONFIG.image_base_url}/${imagePath}`.replace(/([^:]\/)\/+/g, "$1") };
+    };
+
+    useEffect(() => {
+        const initializeLocationAndSettings = async () => {
+            try {
+                const storedPincodeAreaId = await AsyncStorage.getItem('pincodeAreaId');
+                setPincodeAreaId(storedPincodeAreaId ? parseInt(storedPincodeAreaId) : null);
+            } catch (error) {
+                console.error("Error in initializeLocationAndSettings:", error);
+            }
+        };
+
+        initializeLocationAndSettings();
+        fetchCategories();
+    }, []);
+
+    useEffect(() => {
+        if (selectedCategoryId) {
+            fetchSubCategories(selectedCategoryId);
+        }
+    }, [selectedCategoryId]);
+
+    useEffect(() => {
+        const catIdToFetch = selectedSubCategoryId || selectedCategoryId;
+        if (catIdToFetch) {
+            fetchProducts(catIdToFetch);
+        }
+    }, [selectedSubCategoryId, selectedCategoryId, debouncedSearchText, filters]);
+
+    const fetchCategories = async () => {
+        try {
+            setLoading(true);
+            showLoader(true);
+            const response = await getCategoriesApi('1'); // Fetch root categories
+            console.log("Category response---->", JSON.stringify(response, null, 2))
+            if (response && response.success && response.data && response.data.items) {
+                setCategoriesList(response.data.items);
+
+                let targetCatId = catId?.toString();
+                if (!targetCatId && response.data.items.length > 0) {
+                    targetCatId = response.data.items[0].catId.toString();
+                }
+
+                if (targetCatId) {
+                    setSelectedCategoryId(targetCatId);
+                }
+            } else {
+                setCategoriesList([]);
+            }
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+        } finally {
+            setLoading(false);
+            showLoader(false);
         }
     };
 
+    const fetchSubCategories = async (parentId: string) => {
+        try {
+            showLoader(true);
+            const response = await getCategoriesApi('10');
+            console.log("Subcategory response---->", JSON.stringify(response, null, 2))
+            if (response && response.success && response.data && response.data.items) {
+                setSubCategoriesList(response.data.items);
+                setSelectedSubCategoryId(null); // Reset subcategory selection
+            } else {
+                setSubCategoriesList([]);
+            }
+        } catch (error) {
+            console.error('Error fetching subcategories:', error);
+            setSubCategoriesList([]);
+        } finally {
+            showLoader(false);
+        }
+    };
+
+    const fetchProducts = async (categoryId: string) => {
+        try {
+            showLoader(true);
+            const payload = {
+                //pincodeAreaId: pincodeAreaId,
+                pincodeAreaId: 10652,
+                prName: debouncedSearchText,
+                catId: parseInt(categoryId),
+                priceMin: filters.priceMin,
+                priceMax: filters.priceMax,
+                filterValues: null,
+                sortBy: filters.sortBy,
+                pageNumber: 1, // Reset to page 1
+                pageSize: pageSize
+            };
+            console.log("payload for product--->", payload);
+            const response = await searchProductsApi(payload);
+            console.log('Products Response --->:', JSON.stringify(response, null, 2));
+            if (response && response.success && response.data && response.data.items) {
+                setProductsList(response.data.items);
+                setPageNumber(1);
+            } else {
+                setProductsList([]);
+            }
+        } catch (error) {
+            console.error('Error fetching products:', error);
+            setProductsList([]);
+        } finally {
+            showLoader(false);
+        }
+    };
+
+    const imageSource = (item: any) => {
+        console.log("Item image url--->", item)
+        const img = item?.imageUrl || item?.featuredImage;
+        if (!img) {
+            return require('../../assets/images/bill_icon.png');
+        }
+        if (typeof img === 'string') {
+            if (img.startsWith('http')) return { uri: img };
+            return { uri: `${CONFIG.image_base_url}/${img}`.replace(/([^:]\/)\/+/g, "$1") };
+        }
+        return img;
+    };
+
     const renderProduct = ({ item }: { item: any }) => (
-        <TouchableOpacity style={styles.exploreItemCard} onPress={() => { navigation.navigate('ProductDetails', { item }) }}>
+
+        <TouchableOpacity style={styles.exploreItemCard} onPress={() => { navigation.navigate('ProductDetailsScreen', { productId: item.productId || item.id, product: item }) }}>
             <View style={styles.exploreTopBadgesRow}>
-                <View style={styles.discountCircle}>
-                    <Text style={[styles.discountCircleText]}>{item.discount}</Text>
+                <View style={[styles.discountCircle, { opacity: item.discount ? 1 : 0 }]}>
+                    <Text style={[styles.discountCircleText]}>{item.discount && !item.discount.toString().includes('%') ? `-${item.discount}%` : item.discount}</Text>
                 </View>
                 <AppIcons.BookmarkOutline color={colors.tealIconFont} size={24} />
             </View>
 
-            <Image source={item.image} style={styles.exploreItemImage} />
+            <Image source={imageSource(item)} style={styles.exploreItemImage} resizeMode="contain" />
 
             <View style={{ padding: 8 }}>
-                <Text style={[styles.caption]} numberOfLines={3}>{item.title}</Text>
+                <Text style={[styles.caption]} numberOfLines={3}>{item.prName || item.title || item.name}</Text>
 
                 <Rating
                     type='custom'
@@ -54,13 +196,19 @@ const CategoryScreen = () => {
 
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, gap: 4 }}>
                     <View style={styles.pricePill}>
-                        <Text style={styles.pricePillText}>{item.price}</Text>
+                        <Text style={styles.pricePillText}>{item.price?.toString().startsWith('₹') ? item.price : `₹${item.price || 0}`}</Text>
                     </View>
-                    <Text style={styles.originalPriceText}>{item.oldPrice}</Text>
+                    {(item.mrp || item.oldPrice) && (
+                        <Text style={styles.originalPriceText}>
+                            {(item.mrp || item.oldPrice)?.toString().includes('MRP') ? item.oldPrice : `MRP ₹${item.mrp || item.oldPrice}`}
+                        </Text>
+                    )}
                 </View>
             </View>
         </TouchableOpacity>
     );
+
+    const categoryName = categoriesList.find(c => c.catId?.toString() === selectedCategoryId)?.catName || 'Categories';
 
     return (
         <View style={styles.container}>
@@ -74,7 +222,7 @@ const CategoryScreen = () => {
                     <View style={styles.bannerHeader}>
                         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
                             <Ionicons name="arrow-back" size={28} color={colors.themeBlack} />
-                            <Text style={styles.bannerTitle}>Fashion</Text>
+                            <Text style={styles.bannerTitle}>{categoryName || 'Fashion'}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity>
                             <Ionicons name="search-outline" size={28} color={colors.themeBlack} />
@@ -83,7 +231,7 @@ const CategoryScreen = () => {
                 </ImageBackground>
             </View>
 
-            {/* Top Filters */}
+            {/* Top Filters / Subcategories */}
             <View style={styles.topFilterContainer}>
                 <TouchableOpacity style={styles.optionsIconContainer} onPress={() => setIsFilterModalVisible(true)}>
                     <View style={styles.optionsBadge}>
@@ -93,18 +241,18 @@ const CategoryScreen = () => {
                 </TouchableOpacity>
 
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.topFilterList}>
-                    {topFilters.map((filter) => {
-                        const isActive = selectedTopFilter === filter.id;
+                    {subCategoriesList.map((sub: any) => {
+                        const isActive = selectedSubCategoryId === sub.catId?.toString();
                         return (
                             <TouchableOpacity
-                                key={filter.id}
+                                key={sub.catId?.toString()}
                                 style={styles.filterItemContainer}
-                                onPress={() => handleTopFilterPress(filter.id)}
+                                onPress={() => setSelectedSubCategoryId(isActive ? null : sub.catId?.toString())}
                             >
                                 <View style={styles.filterContent}>
-                                    <Image source={filter.image} style={styles.filterImage} />
+                                    <Image source={getImageUrl(sub.imageUrl)} style={styles.filterImage} />
                                     <Text style={[styles.filterText, isActive && styles.filterTextActive]}>
-                                        {filter.name}
+                                        {sub.catName}
                                     </Text>
                                 </View>
                                 {isActive && <View style={styles.activeIndicator} />}
@@ -116,27 +264,27 @@ const CategoryScreen = () => {
 
             {/* Main Content */}
             <View style={styles.mainContent}>
-                {/* Left Sidebar */}
+                {/* Left Sidebar / Categories */}
                 <View style={styles.sidebarContainer}>
                     <ScrollView showsVerticalScrollIndicator={false}>
-                        {(subCategories[selectedTopFilter] || []).map((sub: any, index: number) => {
-                            const isActive = selectedSubCategory === sub.id;
+                        {categoriesList.map((cat: any, index: number) => {
+                            const isActive = selectedCategoryId === cat.catId?.toString();
                             return (
                                 <TouchableOpacity
-                                    key={sub.id + index}
+                                    key={cat.catId?.toString() + index}
                                     style={styles.sidebarItem}
-                                    onPress={() => setSelectedSubCategory(sub.id)}
+                                    onPress={() => setSelectedCategoryId(cat.catId?.toString())}
                                 >
                                     <View style={isActive ? styles.sidebarIconActiveBg : styles.sidebarIconInactiveBg}>
                                         <View style={[styles.sidebarIconWrapper, isActive && styles.sidebarIconWrapperActive]}>
                                             <Image
-                                                source={sub.icon}
+                                                source={getImageUrl(cat.imageUrl)}
                                                 style={styles.sidebarIconImage}
                                             />
                                         </View>
                                     </View>
                                     <Text style={[styles.sidebarItemText, isActive && styles.sidebarItemTextActive]}>
-                                        {sub.name}
+                                        {cat.catName}
                                     </Text>
                                 </TouchableOpacity>
                             );
@@ -147,26 +295,41 @@ const CategoryScreen = () => {
                 {/* Products Grid */}
                 <View style={styles.productsGrid}>
                     <FlatList
-                        data={productsData[selectedSubCategory] || []}
-                        keyExtractor={(item, index) => item.id + index.toString()}
+                        data={productsList}
+                        keyExtractor={(item, index) => (item.productId || item.id || index).toString()}
                         numColumns={2}
                         showsVerticalScrollIndicator={false}
                         renderItem={renderProduct}
                         columnWrapperStyle={{ justifyContent: 'space-between' }}
+                        ListEmptyComponent={
+                            !loading ? (
+                                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', marginTop: 50 }}>
+                                    <Text style={{ fontFamily: 'Outfit-Regular', color: '#999' }}>No products found</Text>
+                                </View>
+                            ) : null
+                        }
                     />
                 </View>
             </View>
 
             {/* Filter Modal */}
-            <FilterModal 
-                visible={isFilterModalVisible} 
-                onClose={() => setIsFilterModalVisible(false)} 
-                onApply={(filters) => {
-                    console.log('Applied filters:', filters);
+            <FilterModal
+                visible={isFilterModalVisible}
+                onClose={() => setIsFilterModalVisible(false)}
+                onApply={(appliedFilters: Record<string, string[]>) => {
+                    let min = 0, max = 5000;
+                    if (appliedFilters['Prize'] && appliedFilters['Prize'].length > 0) {
+                        const priceOpt = appliedFilters['Prize'][0];
+                        if (priceOpt === 'Below ₹500') { max = 500; }
+                        else if (priceOpt === '₹500 - ₹1000') { min = 500; max = 1000; }
+                        else if (priceOpt === '₹1000 - ₹2000') { min = 1000; max = 2000; }
+                        else if (priceOpt === 'Above ₹2000') { min = 2000; max = 10000; }
+                    }
+                    setFilters({ sortBy: 'relevance', priceMin: min, priceMax: max });
                     setIsFilterModalVisible(false);
                 }}
-                categoryName={topFilters.find(f => f.id === selectedTopFilter)?.name}
-                categoryImage={topFilters.find(f => f.id === selectedTopFilter)?.image}
+                categoryName={categoryName}
+                categoryImage={categoriesList.find(c => c.catId?.toString() === selectedCategoryId)?.imageUrl}
             />
         </View>
     );

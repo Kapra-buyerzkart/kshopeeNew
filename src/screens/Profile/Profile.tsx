@@ -94,7 +94,7 @@ const ProfileScreen: React.FC = () => {
                         <Image source={require('../../assets/icons/profile/cart.png')} style={{ width: 22, height: 22 }} />
                         <Text style={styles.actionText}>Cart</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('MyOrder')}>
+                    <TouchableOpacity style={styles.actionCard}>
                         <Image source={require('../../assets/icons/profile/orders.png')} style={{ width: 22, height: 22 }} />
                         <Text style={styles.actionText}>My Order</Text>
                     </TouchableOpacity>
@@ -128,7 +128,7 @@ const ProfileScreen: React.FC = () => {
                 <View style={styles.sectionContainer}>
                     <Text style={styles.sectionTitle}>Informations</Text>
                     <View style={styles.menuCard}>
-                        {renderMenuItem(<Image source={require('../../assets/icons/profile/profile.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />, 'Edit profile', true, '1')}
+                        {renderMenuItem(<Image source={require('../../assets/icons/profile/profile.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />, 'Edit profile', true, '1', undefined, () => navigation.navigate('EditProfile'))}
                         {renderMenuItem(<Image source={require('../../assets/icons/profile/lock.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />, 'Privacy Policy')}
                         {renderMenuItem(<Image source={require('../../assets/icons/profile/terms.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />, 'Terms and conditions')}
                         {renderMenuItem(<Image source={require('../../assets/icons/profile/info.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />, 'About us')}

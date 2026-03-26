@@ -113,3 +113,5 @@ export const getBCoinValueChangesApi = async (): Promise<any> => {
   return get('general/bcoinvaluechanges');
 };
 
+export * from './cartService';
+

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useMemo, ReactNode, useCallback } from 'react';
 import { getCartApi, getCartSummaryApi, clearCartApi } from '../api/services/cartService';
+import CONFIG from '../globals/config';
 
 export interface CartItem {
     cartItemId: number;
@@ -40,8 +41,24 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const loadCart = useCallback(async () => {
         try {
             const response = await getCartApi();
-            if (response && response.success) {
-                setCartItems(response.data?.items || []);
+            if (response && response.success && response.data) {
+                const items = response.data.items || [];
+                const mappedItems = items.map((item: any) => ({
+                    ...item,
+                    productName: item.prName || item.productName,
+                    productImage: item.featuredImage ? `${CONFIG.image_base_url}${item.featuredImage}` : (item.productImage || ''),
+                    quantity: item.addedQty || item.quantity || 0,
+                }));
+                setCartItems(mappedItems);
+                
+                // Keep cart version in summary state if available
+                if (response.data.cart) {
+                    setCartSummary((prev: any) => ({
+                        ...(prev || {}),
+                        cartVersion: response.data.cart.cartVersion,
+                        cartId: response.data.cart.cartId
+                    }));
+                }
                 return response.data;
             }
         } catch (err: any) {

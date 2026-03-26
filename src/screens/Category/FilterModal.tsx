@@ -25,6 +25,11 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply, ca
     const toggleFilter = (category: string, option: string) => {
         setSelectedFilters(prev => {
             const currentSelected = prev[category] || [];
+
+            if (category === 'Prize' || category === 'Sort by') {
+                return { ...prev, [category]: currentSelected.includes(option) ? [] : [option] };
+            }
+
             if (currentSelected.includes(option)) {
                 return { ...prev, [category]: currentSelected.filter(item => item !== option) };
             } else {
@@ -38,6 +43,7 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply, ca
     };
 
     const handleSave = () => {
+        console.log("Selected filters--->", selectedFilters)
         onApply(selectedFilters);
         onClose();
     };
@@ -148,7 +154,7 @@ const FilterModal: React.FC<FilterModalProps> = ({ visible, onClose, onApply, ca
                                     style={[homeStyles.reviewFilterPillActiveGradient, { borderRadius: 0, flexDirection: 'row' }]}
                                 >
                                     <AppIcons.ArrowUpBold color={colors.white} size={20} />
-                                    <TouchableOpacity onPress={() => { }} style={{ padding: 4 }} >
+                                    <TouchableOpacity onPress={handleSave} style={{ padding: 4 }} >
                                         <Text style={[homeStyles.reviewFilterText, homeStyles.reviewFilterTextActive]}>Save</Text>
                                     </TouchableOpacity>
                                 </LinearGradient>

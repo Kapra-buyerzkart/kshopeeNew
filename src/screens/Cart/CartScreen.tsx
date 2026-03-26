@@ -1,45 +1,444 @@
-import React from 'react';
-import { View, Text, ScrollView, Image, TouchableOpacity, StyleSheet, Dimensions, SafeAreaView } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
-import { useNavigation } from '@react-navigation/native';
-import { useCommonStyles } from '../../assets/styles';
-import { colors } from '../../assets/theme/colours';
-import { AppIcons } from '../../assets/icons';
-import { Fonts } from '../../assets/theme/fonts';
-import CartItemCard, { CartItem } from '../../components/CartItemCard';
-import BillSection from '../../components/BillSection';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Platform, RefreshControl } from 'react-native'
+import React, { useContext, useState, useEffect, useRef } from 'react'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
+import AntDesign from 'react-native-vector-icons/AntDesign'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import Ionicons from 'react-native-vector-icons/Ionicons'
+import Entypo from 'react-native-vector-icons/Entypo'
+import Feather from 'react-native-vector-icons/Feather'
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen'
+import { FONTS } from '../../styles/typography'
+import { useNavigation, useFocusEffect } from '@react-navigation/native'
+import CartItemCard, { CartItem as UICartItem } from '../../components/CartItemCard';
 import SaveMoneySection from '../../components/SaveMoneySection';
+import { colors } from '../../assets/theme/colours';
+import { Fonts } from '../../assets/theme/fonts';
+import { AppIcons } from '../../assets/icons';
+import LinearGradient from 'react-native-linear-gradient'
+import { useCartScreen } from '../../hooks/useCartScreen'
+import { useCart } from '../../context/CartContext'
+import { LoaderContext } from '../../context/loaderContext'
+import ConfirmationModal from '../../components/ConfirmationModal'
+import { getPaymentModesApi } from '../../api/services/configService'
+import { createOrderApi, confirmCodApi } from '../../api/services/orderService'
+import { createRazorpayOrderApi, verifyRazorpayPaymentApi } from '../../api/services/paymentService'
+import { updateCartItemApi, removeFromCartApi } from '../../api/services/cartService'
+import RazorpayCheckout from 'react-native-razorpay'
 
-const { width } = Dimensions.get('window');
+import AddressModal from '../../components/AddressModal'
+import AddressConfirmationModal from '../../components/AddressConfirmationModal'
+import DeliverySlotModal from '../../components/DeliverySlotModal'
+import CouponModal from '../../components/CouponModal'
+import BillSection from '../../components/BillSection'
+import CartEmptyComponent from '../../components/CartEmptyComponent'
+import StoreUnavailable from '../../components/StoreUnavailable'
+import StatusModal from '../../components/StatusModal'
+import { useUser } from '../../context/UserContext'
 
-const CartScreen: React.FC = () => {
-    const commonStyles = useCommonStyles();
-    const navigation = useNavigation();
+const CartScreen = () => {
+    const navigation = useNavigation<any>()
+    const { profile } = useUser();
+    const {
+        // Cart
+        billCalculations,
+        cartSummary,
 
-    const cartItems: CartItem[] = [
-        {
-            id: '1',
-            title: 'Lorem Ipsum is simply dummy text',
-            size: '32',
-            color: '#8B4513',
-            price: 324,
-            originalPrice: 394,
-            discount: '17%',
-            quantity: 1,
-            image: 'https://picsum.photos/seed/shoes1/200/200',
-        },
-        {
-            id: '2',
-            title: 'Lorem Ipsum is simply dummy text',
-            size: '32',
-            color: '#8B4513',
-            price: 324,
-            originalPrice: 394,
-            discount: '17%',
-            quantity: 1,
-            image: 'https://picsum.photos/seed/shoes2/200/200',
-        },
-    ];
+        // Offers
+        showCouponModal,
+        setShowCouponModal,
+        couponCode,
+        setCouponCode,
+        isGiftCard,
+        availableCoupons,
+        availableGiftCards,
+        appliedCouponCode,
+        appliedGiftCardCode,
+        onApplyOffer,
+        onRejectOffer,
+        handleApplyCoupon,
+        handleCouponClick,
+
+        // Delivery
+        selectedDeliveryType,
+        setSelectedDeliveryType,
+        selectedSlot,
+        setSelectedSlot,
+        showSlotModal,
+        setShowSlotModal,
+        datesList,
+        slotsByDate,
+        onSelectDate,
+        deliveryModes,
+    } = useCartScreen();
+
+    const { showLoader } = useContext(LoaderContext);
+    const {
+        cartItems,
+        clearCart,
+        getCartSummary,
+        error: cartError,
+        addresses,
+        fetchAddresses,
+        showAddressModal,
+        setShowAddressModal,
+        onSelectAddress,
+        onThreeDotsClicked,
+        onDeleteClicked,
+        onCloseThreeDots,
+        addressConfirmationData,
+        setAddressConfirmationData,
+        refreshCart,
+        serviceabilityTrigger,
+        setServiceabilityTrigger
+    } = useCart();
+
+    const [isClearCartModalVisible, setIsClearCartModalVisible] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
+    const [paymentMethod, setPaymentMethod] = useState('cod');
+    const [paymentModes, setPaymentModes] = useState<any[]>([]);
+
+    // Status Modal State
+    const [statusModalVisible, setStatusModalVisible] = useState(false);
+    const [statusType, setStatusType] = useState('success');
+    const [statusTitle, setStatusTitle] = useState('');
+    const [statusMessage, setStatusMessage] = useState('');
+    const [chosenSlot, setChosenSlot] = useState<any>(null);
+    const [isFinalizingOrder, setIsFinalizingOrder] = useState(false);
+
+    const scrollViewRef = useRef<ScrollView>(null);
+    const insets = useSafeAreaInsets();
+
+    const selectedAddress = addresses.find(a => a.selected);
+
+    // --- Cart Item Actions ---
+    const handleUpdateQty = async (item: any, newQty: number) => {
+        if (newQty < 1) {
+            handleRemoveItem(item);
+            return;
+        }
+        try {
+            showLoader(true);
+            const res = await updateCartItemApi(item.cartItemId, newQty, cartSummary?.cartVersion, item.productId, selectedAddress?.pincodeAreaId);
+            if (res?.success) {
+                await refreshCart();
+                await getCartSummary();
+            }
+        } catch (err) {
+            console.error('Error updating qty:', err);
+        } finally {
+            showLoader(false);
+        }
+    };
+
+    const handleRemoveItem = async (item: any) => {
+        try {
+            showLoader(true);
+            const res = await removeFromCartApi(item.cartItemId, cartSummary?.cartVersion, item.productId, selectedAddress?.pincodeAreaId);
+            if (res?.success) {
+                await refreshCart();
+                await getCartSummary();
+            }
+        } catch (err) {
+            console.error('Error removing item:', err);
+        } finally {
+            showLoader(false);
+        }
+    };
+
+    // Fetch payment modes on mount
+    useEffect(() => {
+        const fetchPaymentModes = async () => {
+            try {
+                const response = await getPaymentModesApi();
+                if (response?.success && response?.data) {
+                    let modes = [...response.data];
+                    // Ensure online exists for testing
+                    if (!modes.some(m => ['online', 'razorpay', 'upi'].includes(m.paymentModeName?.toLowerCase()))) {
+                        modes.push({ paymentModeId: 'online_test', paymentModeName: 'Online', description: 'UPI, Cards, Net Banking' });
+                    }
+                    setPaymentModes(modes);
+                    const cod = modes.find(m => m.paymentModeName?.toUpperCase() === 'COD');
+                    if (cod) setPaymentMethod(cod.paymentModeName);
+                }
+            } catch (err) {
+                console.error('Error fetching payment modes:', err);
+            }
+        };
+        fetchPaymentModes();
+    }, []);
+
+    // Refresh addresses whenever the screen gains focus
+    useFocusEffect(
+        React.useCallback(() => {
+            fetchAddresses();
+        }, [fetchAddresses])
+    );
+
+    // Calculate total B-Tokens
+    const totalCartBTokens = cartItems.reduce((sum, item) => sum + (item.totalBtokens || item.bTokenValue || item.bTokens || 0), 0);
+
+    // Pull-to-Refresh
+    const onRefresh = React.useCallback(async () => {
+        setRefreshing(true);
+        try {
+            await Promise.all([getCartSummary(), fetchAddresses()]);
+        } finally {
+            setRefreshing(false);
+        }
+    }, [getCartSummary, fetchAddresses]);
+
+    // --- Order Placement Logic ---
+    const handleConfirmOrder = async () => {
+        if (!selectedAddress) {
+            setShowAddressModal(true);
+            return;
+        }
+
+        try {
+            showLoader(true);
+            const summaryRes = await getCartSummary(
+                selectedDeliveryType,
+                chosenSlot?.id,
+                null,
+                selectedAddress.pincodeAreaId
+            );
+
+            showLoader(false);
+
+            const pincode = selectedAddress.pin || '';
+            const area = selectedAddress.raw?.areaName || selectedAddress.raw?.pincodeAreaName || selectedAddress.raw?.area_name || 'N/A';
+
+            if (summaryRes?.success === false && (summaryRes?.status === 'STORE_NOT_FOUND' || summaryRes?.status === 'STORE_CLOSED_FOR_DELIVERY')) {
+                setAddressConfirmationData({
+                    pincode,
+                    areaName: area,
+                    isPlacingOrder: true,
+                    isServiceable: false,
+                    unavailableMessage: summaryRes?.message || "Store is currently closed for delivery"
+                });
+            } else {
+                setAddressConfirmationData({
+                    pincode,
+                    areaName: area,
+                    isPlacingOrder: true,
+                    isServiceable: true
+                });
+            }
+        } catch (error: any) {
+            showLoader(false);
+            console.error('❌ [ORDER] Validation Error:', error);
+            const pincode = selectedAddress.pin || '';
+            const area = selectedAddress.raw?.areaName || selectedAddress.raw?.pincodeAreaName || selectedAddress.raw?.area_name || 'N/A';
+            const errorMsg = typeof error === 'string' ? error : (error?.message || error?.Message || "");
+
+            if (errorMsg.toLowerCase().includes('no store') ||
+                errorMsg.toLowerCase().includes('not found') ||
+                errorMsg.toLowerCase().includes('closed') ||
+                errorMsg.toLowerCase().includes('pincode area')) {
+                setAddressConfirmationData({
+                    pincode,
+                    areaName: area,
+                    isPlacingOrder: true,
+                    isServiceable: false,
+                    unavailableMessage: errorMsg || "Delivery currently not available in this area."
+                });
+            } else {
+                setAddressConfirmationData({ pincode, areaName: area, isPlacingOrder: true, isServiceable: true });
+            }
+        }
+    };
+
+    const submitOrder = async () => {
+        setAddressConfirmationData(null);
+        const onlineTerms = ['online', 'prepaid', 'razorpay', 'upi', 'online_test', 'online payment'];
+        const isOnlinePayment = onlineTerms.some(term => paymentMethod?.toLowerCase()?.includes(term));
+
+        try {
+            showLoader(true);
+            const createPayload = {
+                cartId: cartSummary?.cartId || cartItems?.[0]?.cartId,
+                shippingAddressId: selectedAddress.id,
+                billingAddressId: selectedAddress.id,
+                paymentMethod: isOnlinePayment ? "online" : paymentMethod,
+                ifMatchCartVersion: cartSummary?.cartVersion,
+                deliverySlotDate: selectedDeliveryType === 'slot' 
+                    ? (chosenSlot?.date?.split('T')[0] || (typeof chosenSlot?.date === 'string' ? chosenSlot.date : null))
+                    : null,
+                deliverySlotTime: selectedDeliveryType === 'slot' ? (chosenSlot?.slotValue || null) : null,
+                deliveryMode: selectedDeliveryType === 'slot' ? "slotted" : "express",
+                orderPlacedFromDevice: "app",
+                pincodeAreaId: selectedAddress.pincodeAreaId
+            };
+
+            const createResponse = await createOrderApi(createPayload);
+            if (createResponse?.success && createResponse?.data?.orderId) {
+                const orderId = createResponse.data.orderId;
+                const orderNumber = createResponse.data.orderNumber || orderId;
+
+                if (isOnlinePayment) {
+                    await handlePaymentFlow(orderId, orderNumber);
+                } else {
+                    const confirmResponse = await confirmCodApi(orderId);
+                    if (confirmResponse?.success) {
+                        await finalizeOrder(createResponse.data);
+                    } else {
+                        throw new Error(confirmResponse?.message || 'Failed to confirm COD');
+                    }
+                }
+            } else if (createResponse?.status === 'CART_CONFLICT') {
+                showLoader(false);
+                setStatusType('error');
+                setStatusTitle('Price/Stock Changed');
+                setStatusMessage('Price or stock of some items has changed, please reload');
+                setStatusModalVisible(true);
+            } else {
+                throw new Error(createResponse?.message || 'Failed to create order');
+            }
+        } catch (error: any) {
+            showLoader(false);
+            setStatusType('error');
+            setStatusTitle('Error');
+            setStatusMessage(error.message || 'An unexpected error occurred');
+            setStatusModalVisible(true);
+        }
+    };
+
+    const handlePaymentFlow = async (orderId: any, orderNumber: any) => {
+        try {
+            const rzpResponse = await createRazorpayOrderApi({ orderId });
+            if (rzpResponse?.success && rzpResponse?.data) {
+                const keyId = rzpResponse.data.keyId || rzpResponse.data.razorpayKeyId;
+                const razorpayOrderId = rzpResponse.data.razorpayOrderId;
+                const amount = rzpResponse.data.amount;
+
+                const options = {
+                    key: keyId,
+                    amount: amount,
+                    currency: "INR",
+                    name: "Kapra Daily",
+                    description: `Order #${orderNumber}`,
+                    order_id: razorpayOrderId,
+                    prefill: {
+                        email: profile?.email || '',
+                        contact: profile?.phone || profile?.phoneNo || ''
+                    },
+                    theme: { color: "#F25000" }
+                };
+
+                showLoader(false);
+                setTimeout(async () => {
+                    try {
+                        const sdkResponse = await RazorpayCheckout.open(options);
+                        showLoader(true);
+                        const verifyPayload = {
+                            orderId,
+                            razorpayOrderId: sdkResponse.razorpay_order_id,
+                            razorpayPaymentId: sdkResponse.razorpay_payment_id,
+                            razorpaySignature: sdkResponse.razorpay_signature,
+                            amount: Number(amount)
+                        };
+
+                        let verifyResponse;
+                        let retryCount = 0;
+                        const maxRetries = 2;
+
+                        const attemptVerification = async () => {
+                            try { return await verifyRazorpayPaymentApi(verifyPayload); } catch (e) { return null; }
+                        };
+
+                        verifyResponse = await attemptVerification();
+                        while ((!verifyResponse?.success || verifyResponse?.status === 'pending') && retryCount < maxRetries) {
+                            retryCount++;
+                            await new Promise(resolve => setTimeout(() => resolve(undefined), 3000));
+                            verifyResponse = await attemptVerification();
+                        }
+
+                        if (verifyResponse?.success) {
+                            await finalizeOrder({ orderId, orderNumber });
+                        } else {
+                            showLoader(false);
+                            // Fallback to OrderPendingScreen if verification is inconclusive
+                            navigation.replace('OrderPendingScreen', { orderId, orderNumber });
+                        }
+                    } catch (sdkError: any) {
+                        showLoader(false);
+                        navigation.navigate('OrderFailedScreen', { 
+                            errorMessage: sdkError?.description || 'Payment cancelled or failed.',
+                            orderId,
+                            orderNumber 
+                        });
+                        refreshCart();
+                    }
+                }, 500);
+            }
+        } catch (error: any) {
+            showLoader(false);
+            setStatusType('error');
+            setStatusTitle('Payment Error');
+            setStatusMessage(error.message || 'Failed to initialize payment');
+            setStatusModalVisible(true);
+        }
+    };
+
+    const finalizeOrder = async (orderData: any) => {
+        const itemsCount = cartItems.length;
+        const totalAmount = billCalculations.toPay;
+        const mode = selectedDeliveryType === 'slot' ? 'slotted' : 'express';
+        const addr = selectedAddress?.address || '';
+
+        try {
+            setIsFinalizingOrder(true);
+            await clearCart();
+        } finally {
+            showLoader(false);
+            navigation.reset({
+                index: 0,
+                routes: [{
+                    name: 'OrderSuccessScreen',
+                    params: {
+                        orderId: orderData.orderId,
+                        orderNumber: orderData.orderNumber || orderData.orderId,
+                        paymentMethod,
+                        totalItems: itemsCount,
+                        totalAmount: totalAmount,
+                        deliveryMode: mode,
+                        address: addr,
+                    }
+                }],
+            });
+        }
+    };    // --- Rendering Map ---
+    const mappedItems = cartItems.map(item => ({
+        id: String(item.cartItemId),
+        title: item.productName,
+        size: item.unitSize || item.variantName || 'Standard',
+        color: '#8B4513',
+        price: item.specialPrice || item.unitPrice,
+        originalPrice: item.unitPrice,
+        discount: item.unitPrice > (item.specialPrice || item.unitPrice) 
+            ? `${Math.round(((item.unitPrice - (item.specialPrice || item.unitPrice)) / item.unitPrice) * 100)}%`
+            : '0%',
+        quantity: item.quantity,
+        image: item.productImage,
+    }));
+
+    if (cartItems.length === 0 && !isFinalizingOrder) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <View style={styles.header}>
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                        <AppIcons.Back color={colors.black} size={24} />
+                    </TouchableOpacity>
+                    <Text style={styles.headerTitle}>Cart</Text>
+                    <View style={{ width: 44 }} />
+                </View>
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <CartEmptyComponent />
+                </View>
+            </SafeAreaView>
+        );
+    }
 
     return (
         <SafeAreaView style={styles.container}>
@@ -56,7 +455,11 @@ const CartScreen: React.FC = () => {
                 </TouchableOpacity>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+            <ScrollView 
+                showsVerticalScrollIndicator={false} 
+                contentContainerStyle={styles.scrollContent}
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+            >
                 {/* Delivering to Section */}
                 <View style={styles.addressCard}>
                     <View style={styles.addressRow}>
@@ -66,13 +469,13 @@ const CartScreen: React.FC = () => {
                         <View style={styles.addressInfo}>
                             <View style={styles.deliveringToRow}>
                                 <Text style={styles.deliveringToText}>Delivering to : </Text>
-                                <Text style={styles.addressType}>Home</Text>
+                                <Text style={styles.addressType}>{selectedAddress?.addressType || 'Home'}</Text>
                             </View>
                             <Text style={styles.addressDetail} numberOfLines={2}>
-                                Nishamanzil(h),Vennala Chakkaraparambu Road ,ernakulam district 654443
+                                {selectedAddress ? selectedAddress.address : 'No address selected'}
                             </Text>
                         </View>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={() => setShowAddressModal(true)}>
                             <Text style={styles.changeLink}>Change</Text>
                         </TouchableOpacity>
                     </View>
@@ -84,44 +487,48 @@ const CartScreen: React.FC = () => {
                             <AppIcons.Calendar color={colors.themeTeal} size={18} />
                         </View>
                         <Text style={styles.deliveryByText}>Delivery by : </Text>
-                        <Text style={styles.deliveryDate}>26 Jan 2026</Text>
+                        <Text style={styles.deliveryDate}>
+                            {selectedDeliveryType === 'slot' 
+                                ? (chosenSlot ? `${chosenSlot.dateDisplay} | ${chosenSlot.slotDisplay}` : 'Select Slot')
+                                : 'Express (20-30 min)'}
+                        </Text>
                     </View>
                 </View>
 
                 {/* Cart Items List */}
                 <View style={styles.itemsSection}>
-                    {cartItems.map((item) => (
+                    {mappedItems.map((item) => (
                         <CartItemCard
                             key={item.id}
                             item={item}
-                            onDelete={(id) => console.log('Delete', id)}
-                            onIncrement={(id) => console.log('Increment', id)}
-                            onDecrement={(id) => console.log('Decrement', id)}
+                            onDelete={(id) => {
+                                const originalItem = cartItems.find(i => String(i.cartItemId) === id);
+                                if (originalItem) handleRemoveItem(originalItem);
+                            }}
+                            onIncrement={(id) => {
+                                const originalItem = cartItems.find(i => String(i.cartItemId) === id);
+                                if (originalItem) handleUpdateQty(originalItem, (originalItem.quantity || 0) + 1);
+                            }}
+                            onDecrement={(id) => {
+                                const originalItem = cartItems.find(i => String(i.cartItemId) === id);
+                                if (originalItem) handleUpdateQty(originalItem, (originalItem.quantity || 0) - 1);
+                            }}
                         />
                     ))}
                 </View>
 
                 {/* Save Money Section */}
                 <SaveMoneySection
-                    appliedCouponCode={null}
-                    appliedGiftCardCode={null}
-                    bcoinsAppliedValue={0}
-                    availableBCoins={0}
-                    onApplyOffer={(id) => console.log('Apply offer', id)}
-                    onRejectOffer={(id) => console.log('Reject offer', id)}
+                    appliedCouponCode={appliedCouponCode}
+                    appliedGiftCardCode={appliedGiftCardCode}
+                    bcoinsAppliedValue={billCalculations.bcoinsAppliedValue || 0}
+                    availableBCoins={profile?.totalBCoins || profile?.bCoins || 0}
+                    onApplyOffer={onApplyOffer}
+                    onRejectOffer={onRejectOffer}
                 />
 
                 {/* Bill Summary */}
-                <BillSection
-                    billCalculations={{
-                        itemTotal: 324,
-                        savings: 70,
-                        deliveryCharge: 0,
-                        couponDiscount: 324,
-                        totalSavings: 324,
-                        toPay: 324,
-                    }}
-                />
+                <BillSection billCalculations={billCalculations} />
 
             </ScrollView>
 
@@ -129,7 +536,7 @@ const CartScreen: React.FC = () => {
             <View style={styles.bottomBar}>
                 <View style={styles.savingsBanner}>
                     <Text style={styles.savingsBannerText}>
-                        Yay! You are saving <Text style={styles.savingsBold}>₹324</Text>
+                        Yay! You are saving <Text style={styles.savingsBold}>₹{billCalculations.totalSavings.toFixed(2)}</Text>
                     </Text>
                 </View>
                 <View style={styles.paymentActionRow}>
@@ -139,26 +546,38 @@ const CartScreen: React.FC = () => {
                             <View style={styles.paymentIconCircle}>
                                 <AppIcons.Check color={colors.white} size={14} />
                             </View>
-                            <Text style={styles.payUsingValue}>Cash on delivery</Text>
+                            <Text style={styles.payUsingValue}>{paymentMethod}</Text>
                             <AppIcons.ArrowUp color={colors.black} size={14} style={{ marginLeft: 4 }} />
                         </TouchableOpacity>
                     </View>
 
                     <TouchableOpacity
                         activeOpacity={0.8}
-                        onPress={() => console.log('Pay')}
+                        onPress={handleConfirmOrder}
                         style={styles.payButtonContainer}>
                         <LinearGradient
                             colors={[colors.themeTeal, colors.themeDarkTeal]}
                             start={{ x: 0, y: 0.5 }}
                             end={{ x: 1, y: 0.5 }}
                             style={styles.payButton}>
-                            <Text style={styles.payButtonText}>Pay ₹324.00</Text>
+                            <Text style={styles.payButtonText}>Pay ₹{billCalculations.toPay.toFixed(2)}</Text>
                             <AppIcons.Forward color={colors.white} size={16} />
                         </LinearGradient>
                     </TouchableOpacity>
                 </View>
             </View>
+
+            <StatusModal visible={statusModalVisible} onClose={() => setStatusModalVisible(false)} type={statusType} title={statusTitle} message={statusMessage} />
+            <AddressModal visible={showAddressModal} onClose={() => setShowAddressModal(false)} addresses={addresses} onSelectAddress={onSelectAddress} />
+            <DeliverySlotModal visible={showSlotModal} onClose={() => setShowSlotModal(false)} onSelectSlot={(slot: any) => { setChosenSlot(slot); setSelectedDeliveryType('slot'); }} />
+            <CouponModal visible={showCouponModal} onClose={() => setShowCouponModal(false)} isGiftCard={isGiftCard} availableCoupons={availableCoupons} availableGiftCards={availableGiftCards} onCouponClick={handleCouponClick} />
+            <ConfirmationModal visible={isClearCartModalVisible} onClose={() => setIsClearCartModalVisible(false)} onConfirm={() => { clearCart(); setIsClearCartModalVisible(false); }} title="Clear Cart" message="Are you sure you want to remove all items?" />
+
+            <AddressConfirmationModal
+                visible={!!addressConfirmationData || serviceabilityTrigger}
+                onClose={() => { setAddressConfirmationData(null); setServiceabilityTrigger(false); }}
+                onConfirm={() => { if (addressConfirmationData?.isPlacingOrder && addressConfirmationData?.isServiceable) submitOrder(); else setAddressConfirmationData(null); }}
+            />
         </SafeAreaView>
     );
 };

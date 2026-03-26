@@ -58,7 +58,7 @@ const getPincodeAreaId = async (): Promise<number | null> => {
     } catch (error) {
         console.error('Error getting pincodeAreaId:', error);
     }
-    return null;
+    return 105; // Default to 105 (dummy area)
 };
 
 export const addToCartApi = async (productId: string | number, quantity: number = 1, pincodeAreaIdOverride: number | null = null): Promise<any> => {

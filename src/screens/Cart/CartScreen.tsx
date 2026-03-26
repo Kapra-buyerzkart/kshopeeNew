@@ -103,7 +103,6 @@ const CartScreen = () => {
     const [statusMessage, setStatusMessage] = useState('');
     const [chosenSlot, setChosenSlot] = useState<any>(null);
     const [isFinalizingOrder, setIsFinalizingOrder] = useState(false);
-    const [showPaymentModal, setShowPaymentModal] = useState(false);
 
     const scrollViewRef = useRef<ScrollView>(null);
     const insets = useSafeAreaInsets();
@@ -463,7 +462,8 @@ const CartScreen = () => {
                     <AppIcons.Back color={colors.black} size={24} />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Cart</Text>
-                <TouchableOpacity style={styles.heartButton}>
+                <TouchableOpacity style={styles.heartButton}
+                    onPress={() => navigation.navigate('Wishlist')}>
                     <View style={styles.heartCircle}>
                         <AppIcons.HeartOutline color={colors.white} size={20} />
                     </View>
@@ -579,27 +579,66 @@ const CartScreen = () => {
                     onRejectOffer={onRejectOffer}
                 />
 
+                {/* Payment Method Selection */}
+                <View
+                    style={styles.paymentSection}
+                    onLayout={(event) => {
+                        // Store layout if needed for scrolling
+                    }}
+                >
+                    <Text style={styles.paymentSectionTitle}>Select Payment Method</Text>
+                    <View style={styles.paymentOptionsGrid}>
+                        {paymentModes.map((mode, index) => {
+                            const isSelected = paymentMethod === mode.paymentModeName;
+                            return (
+                                <TouchableOpacity
+                                    key={mode.paymentModeId || index}
+                                    style={[styles.paymentMethodOption, isSelected && styles.paymentMethodOptionActive]}
+                                    onPress={() => setPaymentMethod(mode.paymentModeName)}
+                                    activeOpacity={0.7}
+                                >
+                                    <View style={[styles.radioCircle, isSelected && styles.radioCircleActive]}>
+                                        {isSelected && <View style={styles.radioInner} />}
+                                    </View>
+                                    <Text style={[styles.paymentMethodName, isSelected && styles.paymentMethodNameActive]}>
+                                        {mode.paymentModeName}
+                                    </Text>
+                                    {isSelected && <AppIcons.Check color={colors.themeTeal} size={16} />}
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </View>
+                </View>
+
                 {/* Bill Summary */}
-                <BillSection billCalculations={billCalculations} />
+                <View style={{ marginBottom: 120 }}>
+                    <BillSection billCalculations={billCalculations} />
+                </View>
 
             </ScrollView>
 
             {/* Bottom Bar */}
             <View style={styles.bottomBar}>
-                <View style={styles.savingsBanner}>
-                    <Text style={styles.savingsBannerText}>
-                        Yay! You are saving <Text style={styles.savingsBold}>₹{billCalculations.totalSavings.toFixed(2)}</Text>
-                    </Text>
-                </View>
+                {billCalculations.totalSavings > 0 && (
+                    <View style={styles.savingsBanner}>
+                        <Text style={styles.savingsBannerText}>
+                            Yay! You are saving <Text style={styles.savingsBold}>₹{billCalculations.totalSavings.toFixed(2)}</Text>
+                        </Text>
+                    </View>
+                )}
                 <View style={styles.paymentActionRow}>
                     <View style={styles.paymentInfo}>
-                        <Text style={styles.payUsingLabel}>PAY USING</Text>
-                        <TouchableOpacity style={styles.paymentMethod} onPress={() => setShowPaymentModal(true)}>
+                        <Text style={styles.payUsingLabel}>PAYING VIA</Text>
+                        <TouchableOpacity
+                            style={styles.paymentMethod}
+                            onPress={() => {
+                                scrollViewRef.current?.scrollToEnd({ animated: true });
+                            }}
+                        >
                             <View style={styles.paymentIconCircle}>
                                 <AppIcons.Check color={colors.white} size={14} />
                             </View>
                             <Text style={styles.payUsingValue}>{paymentMethod}</Text>
-                            <AppIcons.ArrowUp color={colors.black} size={14} style={{ marginLeft: 4 }} />
                         </TouchableOpacity>
                     </View>
 
@@ -631,46 +670,13 @@ const CartScreen = () => {
             <CouponModal visible={showCouponModal} onClose={() => setShowCouponModal(false)} isGiftCard={isGiftCard} availableCoupons={availableCoupons} availableGiftCards={availableGiftCards} onCouponClick={handleCouponClick} />
             <ConfirmationModal visible={isClearCartModalVisible} onClose={() => setIsClearCartModalVisible(false)} onConfirm={() => { clearCart(); setIsClearCartModalVisible(false); }} title="Clear Cart" message="Are you sure you want to remove all items?" />
 
-            <Modal visible={showPaymentModal} transparent animationType="slide">
-                <View style={styles.modalOverlay}>
-                    <View style={styles.paymentModalContent}>
-                        <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitle}>Select Payment Method</Text>
-                            <TouchableOpacity onPress={() => setShowPaymentModal(false)}>
-                                <AppIcons.Delete color={colors.black} size={24} />
-                            </TouchableOpacity>
-                        </View>
-                        {paymentModes.map((mode, index) => {
-                            const isSelected = paymentMethod === mode.paymentModeName;
-                            return (
-                                <TouchableOpacity
-                                    key={mode.paymentModeId || index}
-                                    style={[styles.paymentMethodOption, isSelected && styles.paymentMethodOptionActive]}
-                                    onPress={() => {
-                                        setPaymentMethod(mode.paymentModeName);
-                                        setShowPaymentModal(false);
-                                    }}
-                                >
-                                    <View style={[styles.radioCircle, isSelected && styles.radioCircleActive]}>
-                                        {isSelected && <View style={styles.radioInner} />}
-                                    </View>
-                                    <Text style={[styles.paymentMethodName, isSelected && styles.paymentMethodNameActive]}>
-                                        {mode.paymentModeName}
-                                    </Text>
-                                </TouchableOpacity>
-                            );
-                        })}
-                    </View>
-                </View>
-            </Modal>
-
             <AddressConfirmationModal
                 visible={!!addressConfirmationData}
                 onClose={() => { setAddressConfirmationData(null); }}
                 onConfirm={submitOrder}
                 data={addressConfirmationData}
             />
-        </SafeAreaView>
+        </SafeAreaView >
     );
 };
 
@@ -843,16 +849,27 @@ const styles = StyleSheet.create({
         padding: 24,
         paddingBottom: 40,
     },
-    modalHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 24,
-    },
     modalTitle: {
         fontSize: 18,
         fontFamily: Fonts.bold,
         color: colors.black,
+    },
+    paymentSection: {
+        backgroundColor: colors.white,
+        borderRadius: 16,
+        padding: 16,
+        marginTop: 16,
+        borderWidth: 1,
+        borderColor: '#E8F8FA',
+    },
+    paymentSectionTitle: {
+        fontSize: 16,
+        fontFamily: Fonts.gilroyBold,
+        color: colors.black,
+        marginBottom: 12,
+    },
+    paymentOptionsGrid: {
+        gap: 8,
     },
     paymentMethodOption: {
         flexDirection: 'row',

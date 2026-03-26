@@ -1,11 +1,11 @@
 import React from 'react';
-import { 
-    View, 
-    Text, 
-    Image, 
-    TouchableOpacity, 
-    StyleSheet, 
-    Dimensions 
+import {
+    View,
+    Text,
+    Image,
+    TouchableOpacity,
+    StyleSheet,
+    Dimensions
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../../assets/theme/colours';
@@ -30,10 +30,10 @@ const CartEmptyComponent = () => {
             <Text style={styles.description}>
                 Looks like you haven't added anything to your cart yet.
             </Text>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
                 style={styles.button}
-                onPress={() => navigation.navigate('Home')}
+                onPress={() => navigation.goBack()}
             >
                 <Text style={styles.buttonText}>Shop Now</Text>
             </TouchableOpacity>

@@ -8,6 +8,7 @@ interface CustomInputProps extends TextInputProps {
     rightIcon?: React.ReactNode;
     onPressRightIcon?: () => void;
     containerStyle?: StyleProp<ViewStyle>;
+    error?: string;
 }
 
 const CustomInput: React.FC<CustomInputProps> = ({
@@ -15,6 +16,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
     rightIcon,
     onPressRightIcon,
     containerStyle,
+    error,
     ...rest
 }) => {
     const [isFocused, setIsFocused] = useState(false);
@@ -36,6 +38,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
                     </TouchableOpacity>
                 )}
             </View>
+            {!!error && <Text style={{ color: 'red', fontSize: 12, marginTop: 4, marginLeft: 4 }}>{error}</Text>}
         </View>
     );
 };

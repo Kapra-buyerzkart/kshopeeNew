@@ -7,7 +7,7 @@ import {
 } from '../api/services/cartService';
 
 
-export const useOffers = (deliveryHook: any, addressHook: any, cartSummary: any, getCartSummary: any, profile: any) => {
+export const useOffers = (deliveryHook: any, addressHook: any, cartSummary: any, getCartSummary: any, profile: any, refreshCart: any) => {
     const [showCouponModal, setShowCouponModal] = useState(false);
     const [couponCode, setCouponCode] = useState('');
     const [isGiftCard, setIsGiftCard] = useState(false);
@@ -25,8 +25,8 @@ export const useOffers = (deliveryHook: any, addressHook: any, cartSummary: any,
                 getAvailableCouponsApi(selectedAddress?.pincodeAreaId),
                 getAvailableGiftCardsApi(selectedAddress?.pincodeAreaId)
             ]);
-            if (couponsRes?.success) setAvailableCoupons(couponsRes.data || []);
-            if (giftCardsRes?.success) setAvailableGiftCards(giftCardsRes.data || []);
+            if (couponsRes?.success) setAvailableCoupons(couponsRes.data?.items || []);
+            if (giftCardsRes?.success) setAvailableGiftCards(giftCardsRes.data?.items || []);
         } catch (err) {
             console.error('Error fetching offer data:', err);
         }
@@ -47,6 +47,7 @@ export const useOffers = (deliveryHook: any, addressHook: any, cartSummary: any,
                 const bcoinsToApply = profile?.totalBCoins || profile?.bCoins || 0;
                 if (bcoinsToApply > 0) {
                     await applyBCoinApi(bcoinsToApply, cartSummary?.cartVersion);
+                    await refreshCart();
                     await getCartSummary();
                 }
             } catch (err) {
@@ -69,6 +70,7 @@ export const useOffers = (deliveryHook: any, addressHook: any, cartSummary: any,
                 await removeGiftCardApi(cartSummary?.cartVersion);
                 setAppliedGiftCardCode(null);
             }
+            await refreshCart();
             await getCartSummary();
         } catch (err) {
             console.error('Error removing offer:', err);
@@ -84,6 +86,7 @@ export const useOffers = (deliveryHook: any, addressHook: any, cartSummary: any,
                 await applyCouponApi(code, cartSummary?.cartVersion, selectedAddress?.pincodeAreaId);
                 setAppliedCouponCode(code);
             }
+            await refreshCart();
             await getCartSummary();
             setShowCouponModal(false);
         } catch (err) {

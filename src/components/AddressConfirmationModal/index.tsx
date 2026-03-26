@@ -45,7 +45,7 @@ const AddressConfirmationModal: React.FC<AddressConfirmationModalProps> = ({
                         {isServiceable ? (
                             <AppIcons.Check color={colors.white} size={32} />
                         ) : (
-                            <AppIcons.Delete color={colors.white} size={32} />
+                            <AppIcons.Close color={colors.white} size={32} />
                         )}
                     </View>
 

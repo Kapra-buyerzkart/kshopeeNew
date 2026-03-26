@@ -17,6 +17,7 @@ interface ProductCardProps {
     discount?: string | number;
     rating?: number;
     isWishlisted?: boolean;
+    isInCart?: boolean;
     onWishlistPress?: () => void;
     onAddToCart?: () => void;
 }
@@ -30,6 +31,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     discount,
     rating = 0,
     isWishlisted: isWishlistedProp,
+    isInCart = false,
     onWishlistPress,
     onAddToCart,
 }) => {
@@ -120,13 +122,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     activeOpacity={0.8}
                 >
                     <LinearGradient
-                        colors={[colors.themeTeal, colors.themeDarkTeal, colors.themeDarkTeal]}
+                        colors={isInCart ? ['#6c757d', '#495057', '#343a40'] : [colors.themeTeal, colors.themeDarkTeal, colors.themeDarkTeal]}
                         start={{ x: 0.1, y: 1 }}
                         end={{ x: 1, y: 0.5 }}
                         style={styles.cartGradient}
                     >
                         <Image source={require('../../assets/images/cart.png')} style={{ width: 16, height: 16 }} tintColor={colors.white} resizeMode='contain' />
-                        <Text style={styles.cartText}>Cart</Text>
+                        <Text style={styles.cartText}>{isInCart ? 'Remove' : 'Cart'}</Text>
                     </LinearGradient>
                 </TouchableOpacity>
             </View>

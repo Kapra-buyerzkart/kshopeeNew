@@ -11,6 +11,8 @@ import { AlertProvider } from './src/context/AlertContext';
 
 const queryClient = new QueryClient();
 
+import { navigationRef } from './src/api/NavigationService';
+
 function App() {
   const [showSplash, setShowSplash] = useState(true);
   const isConnected = useNetworkStatus()
@@ -23,7 +25,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <UserProvider>
         <AlertProvider>
-          <NavigationContainer>
+          <NavigationContainer ref={navigationRef}>
             {isConnected && <NetworkBanner />}
             <RootStack />
           </NavigationContainer>

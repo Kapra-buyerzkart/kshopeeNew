@@ -110,10 +110,23 @@ const OtpScreen: React.FC = () => {
 
             try {
                 setLoading(true);
+                let response;
                 if (type === 'login') {
-                    await sendLoginOtp(phone);
+                    response = await sendLoginOtp(phone);
                 } else if (type === 'register') {
-                    await sendRegisterOtp(phone);
+                    response = await sendRegisterOtp(phone);
+                }
+
+                if (response?.success === false) {
+                    if (response?.status === 'NOT_REGISTERED') {
+                        showAlert('Not Registered', 'This phone number is not registered. Please sign up.');
+                        navigation.navigate('Login', { type: 'register' });
+                    } else if (response?.status === 'ALREADY_REGISTERED') {
+                        showAlert('Already Registered', 'This phone number is already registered. Please login.');
+                        navigation.navigate('Login', { type: 'login' });
+                    } else {
+                        showAlert('Error', response?.message || 'Failed to send OTP');
+                    }
                 }
             } catch (error: any) {
                 console.log('Send OTP Error:', error);
@@ -276,16 +289,22 @@ const OtpScreen: React.FC = () => {
     const handleResendOtp = async () => {
         try {
             setLoading(true);
+            let response;
             if (type === 'login') {
-                await resendLoginOtp(phone);
+                response = await resendLoginOtp(phone);
             } else if (type === 'reset') {
-                await resendForgotPwdOtp(phone);
+                response = await resendForgotPwdOtp(phone);
             }
-            showAlert('Success', 'OTP resent successfully');
-            setOtp(['', '', '', '', '']);
-            inputRefs[0].current?.focus();
-            setTimer(60);
-            setIsResendDisabled(true);
+
+            if (response?.success) {
+                showAlert('Success', 'OTP resent successfully');
+                setOtp(['', '', '', '', '']);
+                inputRefs[0].current?.focus();
+                setTimer(60);
+                setIsResendDisabled(true);
+            } else {
+                showAlert('Error', response?.message || 'Failed to resend OTP');
+            }
         } catch (error: any) {
             console.log('Resend OTP Error:', error);
             showAlert('Error', error?.message || 'Failed to resend OTP');
@@ -319,7 +338,7 @@ const OtpScreen: React.FC = () => {
                         <TouchableOpacity onPress={() => navigation.navigate('Login', {
                             type: type
                         })} style={styles.phoneNoEditContainer}>
-                            <Text style={styles.phoneNoText}>{phone}</Text>
+                            <Text style={styles.phoneNoText}>Otp has been sent to your mobile number {phone}</Text>
                             <Image
                                 style={
                                     Platform.OS === 'android'

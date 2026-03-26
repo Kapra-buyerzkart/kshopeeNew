@@ -22,7 +22,9 @@ export const setupInterceptors = (axiosInstance: AxiosInstance): void => {
       const isAuthApi =
         config.url?.includes('auth/loginpassword') ||
         config.url?.includes('auth/sendotp') ||
-        config.url?.includes('auth/verifyotp');
+        config.url?.includes('auth/verifyotp') ||
+        config.url?.includes('pincodearea/getbypincode') ||
+        config.url?.includes('pincodearea/search');
 
       const fullUrl = config.baseURL ? `${config.baseURL}${config.url}` : config.url;
       console.log('API URL 👉', fullUrl, 'isAuthApi 👉', isAuthApi);

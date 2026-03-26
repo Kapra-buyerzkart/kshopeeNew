@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View, Text, ScrollView, Image, TouchableOpacity, StatusBar } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Svg, { Line } from 'react-native-svg';
@@ -9,6 +9,9 @@ import { AppIcons } from '../../assets/icons';
 import { useCommonStyles } from '../../assets/styles';
 import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LoaderContext } from '../../context/loaderContext';
+import { getOrderDetailsApi } from '../../api/services/orderService';
+import CONFIG from '../../globals/config';
 
 const DashedLine = () => (
     <View style={styles.trackingDashedSeparator}>
@@ -18,40 +21,11 @@ const DashedLine = () => (
     </View>
 );
 
-const getTrackingSteps = (order: Order) => {
-    const baseSteps = [
-        { id: '1', title: 'Order Confirmed', subtitle: 'Your order has been placed. It will be shipped soon!' },
-        { id: '2', title: 'Order Shipped', subtitle: 'Your order is on the way' },
-        { id: '3', title: 'Reached the nearby Hub', subtitle: 'Your order is on the way' },
-        { id: '4', title: 'You have received your order', subtitle: 'Your order is on the way' },
-    ];
-
-    let currentIndex = 0;
-    if (order.status === 'Delivered') {
-        currentIndex = 3;
-    } else if (order.status === 'Out For Order') {
-        currentIndex = 2;
-    } else if (order.status === 'Cancelled') {
-        currentIndex = -1; // No current active step tracking if cancelled
-    }
-
-    return baseSteps.map((step, index) => {
-        const isCompleted = index < currentIndex || order.status === 'Delivered';
-        const isCurrent = index === currentIndex;
-
-        let icon = null;
-        if (isCurrent) {
-            icon = <AppIcons.Bag size={14} color={colors.themeTeal} />;
-        }
-
-        return {
-            ...step,
-            time: order.date ? `${order.date} - 11:05 PM` : '20th Oct, 2025 - 11:05 PM',
-            isCompleted: order.status === 'Delivered' ? true : isCompleted,
-            isCurrent: order.status === 'Delivered' && index === 3 ? true : isCurrent,
-            icon
-        };
-    });
+const getImageUrl = (imagePath: string) => {
+    if (!imagePath) return require("../../assets/images/category/nike.png"); // Adjust fullback if needed
+    if (typeof imagePath !== 'string') return imagePath;
+    if (imagePath.startsWith('http')) return { uri: imagePath };
+    return { uri: `${CONFIG.image_base_url}/${imagePath}`.replace(/([^:]\/)\/+/g, "$1") };
 };
 
 const MyOrderDetails = () => {
@@ -60,13 +34,55 @@ const MyOrderDetails = () => {
     const [isTrackOpen, setIsTrackOpen] = useState(false);
     const homeStyles = useCommonStyles();
 
-    const order: Order = route.params?.order;
-    const item: OrderItem = route.params?.selectedItem;
+    const [orderDetails, setOrderDetails] = useState<any>([]);
+    const { showLoader } = useContext(LoaderContext) || { showLoader: () => { } };
+
+    const order: any = route.params?.order;
+    const item: any = route.params?.selectedItem;
 
     if (!order || !item) return <View style={styles.container} />;
 
-    const otherItems = order.items.filter(i => i.id !== item.id);
-    const trackingSteps = getTrackingSteps(order);
+    const trackingSteps = orderDetails?.timeline ? orderDetails.timeline.map((step: any, index: number, arr: any[]) => {
+        const isCurrent = index === arr.length - 1;
+        const isCompleted = true;
+
+        let icon = null;
+        if (isCurrent) {
+            icon = <AppIcons.Bag size={14} color={colors.themeTeal} />;
+        }
+        return {
+            id: index.toString(),
+            title: step.statusText,
+            subtitle: step.notes,
+            time: new Date(step.changedAt).toLocaleString(),
+            isCompleted,
+            isCurrent,
+            icon
+        };
+    }) : [];
+
+    useEffect(() => {
+        fetchMyOrderDetailsFunction();
+    }, []);
+
+    const fetchMyOrderDetailsFunction = async () => {
+        try {
+            showLoader(true);
+            const response = await getOrderDetailsApi(order?.orderId);
+            console.log("Order details response---->", JSON.stringify(response, null, 2))
+            if (response && response.success && response.data) {
+                //console.log("Order details response data---->", JSON.stringify(response.data, null, 2))
+                setOrderDetails(response.data);
+            } else {
+                setOrderDetails([]);
+            }
+        } catch (error) {
+            console.error('Error fetching product details:', error);
+            setOrderDetails([]);
+        } finally {
+            showLoader(false);
+        }
+    };
 
     return (
         <SafeAreaView style={styles.detailsContainer}>
@@ -83,22 +99,10 @@ const MyOrderDetails = () => {
                 <View style={[styles.detailCard, { marginHorizontal: 16 }]}>
                     <View style={styles.productTopRow}>
                         <View style={styles.productImageContainer}>
-                            <Image source={item.image} style={styles.productImage} resizeMode="cover" />
+                            <Image source={getImageUrl(item?.featuredImage)} style={styles.productImage} resizeMode="cover" />
                         </View>
                         <View style={styles.productRightInfo}>
-                            <Text style={styles.productNameDetail}>{item.name}</Text>
-                            {item.size && (
-                                <View style={styles.productAttributeRow}>
-                                    <Text style={styles.productAttributeLabel}>Size :</Text>
-                                    <Text style={styles.productAttributeValue}>{item.size}</Text>
-                                </View>
-                            )}
-                            {item.colorHex && (
-                                <View style={styles.productAttributeRow}>
-                                    <Text style={styles.productAttributeLabel}>Color :</Text>
-                                    <View style={[styles.colorCircle, { backgroundColor: item.colorHex }]} />
-                                </View>
-                            )}
+                            <Text style={styles.productNameDetail}>{item?.productName}</Text>
                         </View>
                     </View>
                     <TouchableOpacity style={styles.buyAgainBtn}>
@@ -107,13 +111,13 @@ const MyOrderDetails = () => {
                 </View>
 
                 {/* Tracking Card */}
-                <View style={[styles.detailCard, { marginHorizontal: 8 }]}>
+                <View style={[styles.detailCard, { marginHorizontal: 16 }]}>
                     <View style={styles.trackingTopRow}>
                         <View style={styles.trackingLeftInfo}>
-                            <Image source={require('../../assets/images/img.png')} style={styles.trackingIcon} resizeMode="contain" />
+                            <Image source={require('../../assets/images/hub.png')} style={styles.trackingIcon} resizeMode="contain" />
                             <View>
-                                <Text style={styles.trackingStatusDetail}>{order.statusDescription || 'Order reached the hub'}</Text>
-                                <Text style={styles.trackingDateDetail}>{order.deliveryDateText || `Delivered on ${order.date}`}</Text>
+                                <Text style={styles.trackingStatusDetail}>{orderDetails?.header?.orderStatusText || item?.orderStatusText}</Text>
+                                <Text style={styles.trackingDateDetail}>{orderDetails?.header?.orderDate ? new Date(orderDetails.header.orderDate).toLocaleDateString() : ''}</Text>
                             </View>
                         </View>
                         <TouchableOpacity style={styles.trackOrderBtn} onPress={() => setIsTrackOpen(!isTrackOpen)}>
@@ -129,7 +133,7 @@ const MyOrderDetails = () => {
                     {/* Expandable Timeline */}
                     {isTrackOpen && (
                         <View style={styles.trackingExpandedContainer}>
-                            {trackingSteps.map((step, index) => {
+                            {trackingSteps.map((step: any, index: number) => {
                                 const isLast = index === trackingSteps.length - 1;
                                 return (
                                     <View key={step.id} style={styles.trackingStepRow}>
@@ -163,11 +167,11 @@ const MyOrderDetails = () => {
                     <View style={styles.returnWindowRow}>
                         <AppIcons.Reload size={16} color={colors.themeTeal} />
                         <Text style={styles.returnWindowText}>
-                            {order.returnWindowText ? (
-                                <>
-                                    Return window close after <Text style={styles.returnWindowRedText}>7 days</Text>
-                                </>
-                            ) : null}
+                            {/* {order.returnWindowText ? (
+                                <> */}
+                            Return window close after <Text style={styles.returnWindowRedText}>7 days</Text>
+                            {/* </>
+                            ) : null} */}
                         </Text>
                     </View>
                 </View>
@@ -183,16 +187,19 @@ const MyOrderDetails = () => {
                 </View>
 
                 {/* Other Products Card */}
-                {otherItems.length > 0 && (
+                {orderDetails?.items?.length > 1 && (
                     <View style={[styles.detailCard, { marginHorizontal: 16 }]}>
                         <Text style={styles.otherProductsTitle}>Other Products in this order</Text>
-                        <View style={styles.otherProductsRow}>
-                            {otherItems.map(otherItem => (
-                                <Image key={otherItem.id} source={otherItem.image} style={styles.otherProductItemImage} resizeMode="contain" />
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.otherProductsRow}>
+                            {orderDetails.items.filter((i: any) => {
+                                if (item?.productId && i.productId) return i.productId !== item.productId;
+                                return i.productName !== item?.productName;
+                            }).map((otherItem: any) => (
+                                <Image key={otherItem.orderItemId} source={getImageUrl(otherItem.featuredImage)} style={styles.otherProductItemImage} resizeMode="contain" />
                             ))}
-                        </View>
+                        </ScrollView>
                         <View style={styles.orderIdContainer}>
-                            <Text style={styles.orderIdLabelDetail}>Order ID : {order.orderId}</Text>
+                            <Text style={styles.orderIdLabelDetail}>Order ID : {orderDetails?.header?.orderNumber || item?.orderNumber}</Text>
                         </View>
                     </View>
                 )}
@@ -204,9 +211,11 @@ const MyOrderDetails = () => {
                             <AppIcons.Location size={14} color={colors.themeTeal} />
                         </View>
                         <Text style={styles.deliveryToText}>Delivered to :</Text>
-                        <Text style={styles.deliveryTypeText}>{order.deliveryType || 'Home'}</Text>
+                        <Text style={styles.deliveryTypeText}>{orderDetails?.shippingAddress?.addressType || 'Home'}</Text>
                     </View>
-                    <Text style={styles.addressText}>{order.deliveryAddress}</Text>
+                    <Text style={styles.addressText}>
+                        {orderDetails?.shippingAddress ? `${orderDetails.shippingAddress.custName}, ${orderDetails.shippingAddress.addLine1}, ${orderDetails.shippingAddress.pincodeAreaName || ''}, ${orderDetails.shippingAddress.pincode}` : ''}
+                    </Text>
                 </View>
 
             </ScrollView>
@@ -230,7 +239,7 @@ const MyOrderDetails = () => {
                 >
                     <AppIcons.ArrowUpBold color={colors.white} size={20} />
                     <TouchableOpacity onPress={() => { }} style={{ padding: 4 }} >
-                        <Text style={[homeStyles.reviewFilterText, homeStyles.reviewFilterTextActive]}>Save</Text>
+                        <Text style={[homeStyles.reviewFilterText, homeStyles.reviewFilterTextActive]}>Reorder</Text>
                     </TouchableOpacity>
                 </LinearGradient>
             </View>

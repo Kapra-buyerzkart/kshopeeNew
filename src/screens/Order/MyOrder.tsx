@@ -46,16 +46,16 @@ const MyOrder = () => {
     };
 
     useEffect(() => {
-        fetchOrderFunction();
+        fetchMyOrderFunction();
     }, []);
 
-    const fetchOrderFunction = async () => {
+    const fetchMyOrderFunction = async () => {
         try {
             showLoader(true);
             const response = await getMyOrdersApi();
             console.log("Order details response---->", JSON.stringify(response, null, 2))
             if (response && response.success && response.data) {
-                console.log("Order details response data---->", JSON.stringify(response.data, null, 2))
+                //console.log("Order details response data---->", JSON.stringify(response.data, null, 2))
                 setOrderData(response.data);
             } else {
                 setOrderData([]);
@@ -76,25 +76,34 @@ const MyOrder = () => {
         return { uri: `${CONFIG.image_base_url}/${imagePath}`.replace(/([^:]\/)\/+/g, "$1") };
     };
 
-    const renderOrderItem = (item: any, order: any, index: number) => (
-        <TouchableOpacity key={index} style={styles.itemContainer} onPress={() => navigation.navigate('MyOrderDetails', { order, selectedItem: item })}>
-            <Image source={getImageUrl(item.featuredImage)} style={styles.itemImage} resizeMode="contain" />
-            <View style={styles.itemDetails}>
-                <Text style={styles.itemName} numberOfLines={1}>{item.productName}</Text>
-                <Text style={styles.discountedPrice}>₹{item.lineTotal?.toFixed(2)}</Text>
-            </View>
-            <TouchableOpacity style={styles.chevronContainer}>
-                <AppIcons.RightArrow color={colors.themeTeal} size={20} />
+    const renderOrderItem = (product: any, order: any, index: number) => {
+        // Inject order information so it's accessible in selectedItem
+        const item = {
+            ...product,
+            orderId: order?.orderId,
+            orderNumber: order?.orderNumber
+        };
+
+        return (
+            <TouchableOpacity key={index} style={styles.itemContainer} onPress={() => navigation.navigate('MyOrderDetails', { order, selectedItem: item })}>
+                <Image source={getImageUrl(item?.featuredImage)} style={styles.itemImage} resizeMode="contain" />
+                <View style={styles.itemDetails}>
+                    <Text style={styles.itemName} numberOfLines={1}>{item?.productName}</Text>
+                    <Text style={styles.discountedPrice}>₹{item?.lineTotal?.toFixed(2)}</Text>
+                </View>
+                <TouchableOpacity style={styles.chevronContainer}>
+                    <AppIcons.RightArrow color={colors.themeTeal} size={20} />
+                </TouchableOpacity>
             </TouchableOpacity>
-        </TouchableOpacity>
-    );
+        );
+    };
 
     const renderOrderCard = ({ item }: { item: any }) => {
         let parsedItems = [];
         try {
-            parsedItems = item.items ? JSON.parse(item.items) : [];
-        } catch(e) {}
-        
+            parsedItems = item?.items ? JSON.parse(item?.items) : [];
+        } catch (e) { }
+
         return (
             <View style={styles.card}>
                 <View style={styles.cardHeader}>

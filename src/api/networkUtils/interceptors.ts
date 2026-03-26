@@ -76,7 +76,7 @@ export const setupInterceptors = (axiosInstance: AxiosInstance): void => {
         try {
           const refreshToken = await getRefreshToken();
           console.log('🔄 [API] Refresh Token Found:', !!refreshToken);
-          
+
           if (!refreshToken) throw new Error('No refresh token available');
 
           const res = await axios.post(
@@ -108,7 +108,7 @@ export const setupInterceptors = (axiosInstance: AxiosInstance): void => {
           processQueue(err);
           await clearTokens();
           // Force back to login if refresh fails on an auth-required route
-          NavigationService.reset('Login'); 
+          NavigationService.reset('Login');
           throw err;
         } finally {
           isRefreshing = false;

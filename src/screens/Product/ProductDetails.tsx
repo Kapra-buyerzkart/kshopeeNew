@@ -18,11 +18,16 @@ import CONFIG from '../../globals/config';
 import { addToCartApi } from '../../api/services';
 
 
+import { updateCartItemApi } from '../../api/services/cartService';
+import { useCart } from '../../context/CartContext';
+import FloatingCartButton from '../../components/FloatingCartButton/FloatingCartButton';
+
 const ProductDetails = () => {
     const route = useRoute();
     const navigation = useNavigation<any>();
     const homeStyles = useCommonStyles();
 
+    const { cartItems, cartSummary, loadCart } = useCart();
     const { showLoader } = useContext(LoaderContext) || { showLoader: () => { } };
 
     // Retrieve item from params or provide fallback
@@ -169,18 +174,33 @@ const ProductDetails = () => {
     const addToCartFunction = async (productId: string) => {
         try {
             showLoader(true);
-            console.log('Product id---->', productId)
-            console.log('Pincode area id---->', pincodeAreaId)
-            const response = await addToCartApi(productId, 1, pincodeAreaId);
-            console.log("add to cart  response---->", JSON.stringify(response, null, 2))
-            if (response && response.success) {
-                console.log("add to cart response data---->", JSON.stringify(response.data, null, 2))
+            const existingItem = cartItems.find((item: any) => String(item.productId) === String(productId));
 
+            let response;
+            if (existingItem) {
+                console.log('Updating existing item in cart...');
+                response = await updateCartItemApi(
+                    existingItem.cartItemId,
+                    existingItem.quantity + 1,
+                    cartSummary?.cartVersion,
+                    productId,
+                    pincodeAreaId
+                );
             } else {
-                console.log('add to cart failed')
+                console.log('Adding new item to cart...');
+                response = await addToCartApi(productId, 1, pincodeAreaId);
+            }
+
+            console.log("cart operation response---->", JSON.stringify(response, null, 2));
+
+            if (response && response.success) {
+                console.log("cart operation successful, reloading cart...");
+                await loadCart();
+            } else {
+                console.log('cart operation failed');
             }
         } catch (error) {
-            console.error('Error fetching product details:', error);
+            console.error('Error modifying cart:', error);
         } finally {
             showLoader(false);
         }
@@ -373,8 +393,9 @@ const ProductDetails = () => {
     );
 
     return (
-        <View style={styles.container}>
-            <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
+        <>
+            <View style={styles.container}>
+                <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
             {renderHeader()}
 
@@ -623,6 +644,8 @@ const ProductDetails = () => {
             </View> */}
 
         </View >
+            <FloatingCartButton />
+        </>
     );
 };
 

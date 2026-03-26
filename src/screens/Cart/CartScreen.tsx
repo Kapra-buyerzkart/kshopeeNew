@@ -262,7 +262,7 @@ const CartScreen = () => {
                 billingAddressId: selectedAddress.id,
                 paymentMethod: isOnlinePayment ? "online" : paymentMethod,
                 ifMatchCartVersion: cartSummary?.cartVersion,
-                deliverySlotDate: selectedDeliveryType === 'slot' 
+                deliverySlotDate: selectedDeliveryType === 'slot'
                     ? (chosenSlot?.date?.split('T')[0] || (typeof chosenSlot?.date === 'string' ? chosenSlot.date : null))
                     : null,
                 deliverySlotTime: selectedDeliveryType === 'slot' ? (chosenSlot?.slotValue || null) : null,
@@ -363,10 +363,10 @@ const CartScreen = () => {
                         }
                     } catch (sdkError: any) {
                         showLoader(false);
-                        navigation.navigate('OrderFailedScreen', { 
+                        navigation.navigate('OrderFailedScreen', {
                             errorMessage: sdkError?.description || 'Payment cancelled or failed.',
                             orderId,
-                            orderNumber 
+                            orderNumber
                         });
                         refreshCart();
                     }
@@ -416,7 +416,7 @@ const CartScreen = () => {
         color: '#8B4513',
         price: item.specialPrice || item.unitPrice,
         originalPrice: item.unitPrice,
-        discount: item.unitPrice > (item.specialPrice || item.unitPrice) 
+        discount: item.unitPrice > (item.specialPrice || item.unitPrice)
             ? `${Math.round(((item.unitPrice - (item.specialPrice || item.unitPrice)) / item.unitPrice) * 100)}%`
             : '0%',
         quantity: item.quantity,
@@ -455,8 +455,8 @@ const CartScreen = () => {
                 </TouchableOpacity>
             </View>
 
-            <ScrollView 
-                showsVerticalScrollIndicator={false} 
+            <ScrollView
+                showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContent}
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
             >
@@ -488,7 +488,7 @@ const CartScreen = () => {
                         </View>
                         <Text style={styles.deliveryByText}>Delivery by : </Text>
                         <Text style={styles.deliveryDate}>
-                            {selectedDeliveryType === 'slot' 
+                            {selectedDeliveryType === 'slot'
                                 ? (chosenSlot ? `${chosenSlot.dateDisplay} | ${chosenSlot.slotDisplay}` : 'Select Slot')
                                 : 'Express (20-30 min)'}
                         </Text>
@@ -567,17 +567,17 @@ const CartScreen = () => {
                 </View>
             </View>
 
-            <StatusModal visible={statusModalVisible} onClose={() => setStatusModalVisible(false)} type={statusType} title={statusTitle} message={statusMessage} />
-            <AddressModal visible={showAddressModal} onClose={() => setShowAddressModal(false)} addresses={addresses} onSelectAddress={onSelectAddress} />
+            {/* <StatusModal visible={statusModalVisible} onClose={() => setStatusModalVisible(false)} type={statusType} title={statusTitle} message={statusMessage} />
+            {/* <AddressModal visible={showAddressModal} onClose={() => setShowAddressModal(false)} addresses={addresses} onSelectAddress={onSelectAddress} /> */}
             <DeliverySlotModal visible={showSlotModal} onClose={() => setShowSlotModal(false)} onSelectSlot={(slot: any) => { setChosenSlot(slot); setSelectedDeliveryType('slot'); }} />
             <CouponModal visible={showCouponModal} onClose={() => setShowCouponModal(false)} isGiftCard={isGiftCard} availableCoupons={availableCoupons} availableGiftCards={availableGiftCards} onCouponClick={handleCouponClick} />
-            <ConfirmationModal visible={isClearCartModalVisible} onClose={() => setIsClearCartModalVisible(false)} onConfirm={() => { clearCart(); setIsClearCartModalVisible(false); }} title="Clear Cart" message="Are you sure you want to remove all items?" />
+            <ConfirmationModal visible={isClearCartModalVisible} onClose={() => setIsClearCartModalVisible(false)} onConfirm={() => { clearCart(); setIsClearCartModalVisible(false); }} title="Clear Cart" message="Are you sure you want to remove all items?" /> */}
 
-            <AddressConfirmationModal
+            {/* <AddressConfirmationModal
                 visible={!!addressConfirmationData || serviceabilityTrigger}
                 onClose={() => { setAddressConfirmationData(null); setServiceabilityTrigger(false); }}
                 onConfirm={() => { if (addressConfirmationData?.isPlacingOrder && addressConfirmationData?.isServiceable) submitOrder(); else setAddressConfirmationData(null); }}
-            />
+            /> */}
         </SafeAreaView>
     );
 };

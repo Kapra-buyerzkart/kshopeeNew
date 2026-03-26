@@ -16,6 +16,7 @@ import CONFIG from '../../globals/config';
 import { addToWishlistApi, removeFromWishlistApi } from '../../api/services/wishlistService';
 import { useWishlist } from '../../context/WishlistContext';
 import { SORT_OPTIONS } from './dummyData';
+import FloatingCartButton from '../../components/FloatingCartButton/FloatingCartButton';
 
 const CategoryScreen = () => {
     const navigation = useNavigation<any>();
@@ -403,6 +404,7 @@ const CategoryScreen = () => {
                 categoryName={categoryName}
                 categoryImage={categoriesList.find(c => c.catId?.toString() === selectedCategoryId)?.imageUrl}
             />
+            <FloatingCartButton />
         </View>
     );
 };

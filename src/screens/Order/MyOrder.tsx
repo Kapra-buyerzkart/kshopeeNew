@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View, Text, FlatList, Image, TouchableOpacity, SafeAreaView, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -9,6 +9,8 @@ import { colors } from '../../assets/theme/colours';
 import { styles } from './styles';
 import { myOrders, Order, OrderItem } from './dummydata';
 import { AppIcons } from '../../assets/icons';
+import { LoaderContext } from '../../context/loaderContext';
+import { getMyOrdersApi } from '../../api/services/orderService';
 
 const DashedSeparator = () => (
     <View style={styles.separatorContainer}>
@@ -20,6 +22,9 @@ const DashedSeparator = () => (
 
 const MyOrder = () => {
     const navigation = useNavigation<any>();
+
+    const [orderData, setOrderData] = useState<any>([]);
+    const { showLoader } = useContext(LoaderContext) || { showLoader: () => { } };
 
     const renderStatusIcon = (status: string) => {
         switch (status) {
@@ -33,6 +38,30 @@ const MyOrder = () => {
                 return null;
         }
     };
+
+    useEffect(() => {
+        fetchOrderFunction();
+    }, []);
+
+    const fetchOrderFunction = async () => {
+        try {
+            showLoader(true);
+            const response = await getMyOrdersApi();
+            console.log("Order details response---->", JSON.stringify(response, null, 2))
+            if (response && response.success && response.data) {
+                console.log("Order details response data---->", JSON.stringify(response.data, null, 2))
+                setOrderData(response.data);
+            } else {
+                setOrderData([]);
+            }
+        } catch (error) {
+            console.error('Error fetching product details:', error);
+            setOrderData([]);
+        } finally {
+            showLoader(false);
+        }
+    };
+
 
     const renderOrderItem = (item: OrderItem, order: Order) => (
         <TouchableOpacity key={item.id} style={styles.itemContainer} onPress={() => navigation.navigate('MyOrderDetails', { order, selectedItem: item })}>

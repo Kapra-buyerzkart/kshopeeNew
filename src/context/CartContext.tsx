@@ -50,7 +50,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     quantity: item.addedQty || item.quantity || 0,
                 }));
                 setCartItems(mappedItems);
-                
+
                 // Keep cart version in summary state if available
                 if (response.data.cart) {
                     setCartSummary((prev: any) => ({

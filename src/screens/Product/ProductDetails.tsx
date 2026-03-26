@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import { View, Text, ScrollView, Image, TouchableOpacity, StatusBar, Dimensions } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { styles } from './styles';
@@ -11,45 +11,55 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { Rating } from 'react-native-ratings';
 import LinearGradient from 'react-native-linear-gradient';
 import ClickForMoreButton from '../../components/ClickForMoreButton/ClickForMoreButton';
+import { LoaderContext } from '../../context/loaderContext';
+import { getProductDetails } from '../../api/services/productService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import CONFIG from '../../globals/config';
+
 
 const ProductDetails = () => {
     const route = useRoute();
     const navigation = useNavigation();
     const homeStyles = useCommonStyles();
 
+    const { showLoader } = useContext(LoaderContext) || { showLoader: () => { } };
+
     // Retrieve item from params or provide fallback
-    const { item } = (route.params as any) || { item: {} };
+
+
+    // Get product correctly
+    const { product, productId } = (route.params as any) || {};
+
+    // fallback if needed
+    const item = product || {};
+
+    const product_id = item?.productId || productId;
 
     const [selectedColor, setSelectedColor] = useState(0);
     const [selectedSize, setSelectedSize] = useState('M');
     const [detailsExpanded, setDetailsExpanded] = useState(false);
     const [selectedReviewFilter, setSelectedReviewFilter] = useState('All');
     const [activeImageIndex, setActiveImageIndex] = useState(0);
+    const [productDetails, setProductDetails] = useState<any>(null);
+    const [pincodeAreaId, setPincodeAreaId] = useState<number | null>(null);
 
     const scrollViewRef = useRef<ScrollView>(null);
     const windowWidth = Dimensions.get('window').width;
     const imageWidth = windowWidth - 24; // 12 margin applied to imageContainer from both sides
 
-    // Mock arrays
-    const productImagesByColor: Record<number, any[]> = {
-        0: [
-            item.image || require('../../assets/images/category/nike.png'),
-            require('../../assets/images/category/casual.png'),
-            require('../../assets/images/category/shirt.png')
-        ],
-        1: [
-            require('../../assets/images/category/casual.png'),
-            item.image || require('../../assets/images/category/nike.png'),
-            require('../../assets/images/category/shirt.png')
-        ],
-        2: [
-            require('../../assets/images/category/shirt.png'),
-            require('../../assets/images/category/casual.png'),
-            item.image || require('../../assets/images/category/nike.png')
-        ]
+    const getImageUrl = (imagePath: any) => {
+        if (!imagePath) return require("../../assets/images/category/nike.png");
+        if (typeof imagePath !== 'string') return imagePath;
+        if (imagePath.startsWith('http')) return { uri: imagePath };
+        return { uri: `${CONFIG.image_base_url}/${imagePath}`.replace(/([^:]\/)\/+/g, "$1") };
     };
 
-    const currentImages = productImagesByColor[selectedColor] || productImagesByColor[0];
+    const currentImages = productDetails && productDetails.images && productDetails.images.length > 0
+        ? productDetails.images
+        : (item?.imageUrl || item?.image || item?.featuredImage
+            ? [{ imageUrl: item.imageUrl || item.image || item.featuredImage }]
+            : [{ imageUrl: require('../../assets/images/category/nike.png') }]
+        );
 
     const sizes = ['S', 'M', 'L', 'XL'];
     const dummyReviews = [
@@ -99,8 +109,50 @@ const ProductDetails = () => {
         },
     ];
 
-    const ProductTitle = item.title || "Men's Sneakers AeroStep";
-    const ProductDesc = "Lightweight and stylish sneakers for everyday wear, Available in three colors: white, red, and black.";
+    const ProductTitle = productDetails?.product?.prName || item?.prName || item?.title || "Loading...";
+    const ProductDesc = productDetails?.product?.description
+        ? productDetails.product.description.replace(/<\/?[^>]+(>|$)/g, "").trim()
+        : (productDetails?.product?.shortDescription || item?.shortDescription || "No description available.");
+
+    const fetchProductDetails = async (pincodeAreaId: number | null) => {
+        try {
+            showLoader(true);
+            console.log('Product id---->', product_id)
+            console.log('Pincode area id---->', pincodeAreaId)
+            const response = await getProductDetails(product_id, pincodeAreaId);
+            console.log("product details response---->", JSON.stringify(response, null, 2))
+            if (response && response.success && response.data) {
+                console.log("product details response data---->", JSON.stringify(response.data, null, 2))
+                setProductDetails(response.data);
+            } else {
+                setProductDetails([]);
+            }
+        } catch (error) {
+            console.error('Error fetching product details:', error);
+            setProductDetails([]);
+        } finally {
+            showLoader(false);
+        }
+    };
+
+
+    useEffect(() => {
+        const initializeLocationAndSettings = async () => {
+            try {
+                const storedPincodeAreaId = await AsyncStorage.getItem('pincodeAreaId');
+                const pincodeAreaId = storedPincodeAreaId ? parseInt(storedPincodeAreaId) : null;
+                setPincodeAreaId(pincodeAreaId);
+                fetchProductDetails(pincodeAreaId);
+            } catch (error) {
+                console.error("Error in initializeLocationAndSettings:", error);
+            }
+        };
+
+        initializeLocationAndSettings();
+
+    }, []);
+
+
 
     const renderHeader = () => (
         <View style={styles.headerContainer}>
@@ -136,16 +188,17 @@ const ProductDetails = () => {
                     }}
                     scrollEventThrottle={16}
                 >
-                    {currentImages.map((img, idx) => (
+                    {currentImages.map((img: any, idx: number) => (
                         <Image
                             key={idx}
-                            source={img}
+                            source={getImageUrl(img.imageUrl || img)}
                             style={[styles.productImage, { width: imageWidth }]}
+                            resizeMode="contain"
                         />
                     ))}
                 </ScrollView>
                 <View style={styles.paginationContainer}>
-                    {currentImages.map((_, idx) => (
+                    {currentImages.map((_: any, idx: number) => (
                         <View
                             key={idx}
                             style={idx === activeImageIndex ? styles.paginationDotActive : styles.paginationDotInactive}
@@ -245,22 +298,22 @@ const ProductDetails = () => {
         <TouchableOpacity style={homeStyles.exploreItemCard}>
             <View style={homeStyles.exploreTopBadgesRow}>
                 <View style={homeStyles.discountCircle}>
-                    <Text style={[homeStyles.discountCircleText]}>{item.discountBadge}</Text>
+                    <Text style={[homeStyles.discountCircleText]}>{item?.discountBadge}</Text>
                 </View>
                 {/* <Text style={{ color: colors.figmaTeal, fontFamily: 'Gilroy-Bold', fontSize: 20 }}>W</Text> */}
                 <AppIcons.BookmarkOutline color={colors.tealIconFont} size={24} />
             </View>
 
-            <Image source={item.image} style={homeStyles.exploreItemImage} />
+            <Image source={item?.image} style={homeStyles.exploreItemImage} />
 
             <View style={{ padding: 10 }}>
-                <Text style={[homeStyles.caption]} numberOfLines={3}>{item.title}</Text>
+                <Text style={[homeStyles.caption]} numberOfLines={3}>{item?.title}</Text>
 
                 {/* react-native-ratings stars */}
                 <Rating
                     type='custom'
                     readonly
-                    startingValue={item.rating || 1}
+                    startingValue={item?.rating || 1}
                     ratingCount={5}
                     imageSize={12}
                     ratingColor={colors.starYellow}
@@ -271,9 +324,9 @@ const ProductDetails = () => {
 
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, gap: 2 }}>
                     <View style={homeStyles.pricePill}>
-                        <Text style={homeStyles.pricePillText}>{item.currentPrice}</Text>
+                        <Text style={homeStyles.pricePillText}>{item?.currentPrice}</Text>
                     </View>
-                    <Text style={homeStyles.originalPriceText}>{item.originalPrice}</Text>
+                    <Text style={homeStyles.originalPriceText}>{item?.originalPrice}</Text>
                 </View>
             </View>
         </TouchableOpacity>
@@ -292,11 +345,47 @@ const ProductDetails = () => {
 
                 {/* Main Content Info */}
                 <View style={styles.contentPadding}>
-                    <Text style={styles.title}>{ProductTitle}</Text>
-                    <Text style={styles.description}>{ProductDesc}</Text>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Text style={styles.title}>{ProductTitle}</Text>
+                        {productDetails.product.discountPercentage ? (
+                            <View style={[homeStyles.discountCircle, { opacity: 1, paddingHorizontal: 6, position: 'relative', alignSelf: 'flex-end' }]}>
+                                <Text style={homeStyles.discountCircleText}>
+                                    {Math.round(productDetails.product.discountPercentage)}% OFF
+                                </Text>
+                            </View>
+                        ) : null}
+                    </View>
 
-                    {/* Select Color */}
-                    <Text style={styles.sectionTitle}>Select Color</Text>
+                    {productDetails?.product && (
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6, marginBottom: 4, gap: 8 }}>
+                            <View style={[homeStyles.pricePill, { minHeight: 35, minWidth: 70 }]}>
+                                <Text style={homeStyles.pricePillText}>
+                                    ₹{productDetails.product.specialPrice?.toFixed(2) || productDetails.product.unitPrice?.toFixed(2)}
+                                </Text>
+                            </View>
+                            {productDetails.product.unitPrice && productDetails.product.specialPrice && productDetails.product.unitPrice > productDetails.product.specialPrice ? (
+                                <Text style={homeStyles.originalPriceText}>
+                                    MRP ₹{productDetails.product.unitPrice.toFixed(2)}
+                                </Text>
+                            ) : null}
+
+                        </View>
+                    )}
+                    <Text style={[styles.description, { marginTop: 4 }]}>{ProductDesc}</Text>
+                    <LinearGradient
+                        colors={[colors.themeTeal, colors.themeDarkTeal]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                        style={[homeStyles.reviewFilterPillActiveGradient, { borderRadius: 50, alignSelf: 'flex-end', top: 10 }]}
+                    >
+                        <TouchableOpacity onPress={() => { }} style={{ padding: 10, flexDirection: 'row' }} >
+                            <AppIcons.Add size={20} color={colors.themeWhite} />
+                            <Text style={[homeStyles.reviewFilterText, homeStyles.reviewFilterTextActive, { marginHorizontal: 5 }]}>Add</Text>
+                        </TouchableOpacity>
+                    </LinearGradient>
+
+
+                    {/* <Text style={styles.sectionTitle}>Select Color</Text>
                     <View style={styles.colorRow}>
                         {[0, 1, 2].map((index) => (
                             <TouchableOpacity
@@ -313,7 +402,7 @@ const ProductDetails = () => {
                         ))}
                     </View>
 
-                    {/* Select Size */}
+
                     <Text style={styles.sectionTitle}>Select Size</Text>
                     <View style={styles.sizeRow}>
                         {sizes.map((s, index) => (
@@ -327,7 +416,7 @@ const ProductDetails = () => {
                         ))}
                     </View>
 
-                    {/* Product Details Accordion */}
+
                     <TouchableOpacity
                         style={styles.accordionHeader}
                         onPress={() => setDetailsExpanded(!detailsExpanded)}
@@ -365,14 +454,14 @@ const ProductDetails = () => {
                                 </TouchableOpacity>
                             </LinearGradient>
                         )}
-                    </View>
+                    </View> */}
                 </View>
 
                 {/* Delivery and Service */}
-                {deliveryAndService()}
+                {/* {deliveryAndService()} */}
 
-                {/* Ratings & Reviews */}
-                <TouchableOpacity style={[styles.accordionHeader, { paddingHorizontal: 16, marginTop: 24 }]}>
+
+                {/* <TouchableOpacity style={[styles.accordionHeader, { paddingHorizontal: 16, marginTop: 24 }]}>
                     <Text style={styles.accordionTitle}>Rating & Reviews :</Text>
                     <Ionicons name="chevron-down" size={20} color={colors.themeDarkGray} />
                 </TouchableOpacity>
@@ -388,10 +477,10 @@ const ProductDetails = () => {
                         <View style={styles.ratingStatsDivider} />
                         <Text style={styles.ratingStatsText}>25 Reviews</Text>
                     </View>
-                </View>
+                </View> */}
 
                 {/* Filters */}
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.reviewFiltersScroll}>
+                {/* <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.reviewFiltersScroll}>
                     {['All', 'Latest', 'Positive', 'Negative Rating'].map((filter, index) => {
                         const isActive = selectedReviewFilter === filter;
                         if (isActive) {
@@ -420,10 +509,10 @@ const ProductDetails = () => {
                             </TouchableOpacity>
                         );
                     })}
-                </ScrollView>
+                </ScrollView> */}
 
                 {/* Review List */}
-                {dummyReviews.map((review, index) => (
+                {/* {dummyReviews.map((review, index) => (
                     <View key={index} style={styles.reviewItem}>
                         <View style={styles.reviewerHeader}>
                             <Text style={styles.reviewerName}>{review.name}</Text>
@@ -441,11 +530,11 @@ const ProductDetails = () => {
                         <Text style={styles.reviewText}>{review.text}</Text>
                         <Text style={styles.reviewTime}>{review.time}</Text>
                     </View>
-                ))}
+                ))} */}
 
-                <TouchableOpacity style={styles.viewAllReviewsButton}>
+                {/* <TouchableOpacity style={styles.viewAllReviewsButton}>
                     <Text style={styles.viewAllReviewsText}>View all</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
 
                 {/* Similar Products */}
                 <View style={styles.similarProductsContainer}>
@@ -459,19 +548,19 @@ const ProductDetails = () => {
                         {similarProducts.map((sim, _index) => renderExploreItem({ item: sim }))}
                     </ScrollView>
 
-                    <View style={{ marginVertical: 10 }}>
+                    {/* <View style={{ marginVertical: 10 }}>
                         <ClickForMoreButton onPress={() => { }} title='Click for more' />
-                    </View>
+                    </View> */}
 
                 </View>
 
             </ScrollView>
 
             {/* Sticky Footer */}
-            <View style={styles.stickyFooter}>
+            {/* <View style={styles.stickyFooter}>
                 <View style={styles.footerPriceCol}>
-                    <Text style={styles.footerPriceText}>{item.price}</Text>
-                    <Text style={styles.footerOldPriceText}>{item.oldPrice}</Text>
+                    <Text style={styles.footerPriceText}>{item?.price}</Text>
+                    <Text style={styles.footerOldPriceText}>{item?.oldPrice}</Text>
                 </View>
 
                 <View style={styles.footerActionsRow}>
@@ -490,7 +579,7 @@ const ProductDetails = () => {
                         </TouchableOpacity>
                     </LinearGradient>
                 </View>
-            </View>
+            </View> */}
 
         </View >
     );

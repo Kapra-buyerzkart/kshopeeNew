@@ -192,7 +192,7 @@ const CategoryScreen = () => {
     };
 
     const imageSource = (item: any) => {
-        console.log("Item image url--->", item)
+        // console.log("Item image url--->", item)
         const img = item?.imageUrl || item?.featuredImage;
         if (!img) {
             return require('../../assets/images/bill_icon.png');
@@ -206,7 +206,7 @@ const CategoryScreen = () => {
 
     const renderProduct = ({ item }: { item: any }) => (
 
-        <TouchableOpacity style={styles.exploreItemCard} onPress={() => { navigation.navigate('ProductDetailsScreen', { productId: item.productId || item.id, product: item }) }}>
+        <TouchableOpacity style={styles.exploreItemCard} onPress={() => { navigation.navigate('ProductDetailsScreen', { productId: item?.productId, product: item }) }}>
             <View style={styles.exploreTopBadgesRow}>
                 <View style={[styles.discountCircle, { opacity: item.discountPercent ? 1 : 0 }]}>
                     <Text style={[styles.discountCircleText]}>
@@ -394,7 +394,7 @@ const CategoryScreen = () => {
                     }
 
                     setIsFilterModalVisible(false);
-                    
+
                     // Delay setting filters so Modal has time to dismiss. Prevents iOS freeze when overlapping Modals.
                     setTimeout(() => {
                         setFilters({ sortBy, priceMin: min, priceMax: max });

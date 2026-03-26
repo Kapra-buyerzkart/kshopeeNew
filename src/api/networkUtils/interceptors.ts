@@ -7,6 +7,7 @@ import {
   clearTokens,
 } from '../services/tokenService';
 import { errorHandler } from './errorHandler';
+import * as NavigationService from '../NavigationService';
 
 let isRefreshing = false;
 let failedQueue: any[] = [];
@@ -107,7 +108,7 @@ export const setupInterceptors = (axiosInstance: AxiosInstance): void => {
           processQueue(err);
           await clearTokens();
           // Force back to login if refresh fails on an auth-required route
-          // NavigationService.reset('Login'); 
+          NavigationService.reset('Login'); 
           throw err;
         } finally {
           isRefreshing = false;

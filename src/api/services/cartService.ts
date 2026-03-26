@@ -5,7 +5,7 @@ import { Buffer } from 'buffer';
 
 const getUserId = async (): Promise<number> => {
     try {
-        const profileStr = await AsyncStorage.getItem('userProfile');
+        const profileStr = await AsyncStorage.getItem('profile');
         if (profileStr) {
             const profile = JSON.parse(profileStr);
             if (profile.userId || profile.id) {

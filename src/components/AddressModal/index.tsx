@@ -43,7 +43,7 @@ const AddressModal: React.FC<AddressModalProps> = ({ visible, onClose, addresses
                             {item.type?.toLowerCase() === 'home' ? (
                                 <AppIcons.Home color={isSelected ? colors.white : colors.themeTeal} size={16} />
                             ) : (
-                                <AppIcons.Profile color={isSelected ? colors.white : colors.themeTeal} size={16} />
+                                <AppIcons.Person color={isSelected ? colors.white : colors.themeTeal} size={16} />
                             )}
                         </View>
                         <Text style={styles.addressTypeText}>{item.type || 'Home'}</Text>
@@ -66,7 +66,7 @@ const AddressModal: React.FC<AddressModalProps> = ({ visible, onClose, addresses
                         <View style={styles.headerTop}>
                             <Text style={styles.title}>Select Address</Text>
                             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                                <AppIcons.Delete color={colors.black} size={24} />
+                                <AppIcons.Close color={colors.black} size={24} />
                             </TouchableOpacity>
                         </View>
                         <TouchableOpacity 

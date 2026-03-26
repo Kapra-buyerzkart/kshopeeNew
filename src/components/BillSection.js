@@ -34,7 +34,7 @@ const BillSection = ({ billCalculations }) => {
             </View>
             <View>
                 {/* Item Total */}
-                <BillRow label="Itemzx Total" value={`₹${itemTotal.toFixed(2)}`} />
+                <BillRow label="Item Total" value={`₹${itemTotal.toFixed(2)}`} />
 
                 {/* Discount */}
                 {savings > 0 && (

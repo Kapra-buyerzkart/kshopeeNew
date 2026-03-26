@@ -14,7 +14,7 @@ export const useCartScreen = () => {
     const { profile } = useUser();
     const deliveryHook = useDeliverySlot();
     const addressHook = useAddresses();
-    const offersHook = useOffers(deliveryHook, addressHook, cartSummary, getCartSummary, profile);
+    const offersHook = useOffers(deliveryHook, addressHook, cartSummary, getCartSummary, profile, loadCart);
 
     // ─── Bill calculations ───
     const frontendBillCalculations = useMemo(() => {
@@ -28,7 +28,7 @@ export const useCartScreen = () => {
             mrpTotal += mrpPrice * quantity;
         });
         const savings = mrpTotal - itemTotal;
-        const deliveryCharge = (itemTotal > 0 && itemTotal < 500) ? 5 : 0;
+        const deliveryCharge = (itemTotal > 0 && itemTotal < 500) ? 0 : 0;
         const totalSavings = savings + (deliveryCharge === 0 && itemTotal >= 500 ? 5 : 0);
         const toPay = itemTotal + deliveryCharge;
         return { 
@@ -77,14 +77,14 @@ export const useCartScreen = () => {
                 try {
                     await addressHook.refreshAddresses();
                     const loadResult: any = await loadCart();
-                    
+
                     if (!isActive) return;
-                    
+
                     // Use a functional approach to get the current address after refresh
                     // since the 'selectedAddress' from scope is stale
                     const bootstrapVersion = loadResult?.cartVersion;
                     await getCartSummary(deliveryHook.deliveryMode, deliveryHook.selectedSlot, bootstrapVersion);
-                    
+
                     // Slots fetch is handled by the useEffect below once addresses are loaded
                 } catch (err) {
                     console.error('❌ [FOCUS] Error:', err);
@@ -103,7 +103,7 @@ export const useCartScreen = () => {
     // Recalculate summary when conditions change
     useEffect(() => {
         if (isInitialMount.current || !selectedAddress) return;
-        
+
         console.log('🔄 [HOOK] Refreshing summary on change:', selectedAddress?.id);
         // Added null as 4th arg for couponCode to correctly pass pincodeAreaId as 5th
         getCartSummary(deliveryHook.deliveryMode, deliveryHook.selectedSlot, null, null, selectedAddress?.pincodeAreaId);

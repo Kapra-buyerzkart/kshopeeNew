@@ -68,8 +68,9 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, []);
 
     const getCartSummary = useCallback(async (deliveryMode = 'express', deliverySlotId = null, cartVersion = null, couponCode = null, pincodeAreaId = null) => {
+        const versionToUse = cartVersion || cartSummary?.cartVersion;
         try {
-            const response = await getCartSummaryApi(deliveryMode, deliverySlotId, cartVersion, couponCode, pincodeAreaId);
+            const response = await getCartSummaryApi(deliveryMode, deliverySlotId, versionToUse, couponCode, pincodeAreaId);
             if (response && response.success) {
                 setCartSummary(response.data);
                 return response;
@@ -80,7 +81,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setError(err.message || 'Error occurred while fetching summary');
         }
         return null;
-    }, []);
+    }, [cartSummary?.cartVersion]);
 
     const clearCart = useCallback(async () => {
         try {

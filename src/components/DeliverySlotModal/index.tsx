@@ -53,7 +53,7 @@ const DeliverySlotModal: React.FC<DeliverySlotModalProps> = ({
                     <View style={styles.header}>
                         <Text style={styles.title}>Select Delivery Slot</Text>
                         <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                            <AppIcons.Delete color={colors.black} size={24} />
+                            <AppIcons.Close color={colors.black} size={24} />
                         </TouchableOpacity>
                     </View>
 

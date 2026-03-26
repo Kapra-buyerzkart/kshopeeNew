@@ -13,6 +13,8 @@ interface ConfirmationModalProps {
     message: string;
     confirmText?: string;
     cancelText?: string;
+    iconName?: string;
+    themeColor?: string;
 }
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
@@ -22,7 +24,9 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     title,
     message,
     confirmText = "Confirm",
-    cancelText = "Cancel"
+    cancelText = "Cancel",
+    iconName,
+    themeColor
 }) => {
     return (
         <Modal
@@ -34,7 +38,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             <View style={styles.overlay}>
                 <View style={styles.modalContainer}>
                     <View style={styles.iconContainer}>
-                        <MaterialIcons name="warning" size={wp('12%')} color={colors.red} />
+                        <MaterialIcons name={iconName || "warning"} size={wp('12%')} color={themeColor || colors.red} />
                     </View>
 
                     <Text style={styles.title}>{title}</Text>
@@ -49,7 +53,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                         </TouchableOpacity>
 
                         <TouchableOpacity
-                            style={[styles.button, styles.confirmButton]}
+                            style={[styles.button, styles.confirmButton, themeColor ? { backgroundColor: themeColor } : {}]}
                             onPress={() => {
                                 onClose();
                                 onConfirm();

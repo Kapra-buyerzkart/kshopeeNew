@@ -38,6 +38,8 @@ import {
 import CustomGradientButton from '../../components/CustomGradientButton';
 import { Fonts } from '../../assets/theme/fonts';
 
+import { useUser } from '../../context/UserContext';
+
 const ACCESS_TOKEN = 'ACCESS_TOKEN';
 const REFRESH_TOKEN = 'REFRESH_TOKEN';
 
@@ -74,6 +76,7 @@ const OtpScreen: React.FC = () => {
     const navigation = useNavigation<OtpScreenNavigationProp>();
     const route = useRoute<OtpScreenRouteProp>();
     const { showAlert } = useCustomAlert();
+    const { loadProfile } = useUser();
     const { phone, type } = route.params || {};
 
     const [otp, setOtp] = useState(['', '', '', '', '']);
@@ -213,10 +216,13 @@ const OtpScreen: React.FC = () => {
                     await mergeCustomerIdIntoProfile(custId);
                 }
 
+                await loadProfile();
+
                 navigation.reset({
                     index: 0,
                     routes: [{ name: 'MainTabs' as any }],
                 });
+
             } else {
                 showAlert('Error', response?.message || 'OTP verification failed');
             }

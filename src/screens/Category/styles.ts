@@ -166,12 +166,17 @@ export const styles = StyleSheet.create({
     sidebarItemText: {
         fontFamily: Fonts.gilroyMedium,
         fontSize: 12,
+        fontWeight: '400',
         color: colors.themeDarkGray,
         marginTop: 6,
+        textAlign: 'center'
     },
     sidebarItemTextActive: {
         color: colors.themeTeal,
         fontFamily: Fonts.gilroySemiBold,
+        fontSize: 12,
+        fontWeight: '400',
+        textAlign: 'center'
     },
     productsGrid: {
         flex: 1,

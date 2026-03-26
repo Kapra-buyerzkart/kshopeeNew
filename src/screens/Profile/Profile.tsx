@@ -34,8 +34,8 @@ const ProfileScreen: React.FC = () => {
         await logout();
     };
 
-    const renderMenuItem = (icon: any, title: string, showBadge?: boolean, badgeValue?: string, iconBgColor?: string) => (
-        <TouchableOpacity style={styles.menuItem}>
+    const renderMenuItem = (icon: any, title: string, showBadge?: boolean, badgeValue?: string, iconBgColor?: string, onPress?: () => void) => (
+        <TouchableOpacity style={styles.menuItem} onPress={onPress}>
             <View style={[styles.menuIconContainer, iconBgColor ? { backgroundColor: iconBgColor } : null]}>
                 {icon}
             </View>

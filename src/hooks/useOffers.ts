@@ -7,7 +7,7 @@ import {
 } from '../api/services/cartService';
 
 
-export const useOffers = (deliveryHook: any, addressHook: any, cartSummary: any, getCartSummary: any) => {
+export const useOffers = (deliveryHook: any, addressHook: any, cartSummary: any, getCartSummary: any, profile: any) => {
     const [showCouponModal, setShowCouponModal] = useState(false);
     const [couponCode, setCouponCode] = useState('');
     const [isGiftCard, setIsGiftCard] = useState(false);
@@ -42,11 +42,13 @@ export const useOffers = (deliveryHook: any, addressHook: any, cartSummary: any,
             setIsGiftCard(false);
             setShowCouponModal(true);
         } else if (offerType === '3') {
-            // Apply all available B-coins (this logic can be refined)
+            // Apply all available B-coins from profile
             try {
-                const bcoinsToApply = cartSummary?.totalBtokens || 0; // Or from profile
-                await applyBCoinApi(bcoinsToApply, cartSummary?.cartVersion);
-                await getCartSummary();
+                const bcoinsToApply = profile?.totalBCoins || profile?.bCoins || 0;
+                if (bcoinsToApply > 0) {
+                    await applyBCoinApi(bcoinsToApply, cartSummary?.cartVersion);
+                    await getCartSummary();
+                }
             } catch (err) {
                 console.error('Error applying BCoin:', err);
             }

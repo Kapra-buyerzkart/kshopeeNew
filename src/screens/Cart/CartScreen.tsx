@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Platform, RefreshControl } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Platform, RefreshControl, Modal } from 'react-native'
 import React, { useContext, useState, useEffect, useRef } from 'react'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import AntDesign from 'react-native-vector-icons/AntDesign'
@@ -88,6 +88,7 @@ const CartScreen = () => {
         onCloseThreeDots,
         addressConfirmationData,
         setAddressConfirmationData,
+        refreshAddresses,
         refreshCart,
         serviceabilityTrigger,
         setServiceabilityTrigger
@@ -105,6 +106,7 @@ const CartScreen = () => {
     const [statusMessage, setStatusMessage] = useState('');
     const [chosenSlot, setChosenSlot] = useState<any>(null);
     const [isFinalizingOrder, setIsFinalizingOrder] = useState(false);
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
 
     const scrollViewRef = useRef<ScrollView>(null);
     const insets = useSafeAreaInsets();
@@ -168,12 +170,7 @@ const CartScreen = () => {
         fetchPaymentModes();
     }, []);
 
-    // Refresh addresses whenever the screen gains focus
-    useFocusEffect(
-        React.useCallback(() => {
-            fetchAddresses();
-        }, [fetchAddresses])
-    );
+    // Addresses and Cart summary are handled by useCartScreen focus effect
 
     // Calculate total B-Tokens
     const totalCartBTokens = cartItems.reduce((sum, item) => sum + (item.totalBtokens || item.bTokenValue || item.bTokens || 0), 0);
@@ -182,7 +179,7 @@ const CartScreen = () => {
     const onRefresh = React.useCallback(async () => {
         setRefreshing(true);
         try {
-            await Promise.all([getCartSummary(), fetchAddresses()]);
+            await Promise.all([getCartSummary(), refreshAddresses()]);
         } finally {
             setRefreshing(false);
         }
@@ -200,8 +197,9 @@ const CartScreen = () => {
             const summaryRes = await getCartSummary(
                 selectedDeliveryType,
                 chosenSlot?.id,
-                null,
-                selectedAddress.pincodeAreaId
+                null, // cartVersion
+                null, // couponCode (new 4th arg)
+                selectedAddress?.pincodeAreaId // pincodeAreaId (now 5th arg)
             );
 
             showLoader(false);
@@ -250,12 +248,26 @@ const CartScreen = () => {
     };
 
     const submitOrder = async () => {
-        setAddressConfirmationData(null);
+        console.log('🚀 [ORDER] Starting submitOrder...');
         const onlineTerms = ['online', 'prepaid', 'razorpay', 'upi', 'online_test', 'online payment'];
         const isOnlinePayment = onlineTerms.some(term => paymentMethod?.toLowerCase()?.includes(term));
 
         try {
             showLoader(true);
+            setAddressConfirmationData(null);
+
+            console.log('📦 [ORDER] Payload State:', {
+                hasSummary: !!cartSummary,
+                cartId: cartSummary?.cartId,
+                itemsCount: cartItems.length,
+                addressId: selectedAddress?.id
+            });
+
+            if (!cartSummary?.cartId && !cartItems?.[0]?.cartId) {
+                console.warn('❌ [ORDER] No cartId found');
+                throw new Error('Your cart session has expired. We are refreshing it for you.');
+            }
+
             const createPayload = {
                 cartId: cartSummary?.cartId || cartItems?.[0]?.cartId,
                 shippingAddressId: selectedAddress.id,
@@ -271,7 +283,10 @@ const CartScreen = () => {
                 pincodeAreaId: selectedAddress.pincodeAreaId
             };
 
+            console.log('📤 [ORDER] Sending createOrderApi call...', createPayload);
             const createResponse = await createOrderApi(createPayload);
+            console.log('📥 [ORDER] createOrderApi Response:', createResponse);
+
             if (createResponse?.success && createResponse?.data?.orderId) {
                 const orderId = createResponse.data.orderId;
                 const orderNumber = createResponse.data.orderNumber || orderId;
@@ -297,10 +312,13 @@ const CartScreen = () => {
             }
         } catch (error: any) {
             showLoader(false);
+            console.log('❌ [ORDER] submitOrder FULL ERROR OBJECT:', JSON.stringify(error, null, 2));
+            console.error('❌ [ORDER] submitOrder Catch Error:', error);
+
             setStatusType('error');
-            setStatusTitle('Error');
-            setStatusMessage(error.message || 'An unexpected error occurred');
-            setStatusModalVisible(true);
+            setStatusTitle('Order Failed');
+            setStatusMessage(typeof error === 'string' ? error : (error.message || error.Message || 'An unexpected error occurred during order creation.'));
+            setTimeout(() => setStatusModalVisible(true), 500);
         }
     };
 
@@ -460,6 +478,43 @@ const CartScreen = () => {
                 contentContainerStyle={styles.scrollContent}
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
             >
+                {/* Delivery Method Toggle */}
+                <View style={styles.deliveryToggleRow}>
+                    <TouchableOpacity
+                        activeOpacity={0.8}
+                        onPress={() => setSelectedDeliveryType('express')}
+                        style={[styles.toggleButton, selectedDeliveryType === 'express' && styles.toggleButtonActive]}
+                    >
+                        <LinearGradient
+                            colors={selectedDeliveryType === 'express' ? [colors.themeTeal, colors.themeDarkTeal] : [colors.white, colors.white]}
+                            start={{ x: 0, y: 0.5 }}
+                            end={{ x: 1, y: 0.5 }}
+                            style={styles.toggleGradient}
+                        >
+                            <AppIcons.Check color={selectedDeliveryType === 'express' ? colors.white : colors.themeTeal} size={16} />
+                            <Text style={[styles.toggleText, selectedDeliveryType === 'express' && styles.toggleTextActive]}>Express</Text>
+                        </LinearGradient>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        activeOpacity={0.8}
+                        onPress={() => {
+                            setSelectedDeliveryType('slot');
+                            setShowSlotModal(true);
+                        }}
+                        style={[styles.toggleButton, selectedDeliveryType === 'slot' && styles.toggleButtonActive]}
+                    >
+                        <LinearGradient
+                            colors={selectedDeliveryType === 'slot' ? [colors.themeTeal, colors.themeDarkTeal] : [colors.white, colors.white]}
+                            start={{ x: 0, y: 0.5 }}
+                            end={{ x: 1, y: 0.5 }}
+                            style={styles.toggleGradient}
+                        >
+                            <AppIcons.Calendar color={selectedDeliveryType === 'slot' ? colors.white : colors.themeTeal} size={16} />
+                            <Text style={[styles.toggleText, selectedDeliveryType === 'slot' && styles.toggleTextActive]}>Scheduled</Text>
+                        </LinearGradient>
+                    </TouchableOpacity>
+                </View>
+
                 {/* Delivering to Section */}
                 <View style={styles.addressCard}>
                     <View style={styles.addressRow}>
@@ -542,7 +597,7 @@ const CartScreen = () => {
                 <View style={styles.paymentActionRow}>
                     <View style={styles.paymentInfo}>
                         <Text style={styles.payUsingLabel}>PAY USING</Text>
-                        <TouchableOpacity style={styles.paymentMethod}>
+                        <TouchableOpacity style={styles.paymentMethod} onPress={() => setShowPaymentModal(true)}>
                             <View style={styles.paymentIconCircle}>
                                 <AppIcons.Check color={colors.white} size={14} />
                             </View>
@@ -569,14 +624,54 @@ const CartScreen = () => {
 
             <StatusModal visible={statusModalVisible} onClose={() => setStatusModalVisible(false)} type={statusType} title={statusTitle} message={statusMessage} />
             <AddressModal visible={showAddressModal} onClose={() => setShowAddressModal(false)} addresses={addresses} onSelectAddress={onSelectAddress} />
-            <DeliverySlotModal visible={showSlotModal} onClose={() => setShowSlotModal(false)} onSelectSlot={(slot: any) => { setChosenSlot(slot); setSelectedDeliveryType('slot'); }} />
+            <DeliverySlotModal
+                visible={showSlotModal}
+                onClose={() => setShowSlotModal(false)}
+                onSelectSlot={(slot: any) => { setChosenSlot(slot); setSelectedDeliveryType('slot'); }}
+                datesList={datesList}
+                slotsByDate={slotsByDate}
+            />
             <CouponModal visible={showCouponModal} onClose={() => setShowCouponModal(false)} isGiftCard={isGiftCard} availableCoupons={availableCoupons} availableGiftCards={availableGiftCards} onCouponClick={handleCouponClick} />
             <ConfirmationModal visible={isClearCartModalVisible} onClose={() => setIsClearCartModalVisible(false)} onConfirm={() => { clearCart(); setIsClearCartModalVisible(false); }} title="Clear Cart" message="Are you sure you want to remove all items?" />
 
+            <Modal visible={showPaymentModal} transparent animationType="slide">
+                <View style={styles.modalOverlay}>
+                    <View style={styles.paymentModalContent}>
+                        <View style={styles.modalHeader}>
+                            <Text style={styles.modalTitle}>Select Payment Method</Text>
+                            <TouchableOpacity onPress={() => setShowPaymentModal(false)}>
+                                <AppIcons.Delete color={colors.black} size={24} />
+                            </TouchableOpacity>
+                        </View>
+                        {paymentModes.map((mode, index) => {
+                            const isSelected = paymentMethod === mode.paymentModeName;
+                            return (
+                                <TouchableOpacity
+                                    key={mode.paymentModeId || index}
+                                    style={[styles.paymentMethodOption, isSelected && styles.paymentMethodOptionActive]}
+                                    onPress={() => {
+                                        setPaymentMethod(mode.paymentModeName);
+                                        setShowPaymentModal(false);
+                                    }}
+                                >
+                                    <View style={[styles.radioCircle, isSelected && styles.radioCircleActive]}>
+                                        {isSelected && <View style={styles.radioInner} />}
+                                    </View>
+                                    <Text style={[styles.paymentMethodName, isSelected && styles.paymentMethodNameActive]}>
+                                        {mode.paymentModeName}
+                                    </Text>
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </View>
+                </View>
+            </Modal>
+
             <AddressConfirmationModal
-                visible={!!addressConfirmationData || serviceabilityTrigger}
-                onClose={() => { setAddressConfirmationData(null); setServiceabilityTrigger(false); }}
-                onConfirm={() => { if (addressConfirmationData?.isPlacingOrder && addressConfirmationData?.isServiceable) submitOrder(); else setAddressConfirmationData(null); }}
+                visible={!!addressConfirmationData}
+                onClose={() => { setAddressConfirmationData(null); }}
+                onConfirm={submitOrder}
+                data={addressConfirmationData}
             />
         </SafeAreaView>
     );
@@ -699,12 +794,110 @@ const styles = StyleSheet.create({
     deliveryDate: {
         fontSize: 14,
         color: colors.black,
-        fontFamily: Fonts.gilroyRegular,
+        fontFamily: Fonts.gilroyBold,
+    },
+    deliveryToggleRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 16,
+        gap: 12
+    },
+    toggleButton: {
+        flex: 1,
+        borderRadius: 12,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: colors.themeTeal,
+        height: 48,
+    },
+    toggleButtonActive: {
+        borderColor: colors.themeDarkTeal,
+    },
+    toggleGradient: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+    },
+    toggleText: {
+        fontSize: 14,
+        fontFamily: Fonts.gilroyBold,
+        color: colors.themeTeal,
+    },
+    toggleTextActive: {
+        color: colors.white,
     },
     itemsSection: {
         backgroundColor: '#E8F8FA',
         borderRadius: 16,
         padding: 12,
+        marginBottom: 16,
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'flex-end',
+    },
+    paymentModalContent: {
+        backgroundColor: colors.white,
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30,
+        padding: 24,
+        paddingBottom: 40,
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 24,
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontFamily: Fonts.bold,
+        color: colors.black,
+    },
+    paymentMethodOption: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 16,
+        paddingHorizontal: 16,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#F0F0F0',
+        marginBottom: 12,
+    },
+    paymentMethodOptionActive: {
+        borderColor: colors.themeTeal,
+        backgroundColor: '#F2FBFB',
+    },
+    radioCircle: {
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        borderWidth: 2,
+        borderColor: '#CCC',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
+    },
+    radioCircleActive: {
+        borderColor: colors.themeTeal,
+    },
+    radioInner: {
+        width: 10,
+        height: 10,
+        borderRadius: 5,
+        backgroundColor: colors.themeTeal,
+    },
+    paymentMethodName: {
+        fontSize: 16,
+        fontFamily: Fonts.gilroyMedium,
+        color: colors.black,
+    },
+    paymentMethodNameActive: {
+        fontFamily: Fonts.gilroyBold,
+        color: colors.themeTeal,
     },
     bottomBar: {
         position: 'absolute',

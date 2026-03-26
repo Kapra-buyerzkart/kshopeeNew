@@ -56,7 +56,7 @@ const AddLocationScreen: React.FC = () => {
     const [phone, setPhone] = useState(editAddress?.phone || '');
     const [pincode, setPincode] = useState(editAddress?.pincode || '');
     const [addressType, setAddressType] = useState(editAddress?.addressType || 'HOME');
-    
+
     const [isLoading, setIsLoading] = useState(false);
     const [isInitialLoading, setIsInitialLoading] = useState(!isEditMode);
     const [isAreasLoading, setIsAreasLoading] = useState(false);
@@ -109,7 +109,7 @@ const AddLocationScreen: React.FC = () => {
             if (response.data.results && response.data.results.length > 0) {
                 const result = response.data.results[0];
                 const components = result.address_components;
-                
+
                 const streetNumber = components.find((c: any) => c.types.includes('street_number'))?.long_name || '';
                 const routeName = components.find((c: any) => c.types.includes('route'))?.long_name || '';
                 const sublocality2 = components.find((c: any) => c.types.includes('sublocality_level_2'))?.long_name || '';
@@ -220,7 +220,7 @@ const AddLocationScreen: React.FC = () => {
 
         setIsLoading(true);
         try {
-            const response = isEditMode 
+            const response = isEditMode
                 ? await updateAddressApi(editAddress.addressId, payload)
                 : await addAddressApi(payload);
 
@@ -269,17 +269,17 @@ const AddLocationScreen: React.FC = () => {
             </View>
 
             {/* Form Section */}
-            <KeyboardAvoidingView 
+            <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}
             >
-                <ScrollView 
+                <ScrollView
                     style={styles.detailedAddressContainer}
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={{ paddingBottom: 40 }}
                 >
                     <View style={styles.upperDivider} />
-                    
+
                     <View style={styles.topView}>
                         <TouchableOpacity style={styles.backButtonContainer} onPress={() => navigation.goBack()}>
                             <AntDesign name="arrowleft" size={24} color={colors.black} />
@@ -305,10 +305,10 @@ const AddLocationScreen: React.FC = () => {
                                 onPress={() => setAddressType(type)}
                                 style={[styles.addressTypeContainer, addressType === type && styles.selectedAddressType]}
                             >
-                                <MaterialCommunityIcons 
-                                    name={type === 'HOME' ? 'home' : type === 'OFFICE' ? 'briefcase' : 'map-marker'} 
-                                    size={18} 
-                                    color={addressType === type ? colors.white : colors.themeDarkGray} 
+                                <MaterialCommunityIcons
+                                    name={type === 'HOME' ? 'home' : type === 'OFFICE' ? 'briefcase' : 'map-marker'}
+                                    size={18}
+                                    color={addressType === type ? colors.white : colors.themeDarkGray}
                                 />
                                 <Text style={[styles.addressTypeText, addressType === type && styles.selectedTypeText]}>
                                     {type.charAt(0) + type.slice(1).toLowerCase()}
@@ -330,12 +330,12 @@ const AddLocationScreen: React.FC = () => {
                     <View style={styles.pincodeContainer}>
                         <View style={{ width: '48%' }}>
                             <Text style={styles.label}>Pincode</Text>
-                            <TextInput 
-                                style={styles.input} 
-                                value={pincode} 
-                                onChangeText={setPincode} 
-                                keyboardType="numeric" 
-                                maxLength={6} 
+                            <TextInput
+                                style={styles.input}
+                                value={pincode}
+                                onChangeText={setPincode}
+                                keyboardType="numeric"
+                                maxLength={6}
                             />
                         </View>
                         <View style={{ width: '48%' }}>
@@ -362,17 +362,17 @@ const AddLocationScreen: React.FC = () => {
 
                     <View style={styles.inputWrapper}>
                         <Text style={styles.label}>Phone Number</Text>
-                        <TextInput 
-                            style={styles.input} 
-                            value={phone} 
-                            onChangeText={setPhone} 
-                            keyboardType="phone-pad" 
-                            maxLength={10} 
+                        <TextInput
+                            style={styles.input}
+                            value={phone}
+                            onChangeText={setPhone}
+                            keyboardType="phone-pad"
+                            maxLength={10}
                         />
                     </View>
 
                     <TouchableOpacity disabled={isLoading} onPress={handleSave}>
-                        <LinearGradient 
+                        <LinearGradient
                             colors={[colors.themeTeal, colors.themeDarkTeal]}
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 0 }}

@@ -10,6 +10,7 @@ import { sliderImages, goatDeals, exploreItems, bestSellingItems, topBrands, gSh
 import { AppIcons } from '../../assets/icons';
 import { Rating } from 'react-native-ratings';
 import LinearGradient from 'react-native-linear-gradient';
+import FloatingCartButton from '../../components/FloatingCartButton/FloatingCartButton';
 
 const { width } = Dimensions.get('window');
 
@@ -454,6 +455,7 @@ const HomeScreen: React.FC = () => {
           </View>
         </View>
       </ScrollView>
+      <FloatingCartButton />
     </View>
   );
 };

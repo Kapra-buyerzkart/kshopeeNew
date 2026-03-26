@@ -16,6 +16,7 @@ import CONFIG from '../../globals/config';
 import { addToWishlistApi, removeFromWishlistApi } from '../../api/services/wishlistService';
 import { useWishlist } from '../../context/WishlistContext';
 import { SORT_OPTIONS } from './dummyData';
+import FloatingCartButton from '../../components/FloatingCartButton/FloatingCartButton';
 
 const CategoryScreen = () => {
     const navigation = useNavigation<any>();
@@ -49,7 +50,7 @@ const CategoryScreen = () => {
     const getImageUrl = (imagePath: string) => {
         if (!imagePath) return require("../../assets/images/category/men.jpg");
         if (imagePath.startsWith('http')) return { uri: imagePath };
-        console.log("Image URL ---->", `${CONFIG.image_base_url}/${imagePath}`.replace(/([^:]\/)\/+/g, "$1"))
+        //console.log("Image URL ---->", `${CONFIG.image_base_url}/${imagePath}`.replace(/([^:]\/)\/+/g, "$1"))
         return { uri: `${CONFIG.image_base_url}/${imagePath}`.replace(/([^:]\/)\/+/g, "$1") };
     };
 
@@ -403,6 +404,7 @@ const CategoryScreen = () => {
                 categoryName={categoryName}
                 categoryImage={categoriesList.find(c => c.catId?.toString() === selectedCategoryId)?.imageUrl}
             />
+            <FloatingCartButton />
         </View>
     );
 };

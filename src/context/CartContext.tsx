@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useMemo, ReactNode, useCallback } from 'react';
+import React, { createContext, useContext, useState, useMemo, ReactNode, useCallback, useEffect } from 'react';
 import { getCartApi, getCartSummaryApi, clearCartApi } from '../api/services/cartService';
 import CONFIG from '../globals/config';
 
@@ -50,7 +50,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     quantity: item.addedQty || item.quantity || 0,
                 }));
                 setCartItems(mappedItems);
-                
+
                 // Keep cart version in summary state if available
                 if (response.data.cart) {
                     setCartSummary((prev: any) => ({
@@ -95,6 +95,10 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const fetchAddresses = useCallback(async () => {
         // This will be handled by useAddresses hook mostly, but keeping it here for compat
     }, []);
+
+    useEffect(() => {
+        loadCart();
+    }, [loadCart]);
 
     const cartCount = useMemo(() => cartItems.reduce((acc, item) => acc + item.quantity, 0), [cartItems]);
     const cartTotal = useMemo(() => cartSummary?.grandTotal || 0, [cartSummary]);

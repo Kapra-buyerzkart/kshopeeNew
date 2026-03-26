@@ -9,6 +9,7 @@ import { wp } from '../../utils/responsive';
 import LinearGradient from 'react-native-linear-gradient';
 
 import { useWishlist } from '../../context/WishlistContext';
+import FloatingCartButton from '../../components/FloatingCartButton/FloatingCartButton';
 
 
 const WishlistScreen: React.FC = () => {
@@ -89,6 +90,7 @@ const WishlistScreen: React.FC = () => {
                     />
                 </View>
             )}
+            <FloatingCartButton />
         </SafeAreaView>
     );
 };

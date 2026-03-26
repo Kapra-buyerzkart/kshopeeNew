@@ -29,17 +29,17 @@ export const useCartScreen = () => {
         const deliveryCharge = (itemTotal > 0 && itemTotal < 500) ? 5 : 0;
         const totalSavings = savings + (deliveryCharge === 0 && itemTotal >= 500 ? 5 : 0);
         const toPay = itemTotal + deliveryCharge;
-        return { 
-            mrpTotal, 
-            itemTotal, 
-            savings, 
-            deliveryCharge, 
-            couponDiscount: 0, 
-            giftCardAmount: 0, 
-            bcoinsAppliedValue: 0, 
-            totalBtokens: 0, 
-            totalSavings: savings, 
-            toPay 
+        return {
+            mrpTotal,
+            itemTotal,
+            savings,
+            deliveryCharge,
+            couponDiscount: 0,
+            giftCardAmount: 0,
+            bcoinsAppliedValue: 0,
+            totalBtokens: 0,
+            totalSavings: savings,
+            toPay
         };
     }, [cartItems]);
 

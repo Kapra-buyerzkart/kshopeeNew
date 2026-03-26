@@ -13,6 +13,7 @@ import { LoaderContext } from '../../context/loaderContext';
 import { useDebounce } from '../../hooks/useDebounce';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CONFIG from '../../globals/config';
+import { addToWishlistApi, removeFromWishlistApi } from '../../api/services/wishlistService';
 
 const CategoryScreen = () => {
     const navigation = useNavigation<any>();
@@ -45,6 +46,7 @@ const CategoryScreen = () => {
     const getImageUrl = (imagePath: string) => {
         if (!imagePath) return require("../../assets/images/category/men.jpg");
         if (imagePath.startsWith('http')) return { uri: imagePath };
+        console.log("Image URL ---->", `${CONFIG.image_base_url}/${imagePath}`.replace(/([^:]\/)\/+/g, "$1"))
         return { uri: `${CONFIG.image_base_url}/${imagePath}`.replace(/([^:]\/)\/+/g, "$1") };
     };
 
@@ -66,6 +68,7 @@ const CategoryScreen = () => {
         if (selectedCategoryId) {
             fetchSubCategories(selectedCategoryId);
         }
+
     }, [selectedCategoryId]);
 
     useEffect(() => {
@@ -110,7 +113,7 @@ const CategoryScreen = () => {
             console.log("Subcategory response---->", JSON.stringify(response, null, 2))
             if (response && response.success && response.data && response.data.items) {
                 setSubCategoriesList(response.data.items);
-                setSelectedSubCategoryId(null); // Reset subcategory selection
+                setSelectedSubCategoryId(null);
             } else {
                 setSubCategoriesList([]);
             }
@@ -122,19 +125,50 @@ const CategoryScreen = () => {
         }
     };
 
+
+    const addToWishlist = async (productId: string) => {
+        try {
+            setProductsList(prev => prev.map(p => (p.productId || p.id) === productId ? { ...p, isWishlist: true, isWishlisted: true } : p));
+            showLoader(true);
+            const response = await addToWishlistApi(productId);
+            console.log("addToWishlist response---->", JSON.stringify(response, null, 2))
+
+        } catch (error) {
+            console.error('Error adding to wishlist:', error);
+            setProductsList(prev => prev.map(p => (p.productId || p.id) === productId ? { ...p, isWishlist: false, isWishlisted: false } : p));
+        } finally {
+            showLoader(false);
+        }
+    };
+
+    const removeFromWishlist = async (productId: string) => {
+        try {
+            setProductsList(prev => prev.map(p => (p.productId || p.id) === productId ? { ...p, isWishlist: false, isWishlisted: false } : p));
+            showLoader(true);
+            const response = await removeFromWishlistApi(productId);
+            console.log("removeFromWishlist response---->", JSON.stringify(response, null, 2))
+
+        } catch (error) {
+            console.error('Error removing from wishlist:', error);
+            setProductsList(prev => prev.map(p => (p.productId || p.id) === productId ? { ...p, isWishlist: true, isWishlisted: true } : p));
+        } finally {
+            showLoader(false);
+        }
+    };
+
     const fetchProducts = async (categoryId: string) => {
         try {
             showLoader(true);
             const payload = {
                 //pincodeAreaId: pincodeAreaId,
-                pincodeAreaId: 10652,
+                pincodeAreaId: pincodeAreaId,
                 prName: debouncedSearchText,
                 catId: parseInt(categoryId),
                 priceMin: filters.priceMin,
                 priceMax: filters.priceMax,
                 filterValues: null,
                 sortBy: filters.sortBy,
-                pageNumber: 1, // Reset to page 1
+                pageNumber: 1,
                 pageSize: pageSize
             };
             console.log("payload for product--->", payload);
@@ -171,10 +205,26 @@ const CategoryScreen = () => {
 
         <TouchableOpacity style={styles.exploreItemCard} onPress={() => { navigation.navigate('ProductDetailsScreen', { productId: item.productId || item.id, product: item }) }}>
             <View style={styles.exploreTopBadgesRow}>
-                <View style={[styles.discountCircle, { opacity: item.discount ? 1 : 0 }]}>
-                    <Text style={[styles.discountCircleText]}>{item.discount && !item.discount.toString().includes('%') ? `-${item.discount}%` : item.discount}</Text>
+                <View style={[styles.discountCircle, { opacity: item.discountPercent ? 1 : 0 }]}>
+                    <Text style={[styles.discountCircleText]}>
+                        {
+                            item.discountPercent
+                                ? `${parseFloat(item.discountPercent).toFixed(1)}%`
+                                : item.discount
+                        }
+                    </Text>
                 </View>
-                <AppIcons.BookmarkOutline color={colors.tealIconFont} size={24} />
+
+                {(item.isWishlist || item.isWishlisted) ? (
+                    <TouchableOpacity onPress={() => removeFromWishlist(item.productId || item.id)}>
+                        <AppIcons.BookmarkFilled color={colors.tealIconFont} size={24} />
+                    </TouchableOpacity>
+                ) : (
+                    <TouchableOpacity onPress={() => addToWishlist(item.productId || item.id)}>
+                        <AppIcons.BookmarkOutline color={colors.tealIconFont} size={24} />
+                    </TouchableOpacity>
+                )}
+
             </View>
 
             <Image source={imageSource(item)} style={styles.exploreItemImage} resizeMode="contain" />
@@ -196,13 +246,13 @@ const CategoryScreen = () => {
 
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, gap: 4 }}>
                     <View style={styles.pricePill}>
-                        <Text style={styles.pricePillText}>{item.price?.toString().startsWith('₹') ? item.price : `₹${item.price || 0}`}</Text>
+                        <Text style={styles.pricePillText}>{item.specialPrice?.toString().startsWith('₹') ? item.specialPrice : `₹${item.specialPrice || 0.00}`}</Text>
                     </View>
-                    {(item.mrp || item.oldPrice) && (
+                    {item.unitPrice ? (
                         <Text style={styles.originalPriceText}>
-                            {(item.mrp || item.oldPrice)?.toString().includes('MRP') ? item.oldPrice : `MRP ₹${item.mrp || item.oldPrice}`}
+                            {(item.unitPrice)?.toString().includes('MRP') ? item.unitPrice : `MRP ₹${item.unitPrice || item.price}`}
                         </Text>
-                    )}
+                    ) : null}
                 </View>
             </View>
         </TouchableOpacity>
@@ -213,23 +263,31 @@ const CategoryScreen = () => {
     return (
         <View style={styles.container}>
             {/* Banner Section */}
-            <View style={styles.bannerContainer}>
-                <ImageBackground
-                    source={require('../../assets/images/category/men.jpg')}
-                    style={styles.bannerBg}
-                    resizeMode="cover"
-                >
-                    <View style={styles.bannerHeader}>
-                        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-                            <Ionicons name="arrow-back" size={28} color={colors.themeBlack} />
-                            <Text style={styles.bannerTitle}>{categoryName || 'Fashion'}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity>
-                            <Ionicons name="search-outline" size={28} color={colors.themeBlack} />
-                        </TouchableOpacity>
-                    </View>
-                </ImageBackground>
-            </View>
+            {categoriesList.map((cat: any, index: number) => {
+                const isActive = selectedCategoryId === cat.catId?.toString();
+                return (
+                    isActive && (
+                        <View style={styles.bannerContainer}>
+                            <ImageBackground
+                                //source={require('../../assets/images/category/men.jpg')}
+                                source={getImageUrl(cat.mobBannerImgUrl)}
+                                style={styles.bannerBg}
+                                resizeMode="cover"
+                            >
+                                <View style={styles.bannerHeader}>
+                                    <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                                        <Ionicons name="arrow-back" size={28} color={colors.themeBlack} />
+                                        <Text style={styles.bannerTitle}>{categoryName || 'Fashion'}</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity>
+                                        <Ionicons name="search-outline" size={28} color={colors.themeBlack} />
+                                    </TouchableOpacity>
+                                </View>
+                            </ImageBackground>
+                        </View>
+                    )
+                )
+            })}
 
             {/* Top Filters / Subcategories */}
             <View style={styles.topFilterContainer}>

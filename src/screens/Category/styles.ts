@@ -196,9 +196,9 @@ export const styles = StyleSheet.create({
         zIndex: 2
     },
     discountCircle: {
-        width: 27,
-        height: 27,
-        borderRadius: 14,
+        width: 30,
+        height: 30,
+        borderRadius: 15,
         borderWidth: 2,
         borderColor: colors.tealIconFont,
         justifyContent: 'center',
@@ -208,7 +208,7 @@ export const styles = StyleSheet.create({
     },
     discountCircleText: {
         color: colors.tealIconFont,
-        fontSize: 8,
+        fontSize: 7,
         fontFamily: Fonts.medium,
         fontWeight: '500',
         textAlign: 'center',
@@ -231,7 +231,8 @@ export const styles = StyleSheet.create({
         shadowOpacity: 0.85,
         shadowRadius: 2,
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        minWidth: 65
     },
     pricePillText: {
         color: colors.themeWhite,

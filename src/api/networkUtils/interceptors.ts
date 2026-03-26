@@ -31,6 +31,7 @@ export const setupInterceptors = (axiosInstance: AxiosInstance): void => {
 
       if (!isAuthApi) {
         const token = await getAccessToken();
+        console.log("App token---->", token)
         if (token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`;
         }

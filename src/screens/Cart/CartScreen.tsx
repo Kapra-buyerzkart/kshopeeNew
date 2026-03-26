@@ -567,17 +567,17 @@ const CartScreen = () => {
                 </View>
             </View>
 
-            {/* <StatusModal visible={statusModalVisible} onClose={() => setStatusModalVisible(false)} type={statusType} title={statusTitle} message={statusMessage} />
-            {/* <AddressModal visible={showAddressModal} onClose={() => setShowAddressModal(false)} addresses={addresses} onSelectAddress={onSelectAddress} /> */}
+            <StatusModal visible={statusModalVisible} onClose={() => setStatusModalVisible(false)} type={statusType} title={statusTitle} message={statusMessage} />
+            <AddressModal visible={showAddressModal} onClose={() => setShowAddressModal(false)} addresses={addresses} onSelectAddress={onSelectAddress} />
             <DeliverySlotModal visible={showSlotModal} onClose={() => setShowSlotModal(false)} onSelectSlot={(slot: any) => { setChosenSlot(slot); setSelectedDeliveryType('slot'); }} />
             <CouponModal visible={showCouponModal} onClose={() => setShowCouponModal(false)} isGiftCard={isGiftCard} availableCoupons={availableCoupons} availableGiftCards={availableGiftCards} onCouponClick={handleCouponClick} />
             <ConfirmationModal visible={isClearCartModalVisible} onClose={() => setIsClearCartModalVisible(false)} onConfirm={() => { clearCart(); setIsClearCartModalVisible(false); }} title="Clear Cart" message="Are you sure you want to remove all items?" />
 
-            {/* <AddressConfirmationModal
+            <AddressConfirmationModal
                 visible={!!addressConfirmationData || serviceabilityTrigger}
                 onClose={() => { setAddressConfirmationData(null); setServiceabilityTrigger(false); }}
                 onConfirm={() => { if (addressConfirmationData?.isPlacingOrder && addressConfirmationData?.isServiceable) submitOrder(); else setAddressConfirmationData(null); }}
-            /> */}
+            />
         </SafeAreaView>
     );
 };

@@ -34,7 +34,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         const promise = (async () => {
             try {
                 const storedPincodeAreaId = await AsyncStorage.getItem('pincodeAreaId');
-                const areaId = storedPincodeAreaId ? parseInt(storedPincodeAreaId) : null;
+                const areaId = storedPincodeAreaId ? parseInt(storedPincodeAreaId) : 1; // Default to 1 (dummy area)
                 const response = await getWishlistApi(areaId);
                 if (response && response.success && response.data && response.data.items) {
                     const items = Array.isArray(response.data.items) ? response.data.items : [];

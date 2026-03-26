@@ -1,155 +1,108 @@
-import React, { createContext, useContext, useState, useMemo, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useMemo, ReactNode, useCallback } from 'react';
+import { getCartApi, getCartSummaryApi, clearCartApi } from '../api/services/cartService';
 
-// --- Types ---
-export interface Product {
-    id: string;
-    name: string;
-    description: string;
-    price: number;
-    image: string;
-    categoryId: string;
-}
-
-export interface SpecialItem {
-    id: string;
-    name: string;
-    description: string;
-    price: number;
-    image: string;
-    categoryId: string;
-}
-
-export interface Category {
-    id: string;
-    name: string;
+export interface CartItem {
+    cartItemId: number;
+    productId: number;
+    productName: string;
+    productImage: string;
+    quantity: number;
+    unitPrice: number;
+    specialPrice?: number;
+    mrp?: number;
+    totalBtokens?: number;
+    [key: string]: any;
 }
 
 interface CartContextType {
-    cart: { [key: string]: number };
-    addToCart: (productId: string, price: number) => void;
-    removeFromCart: (productId: string) => void;
-    cartTotal: { count: number; price: number };
-    categories: Category[];
-    specialItems: SpecialItem[];
-    addSpecialItem: (product: SpecialItem) => void;
-    removeSpecialItem: (productId: string) => void;
-    activeOrderId: string | null;
-    setActiveOrderId: (id: string | null) => void;
-    clearCart: () => void;
+    cartItems: CartItem[];
+    cartSummary: any | null;
+    cartCount: number;
+    cartTotal: number;
+    error: string | null;
+    loadCart: () => Promise<any>;
+    getCartSummary: (deliveryMode?: string, deliverySlotId?: any, cartVersion?: any, pincodeAreaId?: any) => Promise<any>;
+    clearCart: () => Promise<void>;
+    addresses: any[];
+    fetchAddresses: () => Promise<void>;
+    // ... add other necessary fields for CartScreen
+    [key: string]: any;
 }
 
-// --- Context ---
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-// --- Categories Data (shared across screens) ---
-const CATEGORIES: Category[] = [
-    { id: 'all', name: 'All products' },
-    { id: 'appetizer', name: 'Appetizers' },
-    { id: 'main', name: 'Main Course' },
-    { id: 'dessert', name: 'Desserts' },
-    { id: 'drink', name: 'Drinks' },
-];
-
-// --- Provider ---
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [cart, setCart] = useState<{ [key: string]: number }>({});
-    const [cartPrices, setCartPrices] = useState<{ [key: string]: number }>({});
-    const [activeOrderId, setActiveOrderId] = useState<string | null>(null);
-    const [specialItems, setSpecialItems] = useState<SpecialItem[]>([
-        {
-            id: 'sp1',
-            name: 'Salad Egg',
-            description: '',
-            price: 370.67,
-            image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&auto=format&fit=crop&q=60',
-            categoryId: 'special',
-        },
-        {
-            id: 'sp2',
-            name: 'Salad Tuna',
-            description: '(Must choose level)',
-            price: 500.67,
-            image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&auto=format&fit=crop&q=60',
-            categoryId: 'special',
-        },
-    ]);
+    const [cartItems, setCartItems] = useState<CartItem[]>([]);
+    const [cartSummary, setCartSummary] = useState<any | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [addresses, setAddresses] = useState<any[]>([]);
 
-    const addToCart = (productId: string, price: number) => {
-        setCart(prev => ({
-            ...prev,
-            [productId]: (prev[productId] || 0) + 1,
-        }));
-        setCartPrices(prev => ({ ...prev, [productId]: price }));
-    };
-
-    const removeFromCart = (productId: string) => {
-        setCart(prev => {
-            const current = prev[productId] || 0;
-            if (current <= 1) {
-                const { [productId]: _, ...rest } = prev;
-                return rest;
+    const loadCart = useCallback(async () => {
+        try {
+            const response = await getCartApi();
+            if (response && response.success) {
+                setCartItems(response.data?.items || []);
+                return response.data;
             }
-            return { ...prev, [productId]: current - 1 };
-        });
-    };
+        } catch (err: any) {
+            setError(err.message || 'Failed to load cart');
+        }
+        return null;
+    }, []);
 
-    const addSpecialItem = (product: SpecialItem) => {
-        setSpecialItems(prev => [...prev, product]);
-    };
-
-    const removeSpecialItem = (productId: string) => {
-        setSpecialItems(prev => prev.filter(item => item.id !== productId));
-    };
-
-    const clearCart = () => {
-        setCart({});
-        setCartPrices({});
-        setActiveOrderId(null);
-    };
-
-    const cartTotal = useMemo(() => {
-        let count = 0;
-        let price = 0;
-        Object.entries(cart).forEach(([id, quantity]) => {
-            // Check in special items first, then use stored price for DB products
-            const specialItem = specialItems.find(p => p.id === id);
-            if (specialItem) {
-                count += quantity;
-                price += specialItem.price * quantity;
-            } else if (cartPrices[id]) {
-                count += quantity;
-                price += cartPrices[id] * quantity;
+    const getCartSummary = useCallback(async (deliveryMode = 'express', deliverySlotId = null, cartVersion = null, pincodeAreaId = null) => {
+        try {
+            const response = await getCartSummaryApi(deliveryMode, deliverySlotId, cartVersion, null, pincodeAreaId);
+            if (response && response.success) {
+                setCartSummary(response.data);
+                return response;
+            } else {
+                setError(response?.message || 'Failed to get cart summary');
             }
-        });
-        return { count, price };
-    }, [cart, cartPrices, specialItems]);
+        } catch (err: any) {
+            setError(err.message || 'Error occurred while fetching summary');
+        }
+        return null;
+    }, []);
+
+    const clearCart = useCallback(async () => {
+        try {
+            await clearCartApi(cartSummary?.cartVersion);
+            setCartItems([]);
+            setCartSummary(null);
+        } catch (err: any) {
+            setError(err.message || 'Failed to clear cart');
+        }
+    }, [cartSummary]);
+
+    const fetchAddresses = useCallback(async () => {
+        // This will be handled by useAddresses hook mostly, but keeping it here for compat
+    }, []);
+
+    const cartCount = useMemo(() => cartItems.reduce((acc, item) => acc + item.quantity, 0), [cartItems]);
+    const cartTotal = useMemo(() => cartSummary?.grandTotal || 0, [cartSummary]);
 
     return (
-        <CartContext.Provider
-            value={{
-                cart,
-                addToCart,
-                removeFromCart,
-                clearCart,
-                cartTotal,
-                categories: CATEGORIES,
-                specialItems,
-                addSpecialItem,
-                removeSpecialItem,
-                activeOrderId,
-                setActiveOrderId,
-            }}
-        >
+        <CartContext.Provider value={{
+            cartItems,
+            cartSummary,
+            cartCount,
+            cartTotal,
+            error,
+            loadCart,
+            getCartSummary,
+            clearCart,
+            addresses,
+            fetchAddresses,
+            refreshCart: loadCart,
+        }}>
             {children}
         </CartContext.Provider>
     );
 };
 
-// --- Custom Hook ---
-export const useCart = (): CartContextType => {
+export const useCart = () => {
     const context = useContext(CartContext);
-    if (!context) {
-        throw new Error('useCart must be used within a CartProvider');
-    }
+    if (!context) throw new Error('useCart must be used within a CartProvider');
     return context;
 };

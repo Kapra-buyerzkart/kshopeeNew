@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 // import User from '../database/models/User';
 type User = any;
 
@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as NavigationService from '../api/NavigationService';
 
 import { getProfile } from '../api/services';
+import { getAccessToken, clearTokens } from '../api/services/tokenService';
 
 interface UserContextType {
     user: User | null;
@@ -27,15 +28,41 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const response = await getProfile();
             if (response && response.success) {
                 setProfile(response.data);
+                setUser({ loggedIn: true }); // Set user as logged in
+                await AsyncStorage.setItem('profile', JSON.stringify(response.data));
             }
         } catch (error) {
             console.error('Error loading profile:', error);
         }
     };
 
+    useEffect(() => {
+        const rehydrateSession = async () => {
+            try {
+                const token = await getAccessToken();
+                if (token) {
+                    // Try to load cached profile first for immediate UI
+                    const cachedProfile = await AsyncStorage.getItem('profile');
+                    if (cachedProfile) {
+                        const parsedProfile = JSON.parse(cachedProfile);
+                        setProfile(parsedProfile);
+                        setUser({ loggedIn: true });
+                    }
+                    // Then refresh from server
+                    await loadProfile();
+                }
+            } catch (error) {
+                console.error('Session rehydration error:', error);
+            }
+        };
+        rehydrateSession();
+    }, []);
+
     const logout = async () => {
         try {
-            await AsyncStorage.clear();
+            await clearTokens();
+            await AsyncStorage.removeItem('profile');
+            await AsyncStorage.removeItem('pincodeAreaId');
             setUser(null);
             setProfile(null);
             NavigationService.reset('Login');

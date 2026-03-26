@@ -173,6 +173,8 @@ const ProfileScreen: React.FC = () => {
                 message="Are you sure you want to log out?"
                 confirmText="Log Out"
                 cancelText="Cancel"
+                iconName="logout"
+                themeColor={colors.themeTeal}
             />
         </SafeAreaView>
     );

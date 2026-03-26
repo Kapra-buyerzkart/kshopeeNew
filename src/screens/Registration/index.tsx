@@ -52,6 +52,13 @@ const RegistrationScreen: React.FC = () => {
     const [areas, setAreas] = useState<any[]>([]);
     const [selectedArea, setSelectedArea] = useState<any>(null);
 
+    const [errors, setErrors] = useState({
+        name: '',
+        email: '',
+        password: '',
+        pincode: '',
+    });
+
     const handlePincodeChange = async (value: string) => {
         setPincode(value);
         if (value.length === 6) {
@@ -69,13 +76,45 @@ const RegistrationScreen: React.FC = () => {
         }
     };
 
-    const handleContinue = async () => {
-        if (!name || !password) {
-            showAlert('Error', 'Please fill all mandatory fields');
-            return;
+    const validateForm = () => {
+        let isValid = true;
+        const newErrors = { name: '', email: '', password: '', pincode: '' };
+
+        if (!name.trim()) {
+            newErrors.name = 'Name is required';
+            isValid = false;
         }
-        if (pincode.length !== 6 || !selectedArea) {
-            showAlert('Error', 'Please select a valid area');
+
+        if (!email.trim()) {
+            newErrors.email = 'Email is required';
+            isValid = false;
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+             newErrors.email = 'Enter a valid email address';
+             isValid = false;
+        }
+
+        if (!password) {
+            newErrors.password = 'Password is required';
+            isValid = false;
+        } else if (password.length < 6) {
+            newErrors.password = 'Password must be at least 6 characters';
+            isValid = false;
+        }
+
+        if (pincode.length !== 6) {
+            newErrors.pincode = 'Enter a valid 6-digit pincode';
+            isValid = false;
+        } else if (!selectedArea) {
+            newErrors.pincode = 'Please select a valid area';
+            isValid = false;
+        }
+
+        setErrors(newErrors);
+        return isValid;
+    };
+
+    const handleContinue = async () => {
+        if (!validateForm()) {
             return;
         }
         if (!agreed) {
@@ -172,9 +211,10 @@ const RegistrationScreen: React.FC = () => {
                             <View style={styles.inputSpacing}>
                                 <CustomInput
                                     label="Name"
-                                    placeholder="+91   000 000 0000" // Exact matching with user mock
+                                    placeholder="Full Name" // Exact matching with user mock
                                     value={name}
-                                    onChangeText={setName}
+                                    onChangeText={(text) => { setName(text); setErrors(prev => ({ ...prev, name: '' })); }}
+                                    error={errors.name}
                                 />
                             </View>
 
@@ -183,8 +223,9 @@ const RegistrationScreen: React.FC = () => {
                                     label="Email.ID"
                                     placeholder="Enter email . ID"
                                     value={email}
-                                    onChangeText={setEmail}
+                                    onChangeText={(text) => { setEmail(text); setErrors(prev => ({ ...prev, email: '' })); }}
                                     keyboardType="email-address"
+                                    error={errors.email}
                                 />
                             </View>
 
@@ -193,7 +234,7 @@ const RegistrationScreen: React.FC = () => {
                                     label="Password"
                                     placeholder="Create password"
                                     value={password}
-                                    onChangeText={setPassword}
+                                    onChangeText={(text) => { setPassword(text); setErrors(prev => ({ ...prev, password: '' })); }}
                                     secureTextEntry={!isPasswordVisible}
                                     rightIcon={
                                         <Image
@@ -202,6 +243,7 @@ const RegistrationScreen: React.FC = () => {
                                         />
                                     }
                                     onPressRightIcon={() => setIsPasswordVisible(!isPasswordVisible)}
+                                    error={errors.password}
                                 />
                             </View>
 
@@ -210,9 +252,10 @@ const RegistrationScreen: React.FC = () => {
                                     label="Pin code"
                                     placeholder="00 00 00"
                                     value={pincode}
-                                    onChangeText={handlePincodeChange}
+                                    onChangeText={(text) => { handlePincodeChange(text); setErrors(prev => ({ ...prev, pincode: '' })); }}
                                     keyboardType="number-pad"
                                     maxLength={6}
+                                    error={errors.pincode}
                                 />
                             </View>
 

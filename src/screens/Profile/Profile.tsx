@@ -23,10 +23,12 @@ import { hp, wp } from '../../utils/responsive';
 
 import { useUser } from '../../context/UserContext';
 import ConfirmationModal from '../../components/ConfirmationModal';
+import { useCustomAlert } from '../../context/AlertContext';
 
 const ProfileScreen: React.FC = () => {
     const navigation = useNavigation<any>();
     const { logout, profile, loadProfile } = useUser();
+    const { showAlert } = useCustomAlert();
     const [isLogoutModalVisible, setIsLogoutModalVisible] = React.useState(false);
 
     React.useEffect(() => {
@@ -87,7 +89,7 @@ const ProfileScreen: React.FC = () => {
                                         {profile?.totalBCoins || '0.00'}
                                     </Text> */}
                                 </TouchableOpacity>
-                                <TouchableOpacity style={styles.notificationBell}>
+                                <TouchableOpacity style={styles.notificationBell} onPress={() => showAlert('Notifications', 'You have no new notifications.')}>
                                     <Ionicons name="notifications" size={24} color={colors.black} style={{ top: -15 }} />
                                 </TouchableOpacity>
                                 {/* <TouchableOpacity onPress={() => navigation.navigate('EditProfile')} style={{ marginLeft: wp('2%') }}>
@@ -107,13 +109,13 @@ const ProfileScreen: React.FC = () => {
                         <Image source={require('../../assets/icons/profile/cart.png')} style={{ width: 22, height: 22 }} />
                         <Text style={styles.actionText}>Cart</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.actionCard}>
+                    <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('MyOrder')}>
                         <Image source={require('../../assets/icons/profile/orders.png')} style={{ width: 22, height: 22 }} />
                         <Text style={styles.actionText}>My Order</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.actionCard}>
+                    <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('SavedAddressScreen')}>
                         <Image source={require('../../assets/icons/profile/location.png')} style={{ width: 22, height: 22 }} resizeMode="contain" />
-                        <Text style={styles.actionText}>Location</Text>
+                        <Text style={styles.actionText}>Address</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -131,8 +133,8 @@ const ProfileScreen: React.FC = () => {
                 <View style={styles.sectionContainer}>
                     <Text style={styles.sectionTitle}>Offers</Text>
                     <View style={styles.menuCard}>
-                        {renderMenuItem(<Image source={require('../../assets/icons/profile/gift.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />, 'Smart point', false, undefined, colors.themeTeal)}
-                        {renderMenuItem(<Image source={require('../../assets/icons/profile/coupon.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />, 'Coupon', false, undefined, colors.themeTeal)}
+                        {renderMenuItem(<Image source={require('../../assets/icons/profile/gift.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />, 'Smart point', false, undefined, colors.themeTeal, () => showAlert('Coming Soon', 'Smart Points feature is coming soon!'))}
+                        {renderMenuItem(<Image source={require('../../assets/icons/profile/coupon.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />, 'Coupon', false, undefined, colors.themeTeal, () => showAlert('Coming Soon', 'Coupons feature is coming soon!'))}
                         {renderMenuItem(<Image source={require('../../assets/icons/profile/rupee.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />, 'B coin', false, undefined, colors.themeTeal, () => navigation.navigate('BCoin'))}
                     </View>
                 </View>
@@ -142,9 +144,9 @@ const ProfileScreen: React.FC = () => {
                     <Text style={styles.sectionTitle}>Informations</Text>
                     <View style={styles.menuCard}>
                         {renderMenuItem(<Image source={require('../../assets/icons/profile/profile.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />, 'Edit profile', true, '1', undefined, () => navigation.navigate('EditProfile'))}
-                        {renderMenuItem(<Image source={require('../../assets/icons/profile/lock.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />, 'Privacy Policy')}
-                        {renderMenuItem(<Image source={require('../../assets/icons/profile/terms.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />, 'Terms and conditions')}
-                        {renderMenuItem(<Image source={require('../../assets/icons/profile/info.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />, 'About us')}
+                        {renderMenuItem(<Image source={require('../../assets/icons/profile/lock.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />, 'Privacy Policy', false, undefined, undefined, () => showAlert('Information', 'Privacy Policy will be updated soon.'))}
+                        {renderMenuItem(<Image source={require('../../assets/icons/profile/terms.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />, 'Terms and conditions', false, undefined, undefined, () => showAlert('Information', 'Terms and Conditions will be updated soon.'))}
+                        {renderMenuItem(<Image source={require('../../assets/icons/profile/info.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />, 'About us', false, undefined, undefined, () => showAlert('Information', 'About Us information will be updated soon.'))}
                     </View>
                 </View>
 

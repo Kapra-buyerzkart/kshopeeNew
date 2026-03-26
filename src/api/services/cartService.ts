@@ -61,21 +61,21 @@ const getPincodeAreaId = async (): Promise<number | null> => {
     return null;
 };
 
-export const addToCartApi = async (productId: string | number, quantity: number = 1): Promise<any> => {
-    const pincodeAreaId = await getPincodeAreaId();
+export const addToCartApi = async (productId: string | number, quantity: number = 1, pincodeAreaIdOverride: number | null = null): Promise<any> => {
+    const pincodeAreaId = pincodeAreaIdOverride || await getPincodeAreaId();
     const payload = { pincodeAreaId, productId, quantity };
     return post('cart/add', payload);
 };
 
-export const updateCartItemApi = async (cartItemId: string | number, quantity: number, cartVersion: number | string, productId: string | number | null = null): Promise<any> => {
-    const pincodeAreaId = await getPincodeAreaId();
+export const updateCartItemApi = async (cartItemId: string | number, quantity: number, cartVersion: number | string, productId: string | number | null = null, pincodeAreaIdOverride: number | null = null): Promise<any> => {
+    const pincodeAreaId = pincodeAreaIdOverride || await getPincodeAreaId();
     const payload: any = { pincodeAreaId, quantity, ifMatchCartVersion: cartVersion };
     if (productId) payload.productId = productId;
     return post(`cart/update/${cartItemId}`, payload);
 };
 
-export const removeFromCartApi = async (cartItemId: string | number, cartVersion: number | string, productId: string | number): Promise<any> => {
-    const pincodeAreaId = await getPincodeAreaId();
+export const removeFromCartApi = async (cartItemId: string | number, cartVersion: number | string, productId: string | number, pincodeAreaIdOverride: number | null = null): Promise<any> => {
+    const pincodeAreaId = pincodeAreaIdOverride || await getPincodeAreaId();
     const payload = { quantity: 0, pincodeAreaId, productId, ifMatchCartVersion: cartVersion };
     return post(`cart/update/${cartItemId}`, payload);
 };

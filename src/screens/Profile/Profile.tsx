@@ -21,11 +21,21 @@ import { styles } from './styles';
 import { AppIcons } from '../../assets/icons';
 import { hp, wp } from '../../utils/responsive';
 
+import { useUser } from '../../context/UserContext';
+import ConfirmationModal from '../../components/ConfirmationModal';
+
 const ProfileScreen: React.FC = () => {
     const navigation = useNavigation<any>();
+    const { logout } = useUser();
+    const [isLogoutModalVisible, setIsLogoutModalVisible] = React.useState(false);
 
-    const renderMenuItem = (icon: any, title: string, showBadge?: boolean, badgeValue?: string, iconBgColor?: string) => (
-        <TouchableOpacity style={styles.menuItem}>
+    const handleLogout = async () => {
+        setIsLogoutModalVisible(false);
+        await logout();
+    };
+
+    const renderMenuItem = (icon: any, title: string, showBadge?: boolean, badgeValue?: string, iconBgColor?: string, onPress?: () => void) => (
+        <TouchableOpacity style={styles.menuItem} onPress={onPress}>
             <View style={[styles.menuIconContainer, iconBgColor ? { backgroundColor: iconBgColor } : null]}>
                 {icon}
             </View>
@@ -80,7 +90,7 @@ const ProfileScreen: React.FC = () => {
 
                 {/* Quick Action Cards */}
                 <View style={styles.quickActionsContainer}>
-                    <TouchableOpacity style={styles.actionCard}>
+                    <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('Cart')}>
                         <Image source={require('../../assets/icons/profile/cart.png')} style={{ width: 22, height: 22 }} />
                         <Text style={styles.actionText}>Cart</Text>
                     </TouchableOpacity>
@@ -96,11 +106,13 @@ const ProfileScreen: React.FC = () => {
 
                 {/* Refer and Earn Banner */}
 
-                <Image
-                    source={require('../../assets/icons/profile/refer.png')}
-                    style={styles.referIllustration}
-                    resizeMode="contain"
-                />
+                <TouchableOpacity onPress={() => navigation.navigate('Referral')}>
+                    <Image
+                        source={require('../../assets/icons/profile/refer.png')}
+                        style={styles.referIllustration}
+                        resizeMode="contain"
+                    />
+                </TouchableOpacity>
 
                 {/* Offers Section */}
                 <View style={styles.sectionContainer}>
@@ -108,7 +120,7 @@ const ProfileScreen: React.FC = () => {
                     <View style={styles.menuCard}>
                         {renderMenuItem(<Image source={require('../../assets/icons/profile/gift.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />, 'Smart point', false, undefined, colors.themeTeal)}
                         {renderMenuItem(<Image source={require('../../assets/icons/profile/coupon.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />, 'Coupon', false, undefined, colors.themeTeal)}
-                        {renderMenuItem(<Image source={require('../../assets/icons/profile/rupee.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />, 'B coin', false, undefined, colors.themeTeal)}
+                        {renderMenuItem(<Image source={require('../../assets/icons/profile/rupee.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />, 'B coin', false, undefined, colors.themeTeal, () => navigation.navigate('BCoin'))}
                     </View>
                 </View>
 
@@ -124,7 +136,7 @@ const ProfileScreen: React.FC = () => {
                 </View>
 
                 {/* Logout Button */}
-                <TouchableOpacity style={styles.logoutButton}>
+                <TouchableOpacity style={styles.logoutButton} onPress={() => setIsLogoutModalVisible(true)}>
                     <Text style={styles.logoutText}>Log Out</Text>
                 </TouchableOpacity>
 
@@ -137,6 +149,16 @@ const ProfileScreen: React.FC = () => {
                     />
                 </View>
             </ScrollView>
+
+            <ConfirmationModal
+                visible={isLogoutModalVisible}
+                onClose={() => setIsLogoutModalVisible(false)}
+                onConfirm={handleLogout}
+                title="Log Out"
+                message="Are you sure you want to log out?"
+                confirmText="Log Out"
+                cancelText="Cancel"
+            />
         </SafeAreaView>
     );
 };

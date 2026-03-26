@@ -17,6 +17,8 @@ import CartScreen from '../screens/Cart/CartScreen';
 import ProductDetails from '../screens/Product/ProductDetails';
 import MyOrder from '../screens/Order/MyOrder';
 import MyOrderDetails from '../screens/Order/MyOrderDetails';
+import ReferralScreen from '../screens/ReferralScreen';
+import BCoinScreen from '../screens/BCoinScreen';
 // import ChangePwdScreen from '../screens/ChangePwdScreen';
 // import LoginPwdScreen from '../screens/LoginPwdScreen';
 import { CartProvider } from '../context/CartContext';
@@ -28,7 +30,7 @@ const Stack = createNativeStackNavigator();
 export default function RootStack() {
   return (
     <CartProvider>
-      <Stack.Navigator initialRouteName="MainTabs">
+      <Stack.Navigator initialRouteName="Login">
         <Stack.Screen name="Wishlist" component={WishlistScreen} options={{ headerShown: false }} />
         <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
@@ -39,6 +41,8 @@ export default function RootStack() {
         <Stack.Screen name="ProductDetails" component={ProductDetails} options={{ headerShown: false }} />
         <Stack.Screen name="MyOrder" component={MyOrder} options={{ headerShown: false }} />
         <Stack.Screen name="MyOrderDetails" component={MyOrderDetails} options={{ headerShown: false }} />
+        <Stack.Screen name="Referral" component={ReferralScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="BCoin" component={BCoinScreen} options={{ headerShown: false }} />
         {/* <Stack.Screen name="ChangePwdScreen" component={ChangePwdScreen} options={{ headerShown: false }} /> */}
         {/* <Stack.Screen name="LoginPwdScreen" component={LoginPwdScreen} options={{ headerShown: false }} /> */}
         <Stack.Screen

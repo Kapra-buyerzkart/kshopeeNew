@@ -1,10 +1,10 @@
 import React from 'react';
-import { 
-    View, 
-    Text, 
-    Modal, 
-    TouchableOpacity, 
-    StyleSheet, 
+import {
+    View,
+    Text,
+    Modal,
+    TouchableOpacity,
+    StyleSheet,
     Dimensions,
     Platform
 } from 'react-native';
@@ -27,11 +27,11 @@ interface AddressConfirmationModalProps {
     } | null;
 }
 
-const AddressConfirmationModal: React.FC<AddressConfirmationModalProps> = ({ 
-    visible, 
-    onClose, 
+const AddressConfirmationModal: React.FC<AddressConfirmationModalProps> = ({
+    visible,
+    onClose,
     onConfirm,
-    data 
+    data
 }) => {
     if (!data) return null;
 
@@ -77,22 +77,22 @@ const AddressConfirmationModal: React.FC<AddressConfirmationModalProps> = ({
                     <View style={styles.buttonContainer}>
                         {isServiceable ? (
                             <>
-                                <TouchableOpacity 
-                                    style={[styles.button, styles.confirmButton]} 
+                                <TouchableOpacity
+                                    style={[styles.button, styles.confirmButton]}
                                     onPress={onConfirm}
                                 >
                                     <Text style={styles.confirmButtonText}>Confirm & Place Order</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity 
-                                    style={[styles.button, styles.cancelButton]} 
+                                <TouchableOpacity
+                                    style={[styles.button, styles.cancelButton]}
                                     onPress={onClose}
                                 >
                                     <Text style={styles.cancelButtonText}>Change Address</Text>
                                 </TouchableOpacity>
                             </>
                         ) : (
-                            <TouchableOpacity 
-                                style={[styles.button, styles.confirmButton]} 
+                            <TouchableOpacity
+                                style={[styles.button, styles.confirmButton]}
                                 onPress={onClose}
                             >
                                 <Text style={styles.confirmButtonText}>Change Address</Text>
@@ -212,5 +212,4 @@ const styles = StyleSheet.create({
         fontFamily: Fonts.gilroyBold,
     },
 });
-
 export default AddressConfirmationModal;

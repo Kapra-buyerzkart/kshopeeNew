@@ -85,7 +85,7 @@ const CouponModal: React.FC<CouponModalProps> = ({
                             onChangeText={setManualCode}
                             autoCapitalize="characters"
                         />
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             onPress={() => onCouponClick({ code: manualCode })}
                             disabled={!manualCode}
                         >

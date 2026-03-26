@@ -1,12 +1,35 @@
 import React, { useState } from 'react';
-import { View, Text, Modal, TouchableOpacity, ScrollView, StyleSheet, Image } from 'react-native';
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { FONTS } from '../../styles/typography';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import { useCartScreen } from '../../hooks/useCartScreen';
+import { 
+    View, 
+    Text, 
+    Modal, 
+    TouchableOpacity, 
+    ScrollView, 
+    StyleSheet, 
+    Dimensions,
+    Platform
+} from 'react-native';
+import { colors } from '../../assets/theme/colours';
+import { Fonts } from '../../assets/theme/fonts';
+import { AppIcons } from '../../assets/icons';
 
-const DeliverySlotModal = ({ visible, onClose, onSelectSlot }: any) => {
-    const { datesList, slotsByDate } = useCartScreen();
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+interface DeliverySlotModalProps {
+    visible: boolean;
+    onClose: () => void;
+    onSelectSlot: (slot: any) => void;
+    datesList: any[];
+    slotsByDate: any;
+}
+
+const DeliverySlotModal: React.FC<DeliverySlotModalProps> = ({ 
+    visible, 
+    onClose, 
+    onSelectSlot,
+    datesList,
+    slotsByDate
+}) => {
     const [selectedDateIndex, setSelectedDateIndex] = useState(0);
 
     const activeDate = datesList[selectedDateIndex];
@@ -23,45 +46,73 @@ const DeliverySlotModal = ({ visible, onClose, onSelectSlot }: any) => {
     };
 
     return (
-        <Modal visible={visible} transparent animationType="slide">
+        <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
             <View style={styles.overlay}>
+                <TouchableOpacity style={styles.dismissArea} activeOpacity={1} onPress={onClose} />
                 <View style={styles.content}>
                     <View style={styles.header}>
                         <Text style={styles.title}>Select Delivery Slot</Text>
-                        <TouchableOpacity onPress={onClose}>
-                            <AntDesign name="close" size={wp('6%')} color="#000" />
+                        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                            <AppIcons.Delete color={colors.black} size={24} />
                         </TouchableOpacity>
                     </View>
 
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.dateList}>
-                        {datesList.map((date, index) => (
-                            <TouchableOpacity
-                                key={index}
-                                style={[styles.dateItem, selectedDateIndex === index && styles.selectedDate]}
-                                onPress={() => setSelectedDateIndex(index)}
-                            >
-                                <Text style={[styles.dateText, selectedDateIndex === index && styles.selectedDateText]}>{date.display}</Text>
-                            </TouchableOpacity>
-                        ))}
-                    </ScrollView>
-
-                    <ScrollView style={styles.slotList}>
-                        {availableSlots.length > 0 ? (
-                            availableSlots.map((slot: any, index: number) => (
+                    <ScrollView 
+                        horizontal 
+                        showsHorizontalScrollIndicator={false} 
+                        style={styles.dateListContainer}
+                        contentContainerStyle={styles.dateListContent}
+                    >
+                        {datesList.map((date, index) => {
+                            const isSelected = selectedDateIndex === index;
+                            return (
                                 <TouchableOpacity
                                     key={index}
-                                    style={styles.slotItem}
-                                    onPress={() => handleSelectSlot(slot)}
+                                    style={[styles.dateItem, isSelected && styles.selectedDate]}
+                                    onPress={() => setSelectedDateIndex(index)}
                                 >
-                                    <Text style={styles.slotText}>{slot.display || slot.slotValue}</Text>
-                                    <AntDesign name="right" size={wp('4%')} color="#CCC" />
+                                    <Text style={[styles.dateText, isSelected && styles.selectedDateText]}>
+                                        {date.display}
+                                    </Text>
                                 </TouchableOpacity>
-                            ))
-                        ) : (
-                            <View style={styles.emptySlots}>
-                                <Text style={styles.emptyText}>No slots available for this date</Text>
-                            </View>
-                        )}
+                            );
+                        })}
+                    </ScrollView>
+
+                    <ScrollView 
+                        style={styles.slotList}
+                        contentContainerStyle={styles.slotListContent}
+                        showsVerticalScrollIndicator={false}
+                    >
+                        <View style={styles.slotSection}>
+                            <Text style={styles.sectionSubtitle}>Available Slots for {activeDate?.display}</Text>
+                            {availableSlots.length > 0 ? (
+                                availableSlots.map((slot: any, index: number) => (
+                                    <TouchableOpacity
+                                        key={index}
+                                        style={[styles.slotItem, !slot.available && styles.disabledSlotItem]}
+                                        onPress={() => slot.available && handleSelectSlot(slot)}
+                                        disabled={!slot.available}
+                                    >
+                                        <View style={styles.slotInfo}>
+                                            <AppIcons.Calendar color={slot.available ? colors.themeTeal : '#CCC'} size={18} />
+                                            <Text style={[styles.slotText, !slot.available && styles.disabledSlotText]}>
+                                                {slot.display || slot.slotValue}
+                                            </Text>
+                                        </View>
+                                        {slot.available ? (
+                                            <AppIcons.ArrowUp color="#CCC" size={16} style={{ transform: [{ rotate: '90deg' }] }} />
+                                        ) : (
+                                            <Text style={styles.unavailableText}>Full</Text>
+                                        )}
+                                    </TouchableOpacity>
+                                ))
+                            ) : (
+                                <View style={styles.emptySlots}>
+                                    <Text style={styles.emptyText}>No slots available for this date</Text>
+                                </View>
+                            )}
+                        </View>
                     </ScrollView>
                 </View>
             </View>
@@ -70,20 +121,129 @@ const DeliverySlotModal = ({ visible, onClose, onSelectSlot }: any) => {
 };
 
 const styles = StyleSheet.create({
-    overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-    content: { backgroundColor: 'white', borderTopLeftRadius: 25, borderTopRightRadius: 25, height: hp('60%'), padding: wp('5%') },
-    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: hp('2%') },
-    title: { fontFamily: FONTS.poppins.semiBold, fontSize: wp('4.5%'), color: '#000' },
-    dateList: { flexGrow: 0, marginBottom: hp('2%') },
-    dateItem: { paddingHorizontal: wp('4%'), paddingVertical: hp('1%'), borderRadius: 20, marginRight: wp('3%'), backgroundColor: '#F5F5F5' },
-    selectedDate: { backgroundColor: '#F25000' },
-    dateText: { fontFamily: FONTS.outfit.medium, fontSize: wp('3.5%'), color: '#757575' },
-    selectedDateText: { color: '#FFF' },
-    slotList: { flex: 1 },
-    slotItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: hp('2%'), borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
-    slotText: { fontFamily: FONTS.poppins.medium, fontSize: wp('3.8%'), color: '#000' },
-    emptySlots: { alignItems: 'center', marginTop: hp('5%') },
-    emptyText: { fontFamily: FONTS.outfit.regular, fontSize: wp('3.8%'), color: '#999' },
+    overlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'flex-end',
+    },
+    dismissArea: {
+        flex: 1,
+    },
+    content: {
+        backgroundColor: colors.white,
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30,
+        height: SCREEN_HEIGHT * 0.7,
+        paddingBottom: Platform.OS === 'ios' ? 40 : 20,
+    },
+    header: {
+        padding: 24,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    title: {
+        fontSize: 20,
+        fontFamily: Fonts.gilroyBold,
+        color: colors.black,
+    },
+    closeButton: {
+        padding: 4,
+    },
+    dateListContainer: {
+        flexGrow: 0,
+        marginBottom: 8,
+    },
+    dateListContent: {
+        paddingHorizontal: 24,
+        paddingBottom: 16,
+    },
+    dateItem: {
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderRadius: 12,
+        marginRight: 10,
+        backgroundColor: '#F5F5F5',
+        borderWidth: 1,
+        borderColor: '#EEE',
+    },
+    selectedDate: {
+        backgroundColor: colors.themeTeal,
+        borderColor: colors.themeDarkTeal,
+    },
+    dateText: {
+        fontSize: 14,
+        fontFamily: Fonts.gilroyMedium,
+        color: '#666',
+    },
+    selectedDateText: {
+        color: colors.white,
+        fontFamily: Fonts.gilroyBold,
+    },
+    slotList: {
+        paddingHorizontal: 24,
+        flex: 1,
+    },
+    slotListContent: {
+        paddingBottom: 24,
+        flexGrow: 1,
+    },
+    slotSection: {
+        marginTop: 8,
+    },
+    sectionSubtitle: {
+        fontSize: 14,
+        fontFamily: Fonts.gilroyMedium,
+        color: '#999',
+        marginBottom: 16,
+    },
+    slotItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 16,
+        backgroundColor: '#F9F9F9',
+        borderRadius: 16,
+        marginBottom: 12,
+        borderWidth: 1,
+        borderColor: '#EEE',
+    },
+    slotInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+    },
+    slotText: {
+        fontSize: 16,
+        fontFamily: Fonts.gilroyBold,
+        color: colors.black,
+    },
+    emptySlots: {
+        alignItems: 'center',
+        padding: 40,
+    },
+    emptyText: {
+        fontSize: 14,
+        fontFamily: Fonts.gilroyMedium,
+        color: '#999',
+    },
+    disabledSlotItem: {
+        backgroundColor: '#F0F0F0',
+        borderColor: '#DDD',
+        opacity: 0.7,
+    },
+    disabledSlotText: {
+        color: '#999',
+    },
+    unavailableText: {
+        fontSize: 12,
+        fontFamily: Fonts.gilroyBold,
+        color: '#999',
+        backgroundColor: '#E0E0E0',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 4,
+    },
 });
 
 export default DeliverySlotModal;

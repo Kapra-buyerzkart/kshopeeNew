@@ -25,19 +25,24 @@ export const useAddresses = () => {
             setIsLoading(true);
             const response = await getAddressListApi();
             if (response && response.success && Array.isArray(response.data)) {
-                const formatted: AddressItem[] = response.data.map((addr: any, index: number) => ({
-                    id: addr.addressId || index,
-                    type: addr.addressType === 'HOME' ? 'Home'
-                        : addr.addressType === 'OFFICE' ? 'Office'
-                        : addr.addressType || 'Other',
-                    address: [addr.addLine1, addr.addLine2, addr.landmark].filter(Boolean).join(', '),
-                    phone: addr.phone || '',
-                    pin: addr.pincode || '',
-                    selected: addr.isDefaultShippingAddress || false,
-                    threeDotsClicked: false,
-                    pincodeAreaId: addr.pincodeAreaId,
-                    raw: addr,
-                }));
+                const formatted: AddressItem[] = response.data.map((addr: any, index: number) => {
+                    // The backend uses custAddressId as the primary unique identifier
+                    const actualId = addr.custAddressId ?? addr.addressId ?? addr.id ?? index;
+                    
+                    return {
+                        id: actualId,
+                        type: addr.addressType === 'HOME' ? 'Home'
+                            : addr.addressType === 'OFFICE' ? 'Office'
+                            : addr.addressType || 'Other',
+                        address: [addr.addLine1, addr.addLine2, addr.landmark].filter(Boolean).join(', '),
+                        phone: addr.phone || '',
+                        pin: addr.pincode || '',
+                        selected: addr.isDefaultShippingAddress || false,
+                        threeDotsClicked: false,
+                        pincodeAreaId: addr.pincodeAreaId,
+                        raw: addr,
+                    };
+                });
                 setAddresses(formatted);
             }
         } catch (error) {

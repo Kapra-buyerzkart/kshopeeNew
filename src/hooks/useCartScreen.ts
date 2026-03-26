@@ -4,15 +4,17 @@ import { useCart } from '../context/CartContext';
 import { useOffers } from './useOffers';
 import { useDeliverySlot } from './useDeliverySlot';
 import { useAddresses } from './useAddresses';
+import { useUser } from '../context/UserContext';
 
 export const useCartScreen = () => {
     const navigation = useNavigation<any>();
     const { cartItems, loadCart, cartTotal, cartCount, cartSummary, getCartSummary, clearCart, error: cartError, fetchAddresses } = useCart();
 
     // ─── Composed hooks ───
+    const { profile } = useUser();
     const deliveryHook = useDeliverySlot();
     const addressHook = useAddresses();
-    const offersHook = useOffers(deliveryHook, addressHook, cartSummary, getCartSummary);
+    const offersHook = useOffers(deliveryHook, addressHook, cartSummary, getCartSummary, profile);
 
     // ─── Bill calculations ───
     const frontendBillCalculations = useMemo(() => {
@@ -71,19 +73,21 @@ export const useCartScreen = () => {
             let isActive = true;
 
             const initCart = async () => {
-                console.log('🏁 [FOCUS] Initializing Cart Screen...');
+                console.log('🏁 [FOCUS] Fetching fresh data...');
                 try {
-                    console.log('🏁 [FOCUS] Fetching fresh addresses...');
                     await addressHook.refreshAddresses();
-
                     const loadResult: any = await loadCart();
+                    
                     if (!isActive) return;
-
+                    
+                    // Use a functional approach to get the current address after refresh
+                    // since the 'selectedAddress' from scope is stale
                     const bootstrapVersion = loadResult?.cartVersion;
-                    // Always try to get summary on focus to ensure fresh totals
-                    await getCartSummary(deliveryHook.deliveryMode, deliveryHook.selectedSlot, bootstrapVersion, selectedAddress?.pincodeAreaId);
+                    await getCartSummary(deliveryHook.deliveryMode, deliveryHook.selectedSlot, bootstrapVersion);
+                    
+                    // Slots fetch is handled by the useEffect below once addresses are loaded
                 } catch (err) {
-                    console.error('❌ [FOCUS] Error during init:', err);
+                    console.error('❌ [FOCUS] Error:', err);
                 } finally {
                     if (isActive) {
                         isInitialMount.current = false;
@@ -92,17 +96,18 @@ export const useCartScreen = () => {
             };
 
             initCart();
-
-            return () => {
-                isActive = false;
-            };
-        }, [loadCart, getCartSummary, selectedAddress]) // Added selectedAddress
+            return () => { isActive = false; };
+        }, [loadCart, getCartSummary]) // Removed selectedAddress to prevent loop
     );
 
-    // Recalculate summary when delivery type/slot OR address changes (after initial load)
+    // Recalculate summary when conditions change
     useEffect(() => {
-        if (isInitialMount.current) return;
-        getCartSummary(deliveryHook.deliveryMode, deliveryHook.selectedSlot, null, selectedAddress?.pincodeAreaId);
+        if (isInitialMount.current || !selectedAddress) return;
+        
+        console.log('🔄 [HOOK] Refreshing summary on change:', selectedAddress?.id);
+        // Added null as 4th arg for couponCode to correctly pass pincodeAreaId as 5th
+        getCartSummary(deliveryHook.deliveryMode, deliveryHook.selectedSlot, null, null, selectedAddress?.pincodeAreaId);
+        deliveryHook.fetchSlots(selectedAddress?.pincodeAreaId);
     }, [deliveryHook.selectedDeliveryType, deliveryHook.selectedSlot, selectedAddress?.id]);
 
     return {

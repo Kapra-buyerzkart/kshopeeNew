@@ -38,9 +38,7 @@ import CustomGradientButton from '../../components/CustomGradientButton';
 import { Fonts } from '../../assets/theme/fonts';
 
 import { useUser } from '../../context/UserContext';
-
-const ACCESS_TOKEN = 'ACCESS_TOKEN';
-const REFRESH_TOKEN = 'REFRESH_TOKEN';
+import { setTokens } from '../../api/services/tokenService';
 
 type RootStackParamList = {
     Login: { type?: 'login' | 'register' | 'reset' };
@@ -62,13 +60,6 @@ type RootStackParamList = {
 
 type OtpScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'OtpScreen'>;
 type OtpScreenRouteProp = RouteProp<RootStackParamList, 'OtpScreen'>;
-
-const setTokens = async (accessToken: string, refreshToken: string) => {
-    await AsyncStorage.multiSet([
-        [ACCESS_TOKEN, accessToken],
-        [REFRESH_TOKEN, refreshToken],
-    ]);
-};
 
 const mergeCustomerIdIntoProfile = async (custId: number | string) => {
     const storedProfile = await AsyncStorage.getItem('profile');

@@ -21,6 +21,9 @@ import BCoinScreen from '../screens/BCoin';
 import EditProfile from '../screens/Profile/EditProfile';
 import SavedAddressScreen from '../screens/SavedAddress';
 import AddLocationScreen from '../screens/AddLocation';
+import OrderSuccessScreen from '../screens/Order/OrderSuccessScreen';
+import OrderFailedScreen from '../screens/Order/OrderFailedScreen';
+import OrderPendingScreen from '../screens/Order/OrderPendingScreen';
 
 // import ChangePwdScreen from '../screens/ChangePwdScreen';
 // import LoginPwdScreen from '../screens/LoginPwdScreen';
@@ -78,6 +81,9 @@ export default function RootStack() {
         <Stack.Screen name="EditProfile" component={EditProfile} options={{ headerShown: false }} />
         <Stack.Screen name="SavedAddressScreen" component={SavedAddressScreen} options={{ headerShown: false }} />
         <Stack.Screen name="AddLocationScreen" component={AddLocationScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="OrderSuccessScreen" component={OrderSuccessScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="OrderFailedScreen" component={OrderFailedScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="OrderPendingScreen" component={OrderPendingScreen} options={{ headerShown: false }} />
         {/* <Stack.Screen name="ChangePwdScreen" component={ChangePwdScreen} options={{ headerShown: false }} /> */}
         {/* <Stack.Screen name="LoginPwdScreen" component={LoginPwdScreen} options={{ headerShown: false }} /> */}
 

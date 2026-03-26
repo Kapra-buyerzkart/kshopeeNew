@@ -22,7 +22,7 @@ interface CartContextType {
     cartTotal: number;
     error: string | null;
     loadCart: () => Promise<any>;
-    getCartSummary: (deliveryMode?: string, deliverySlotId?: any, cartVersion?: any, pincodeAreaId?: any) => Promise<any>;
+    getCartSummary: (deliveryMode?: string, deliverySlotId?: any, cartVersion?: any, couponCode?: any, pincodeAreaId?: any) => Promise<any>;
     clearCart: () => Promise<void>;
     addresses: any[];
     fetchAddresses: () => Promise<void>;
@@ -67,9 +67,9 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return null;
     }, []);
 
-    const getCartSummary = useCallback(async (deliveryMode = 'express', deliverySlotId = null, cartVersion = null, pincodeAreaId = null) => {
+    const getCartSummary = useCallback(async (deliveryMode = 'express', deliverySlotId = null, cartVersion = null, couponCode = null, pincodeAreaId = null) => {
         try {
-            const response = await getCartSummaryApi(deliveryMode, deliverySlotId, cartVersion, null, pincodeAreaId);
+            const response = await getCartSummaryApi(deliveryMode, deliverySlotId, cartVersion, couponCode, pincodeAreaId);
             if (response && response.success) {
                 setCartSummary(response.data);
                 return response;

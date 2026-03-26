@@ -47,13 +47,18 @@ export const setupInterceptors = (axiosInstance: AxiosInstance): void => {
     async (error: AxiosError) => {
       const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
+      console.log('🔄 [API] Response Error:', error.response?.status, originalRequest?.url);
+
       if (
         error.response?.status === 401 &&
         originalRequest &&
         !originalRequest._retry &&
-        !originalRequest.url?.includes('refreshtoken')
+        !originalRequest.url?.includes('refreshtoken') &&
+        !originalRequest.url?.includes('auth/loginpassword')
       ) {
+        console.log('🔄 [API] 401 detected, attempting refresh...');
         if (isRefreshing) {
+          console.log('🔄 [API] Refresh already in progress, queuing request...');
           return new Promise((resolve, reject) => {
             failedQueue.push({ resolve, reject });
           }).then(token => {
@@ -69,15 +74,28 @@ export const setupInterceptors = (axiosInstance: AxiosInstance): void => {
 
         try {
           const refreshToken = await getRefreshToken();
+          console.log('🔄 [API] Refresh Token Found:', !!refreshToken);
+          
+          if (!refreshToken) throw new Error('No refresh token available');
 
           const res = await axios.post(
             `${CONFIG.base_url}/auth/refreshtoken`,
             { refresh_token: refreshToken }
           );
 
-          const { access_token, refresh_token } = res.data.Data;
+          console.log('🔄 [API] Refresh Response:', res.status, !!res.data);
+          // Check for data nesting (Data vs data) and support both camelCase and snake_case
+          const data = res.data.Data || res.data.data || res.data;
+          const access_token = data.access_token || data.accessToken;
+          const refresh_token = data.refresh_token || data.refreshToken;
 
-          await setTokens(access_token, refresh_token);
+          if (!access_token) {
+            console.error('🔄 [API] Refresh Response Structure:', JSON.stringify(data).substring(0, 100));
+            throw new Error('Refreshtoken response missing access_token');
+          }
+
+          console.log('🔄 [API] Refresh Success, updating tokens...');
+          await setTokens(access_token, refresh_token || refreshToken);
           processQueue(null, access_token);
 
           if (originalRequest.headers) {
@@ -85,8 +103,11 @@ export const setupInterceptors = (axiosInstance: AxiosInstance): void => {
           }
           return axiosInstance(originalRequest);
         } catch (err) {
+          console.error('🔄 [API] Token Refresh Failed:', err);
           processQueue(err);
           await clearTokens();
+          // Force back to login if refresh fails on an auth-required route
+          // NavigationService.reset('Login'); 
           throw err;
         } finally {
           isRefreshing = false;

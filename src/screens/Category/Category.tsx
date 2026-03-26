@@ -49,7 +49,7 @@ const CategoryScreen = () => {
     const getImageUrl = (imagePath: string) => {
         if (!imagePath) return require("../../assets/images/category/men.jpg");
         if (imagePath.startsWith('http')) return { uri: imagePath };
-        console.log("Image URL ---->", `${CONFIG.image_base_url}/${imagePath}`.replace(/([^:]\/)\/+/g, "$1"))
+        //console.log("Image URL ---->", `${CONFIG.image_base_url}/${imagePath}`.replace(/([^:]\/)\/+/g, "$1"))
         return { uri: `${CONFIG.image_base_url}/${imagePath}`.replace(/([^:]\/)\/+/g, "$1") };
     };
 

@@ -35,4 +35,5 @@ export type RootStackParamList = {
   StoreItemsList: undefined;
   AddStoreItem: { product?: string } | undefined;
   ProductDetails: { item?: any } | undefined;
+  ProductDetailsScreen: { productId: string, product: any };
 };

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
-import { View, Text, ScrollView, Image, TouchableOpacity, StatusBar, Dimensions } from 'react-native';
+import { View, Text, ScrollView, Image, TouchableOpacity, StatusBar, Dimensions, FlatList } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { styles } from './styles';
 import { useCommonStyles } from '../../assets/styles';
@@ -12,14 +12,15 @@ import { Rating } from 'react-native-ratings';
 import LinearGradient from 'react-native-linear-gradient';
 import ClickForMoreButton from '../../components/ClickForMoreButton/ClickForMoreButton';
 import { LoaderContext } from '../../context/loaderContext';
-import { getProductDetails } from '../../api/services/productService';
+import { getProductDetails, getRelatedProductsApi } from '../../api/services/productService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CONFIG from '../../globals/config';
+import { addToCartApi } from '../../api/services';
 
 
 const ProductDetails = () => {
     const route = useRoute();
-    const navigation = useNavigation();
+    const navigation = useNavigation<any>();
     const homeStyles = useCommonStyles();
 
     const { showLoader } = useContext(LoaderContext) || { showLoader: () => { } };
@@ -41,6 +42,7 @@ const ProductDetails = () => {
     const [selectedReviewFilter, setSelectedReviewFilter] = useState('All');
     const [activeImageIndex, setActiveImageIndex] = useState(0);
     const [productDetails, setProductDetails] = useState<any>(null);
+    const [relatedProducts, setRelatedProducts] = useState<any>(null);
     const [pincodeAreaId, setPincodeAreaId] = useState<number | null>(null);
 
     const scrollViewRef = useRef<ScrollView>(null);
@@ -119,13 +121,21 @@ const ProductDetails = () => {
             showLoader(true);
             console.log('Product id---->', product_id)
             console.log('Pincode area id---->', pincodeAreaId)
-            const response = await getProductDetails(product_id, pincodeAreaId);
+            const [response, relatedResponse] = await Promise.all([getProductDetails(product_id, pincodeAreaId), getRelatedProductsApi(product_id, pincodeAreaId)]);
+
             console.log("product details response---->", JSON.stringify(response, null, 2))
             if (response && response.success && response.data) {
                 console.log("product details response data---->", JSON.stringify(response.data, null, 2))
                 setProductDetails(response.data);
             } else {
                 setProductDetails([]);
+            }
+            if (relatedResponse && relatedResponse.success && relatedResponse.data) {
+                console.log("related products response data---->", JSON.stringify(relatedResponse.data, null, 2))
+                setRelatedProducts(relatedResponse.data);
+
+            } else {
+                setRelatedProducts([]);
             }
         } catch (error) {
             console.error('Error fetching product details:', error);
@@ -134,6 +144,8 @@ const ProductDetails = () => {
             showLoader(false);
         }
     };
+
+
 
 
     useEffect(() => {
@@ -151,6 +163,28 @@ const ProductDetails = () => {
         initializeLocationAndSettings();
 
     }, []);
+
+
+
+    const addToCartFunction = async (productId: string) => {
+        try {
+            showLoader(true);
+            console.log('Product id---->', productId)
+            console.log('Pincode area id---->', pincodeAreaId)
+            const response = await addToCartApi(productId, 1, pincodeAreaId);
+            console.log("add to cart  response---->", JSON.stringify(response, null, 2))
+            if (response && response.success) {
+                console.log("add to cart response data---->", JSON.stringify(response.data, null, 2))
+
+            } else {
+                console.log('add to cart failed')
+            }
+        } catch (error) {
+            console.error('Error fetching product details:', error);
+        } finally {
+            showLoader(false);
+        }
+    };
 
 
 
@@ -295,21 +329,21 @@ const ProductDetails = () => {
     };
 
     const renderExploreItem = ({ item }: { item: any }) => (
-        <TouchableOpacity style={homeStyles.exploreItemCard}>
+        <TouchableOpacity style={homeStyles.exploreItemCard} onPress={() => { navigation.navigate('ProductDetailsScreen', { productId: item?.productId, product: item }) }}>
             <View style={homeStyles.exploreTopBadgesRow}>
-                <View style={homeStyles.discountCircle}>
-                    <Text style={[homeStyles.discountCircleText]}>{item?.discountBadge}</Text>
+                <View style={[homeStyles.discountCircle, { opacity: item?.discountPercentage || item?.discountBadge ? 1 : 0 }]}>
+                    <Text style={[homeStyles.discountCircleText]}>
+                        {item?.discountPercentage ? `${Math.round(item.discountPercentage)}%` : item?.discountBadge}
+                    </Text>
                 </View>
-                {/* <Text style={{ color: colors.figmaTeal, fontFamily: 'Gilroy-Bold', fontSize: 20 }}>W</Text> */}
                 <AppIcons.BookmarkOutline color={colors.tealIconFont} size={24} />
             </View>
 
-            <Image source={item?.image} style={homeStyles.exploreItemImage} />
+            <Image source={getImageUrl(item?.featuredImage || item?.imageUrl || item?.image)} style={homeStyles.exploreItemImage} resizeMode="contain" />
 
             <View style={{ padding: 10 }}>
-                <Text style={[homeStyles.caption]} numberOfLines={3}>{item?.title}</Text>
+                <Text style={[homeStyles.caption]} numberOfLines={3}>{item?.prName || item?.title}</Text>
 
-                {/* react-native-ratings stars */}
                 <Rating
                     type='custom'
                     readonly
@@ -324,9 +358,15 @@ const ProductDetails = () => {
 
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, gap: 2 }}>
                     <View style={homeStyles.pricePill}>
-                        <Text style={homeStyles.pricePillText}>{item?.currentPrice}</Text>
+                        <Text style={homeStyles.pricePillText}>
+                            {item?.specialPrice || item?.unitPrice ? `₹${(item?.specialPrice || item?.unitPrice).toFixed(2)}` : (item?.currentPrice || '')}
+                        </Text>
                     </View>
-                    <Text style={homeStyles.originalPriceText}>{item?.originalPrice}</Text>
+                    {(item?.unitPrice && item?.specialPrice && item.unitPrice > item.specialPrice) ? (
+                        <Text style={homeStyles.originalPriceText}>MRP ₹{item.unitPrice.toFixed(2)}</Text>
+                    ) : (
+                        item?.originalPrice ? <Text style={homeStyles.originalPriceText}>{item.originalPrice}</Text> : null
+                    )}
                 </View>
             </View>
         </TouchableOpacity>
@@ -347,7 +387,7 @@ const ProductDetails = () => {
                 <View style={styles.contentPadding}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Text style={styles.title}>{ProductTitle}</Text>
-                        {productDetails.product.discountPercentage ? (
+                        {productDetails?.product.discountPercentage ? (
                             <View style={[homeStyles.discountCircle, { opacity: 1, paddingHorizontal: 6, position: 'relative', alignSelf: 'flex-end' }]}>
                                 <Text style={homeStyles.discountCircleText}>
                                     {Math.round(productDetails.product.discountPercentage)}% OFF
@@ -378,7 +418,7 @@ const ProductDetails = () => {
                         end={{ x: 1, y: 0 }}
                         style={[homeStyles.reviewFilterPillActiveGradient, { borderRadius: 50, alignSelf: 'flex-end', top: 10 }]}
                     >
-                        <TouchableOpacity onPress={() => { }} style={{ padding: 10, flexDirection: 'row' }} >
+                        <TouchableOpacity onPress={() => { addToCartFunction(productId) }} style={{ padding: 10, flexDirection: 'row' }} >
                             <AppIcons.Add size={20} color={colors.themeWhite} />
                             <Text style={[homeStyles.reviewFilterText, homeStyles.reviewFilterTextActive, { marginHorizontal: 5 }]}>Add</Text>
                         </TouchableOpacity>
@@ -540,13 +580,14 @@ const ProductDetails = () => {
                 <View style={styles.similarProductsContainer}>
                     <Text style={[styles.accordionTitle, { marginBottom: 4 }]}>Similar Products</Text>
 
-                    <ScrollView
+                    <FlatList
                         horizontal
                         showsHorizontalScrollIndicator={false}
-                        style={styles.similarProductsScroll}
-                    >
-                        {similarProducts.map((sim, _index) => renderExploreItem({ item: sim }))}
-                    </ScrollView>
+                        contentContainerStyle={styles.similarProductsScroll}
+                        data={relatedProducts?.items || similarProducts}
+                        keyExtractor={(item, index) => item.productId ? item.productId.toString() : index.toString()}
+                        renderItem={renderExploreItem}
+                    />
 
                     {/* <View style={{ marginVertical: 10 }}>
                         <ClickForMoreButton onPress={() => { }} title='Click for more' />

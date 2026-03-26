@@ -23,19 +23,18 @@ export const styles = StyleSheet.create({
         marginStart: wp('2%'),
     },
     userInfoContainer: {
-        // flex: 1,
-        width: '90%',
+        width: wp('90%'),
         flexDirection: 'row',
-        alignItems: 'flex-start',
-        marginVertical: 10,
-        // marginHorizontal: wp('5%'),
-        marginStart: wp('5%'),
-        //    / backgroundColor: colors.white,
+        alignItems: 'center',
         justifyContent: 'space-between',
+        marginHorizontal: wp('5%'),
+        marginTop: hp('1%'),
     },
     userProfileSection: {
         flexDirection: 'row',
-        alignItems: 'flex-start',
+        alignItems: 'center',
+        flexShrink: 1,
+        marginRight: wp('2%'),
     },
     avatarContainer: {
         width: 72,
@@ -43,10 +42,8 @@ export const styles = StyleSheet.create({
         borderRadius: 36,
         backgroundColor: colors.white,
         justifyContent: 'center',
-        top: 10,
         alignItems: 'center',
         borderWidth: 1,
-        marginStart: -wp('2%'),
         borderColor: colors.lightGrey,
     },
     avatar: {
@@ -55,8 +52,8 @@ export const styles = StyleSheet.create({
         borderRadius: 36,
     },
     userDetails: {
+        flexShrink: 1,
         marginLeft: wp('3%'),
-        paddingVertical: hp('1%'),
     },
     welcomeText: {
         fontSize: 16,
@@ -81,6 +78,7 @@ export const styles = StyleSheet.create({
     headerRightActions: {
         flexDirection: 'row',
         alignItems: 'center',
+        flexShrink: 0,
     },
     coinPill: {
         flexDirection: 'row',

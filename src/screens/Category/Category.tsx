@@ -14,6 +14,7 @@ import { useDebounce } from '../../hooks/useDebounce';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CONFIG from '../../globals/config';
 import { addToWishlistApi, removeFromWishlistApi } from '../../api/services/wishlistService';
+import { useWishlist } from '../../context/WishlistContext';
 
 const CategoryScreen = () => {
     const navigation = useNavigation<any>();
@@ -34,6 +35,7 @@ const CategoryScreen = () => {
     const [pageNumber, setPageNumber] = useState(1);
     const [pageSize, setPageSize] = useState(20);
     const { showLoader } = useContext(LoaderContext) || { showLoader: () => { } };
+    const { toggleWishlist, isInWishlist } = useWishlist();
 
     const [filters, setFilters] = useState({
         sortBy: 'relevance',

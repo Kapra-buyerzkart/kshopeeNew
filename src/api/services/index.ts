@@ -96,3 +96,20 @@ export const checkPhone = async (phoneNo: string): Promise<any> => {
   const payload = { phone: phoneNo };
   return post(`auth/checkphone`, payload);
 };
+
+export const getWalletDataApi = async (): Promise<any> => {
+  return get('me/bwallet');
+};
+
+export const redeemBCoinsApi = async (payload: { requestedCoins: number; preferredMethod: string }): Promise<any> => {
+  return post('me/bcoin/redeem', payload);
+};
+
+export const getReferralHistoryApi = async (page = 1, pageSize = 20): Promise<any> => {
+  return get(`me/referrals`, { params: { page, pageSize } });
+};
+
+export const getBCoinValueChangesApi = async (): Promise<any> => {
+  return get('general/bcoinvaluechanges');
+};
+

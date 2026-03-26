@@ -2,16 +2,19 @@ import React from 'react';
 import { View, Text, Image, TouchableOpacity, ImageBackground } from 'react-native';
 import { styles } from './styles';
 import { AppIcons } from '../../assets/icons';
-import { colors, fontColors } from '../../assets/theme/colours';
+import { colors } from '../../assets/theme/colours';
 import LinearGradient from 'react-native-linear-gradient';
 import { wp } from '../../utils/responsive';
+import { useWishlist } from '../../context/WishlistContext';
+import CONFIG from '../../globals/config';
 
 interface ProductCardProps {
-    title: string;
-    image: any;
-    price: string;
-    mrp?: string;
-    discount?: string;
+    item?: any;
+    title?: string;
+    image?: any;
+    price?: string | number;
+    mrp?: string | number;
+    discount?: string | number;
     rating?: number;
     isWishlisted?: boolean;
     onWishlistPress?: () => void;
@@ -19,21 +22,52 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
+    item,
     title,
     image,
     price,
     mrp,
     discount,
     rating = 0,
-    isWishlisted = false,
+    isWishlisted: isWishlistedProp,
     onWishlistPress,
     onAddToCart,
 }) => {
+    const { toggleWishlist, isInWishlist } = useWishlist();
+
+    // Use values from item if provided, otherwise use individual props
+    const displayTitle = item?.prName || item?.productName || item?.title || title || '';
+    const displayPrice = item?.specialPrice || item?.price || price || 0;
+    const displayMrp = item?.unitPrice || item?.mrp || mrp;
+    const displayDiscount = item?.discountPercent || item?.discount || discount;
+    const displayRating = item?.rating || rating || 0;
+    const productId = item?.productId || item?.id;
+    const isWishlisted = isWishlistedProp !== undefined ? isWishlistedProp : isInWishlist(productId);
+
+    const getImageUrl = () => {
+        if (image) return image;
+        const img = item?.featuredImage || item?.productImage || item?.imageUrl || item?.image;
+        if (!img) return require('../../assets/images/img.png');
+        if (typeof img === 'string') {
+            if (img.startsWith('http')) return { uri: img };
+            return { uri: `${CONFIG.image_base_url}/${img}`.replace(/([^:]\/)\/+/g, "$1") };
+        }
+        return img;
+    };
+
+    const handleWishlistPress = () => {
+        if (onWishlistPress) {
+            onWishlistPress();
+        } else if (item || productId) {
+            toggleWishlist(item || { id: productId, title: displayTitle, price: displayPrice, image: getImageUrl() });
+        }
+    };
+
     // Helper to render stars
     const renderStars = () => {
         const stars = [];
         for (let i = 1; i <= 5; i++) {
-            if (i <= rating) {
+            if (i <= displayRating) {
                 stars.push(<AppIcons.Star key={i} size={12} style={{ marginLeft: wp('1%') }} />);
             } else {
                 stars.push(<AppIcons.StarOutline key={i} size={12} style={{ marginLeft: wp('1%') }} />);
@@ -45,19 +79,21 @@ const ProductCard: React.FC<ProductCardProps> = ({
     return (
         <View style={styles.container}>
             <ImageBackground
-                source={image}
+                source={getImageUrl()}
                 style={styles.imageSection}
                 imageStyle={{ width: '100%', height: '100%', resizeMode: 'cover' }}
             >
-                {discount && (
+                {displayDiscount ? (
                     <View style={styles.discountBadge}>
-                        <Text style={styles.discountText}>{discount}</Text>
+                        <Text style={styles.discountText}>
+                            {displayDiscount.toString().includes('%') ? displayDiscount : `-${displayDiscount}%`}
+                        </Text>
                     </View>
-                )}
+                ) : null}
 
                 <TouchableOpacity
                     style={styles.wishlistIcon}
-                    onPress={onWishlistPress}
+                    onPress={handleWishlistPress}
                     activeOpacity={0.7}
                 >
                     <Image source={require('../../assets/images/wishicon.png')} style={{ width: 24, height: 24 }} tintColor={isWishlisted ? 'red' : 'grey'} resizeMode='contain' />
@@ -66,7 +102,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
             <View style={styles.detailsContainer}>
                 <Text style={styles.title} numberOfLines={2}>
-                    {title}
+                    {displayTitle}
                 </Text>
 
                 <View style={styles.ratingContainer}>
@@ -74,8 +110,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 </View>
 
                 <View style={styles.priceContainer}>
-                    <Text style={styles.price}>₹{price}</Text>
-                    {mrp && <Text style={styles.mrp}>MRP ₹{mrp}</Text>}
+                    <Text style={styles.price}>₹{displayPrice}</Text>
+                    {displayMrp && <Text style={styles.mrp}>MRP ₹{displayMrp}</Text>}
                 </View>
 
                 <TouchableOpacity
@@ -97,5 +133,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
         </View>
     );
 };
+
 
 export default ProductCard;

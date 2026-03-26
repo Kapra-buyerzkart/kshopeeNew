@@ -9,7 +9,6 @@ import BottomTabNavigator from './BottomNavigator';
 import DetailScreen from '../screens/Details';
 import LoginScreen from '../screens/Login';
 import OtpScreen from '../screens/Otp/OtpScreen';
-import MainTabs from '../screens/MainTabs';
 import RegistrationScreen from '../screens/Registration';
 import WishlistScreen from '../screens/Wishlist';
 import CartScreen from '../screens/Cart/CartScreen';
@@ -26,20 +25,49 @@ import { CartProvider } from '../context/CartContext';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 
+import { getAccessToken } from '../api/services/tokenService';
+import { useUser } from '../context/UserContext';
+
+
 const Stack = createNativeStackNavigator();
 
 export default function RootStack() {
+  const [initialRoute, setInitialRoute] = React.useState(null);
+  const { loadProfile } = useUser();
+
+  React.useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        const token = await getAccessToken();
+        if (token) {
+          await loadProfile();
+          setInitialRoute('MainTabs');
+        } else {
+          setInitialRoute('Login');
+        }
+      } catch (error) {
+        console.error('RootStack auth check error:', error);
+        setInitialRoute('Login');
+      }
+    };
+    checkAuthStatus();
+  }, []);
+
+  if (initialRoute === null) {
+    return null; // Or a loading spinner
+  }
+
   return (
     <CartProvider>
-      <Stack.Navigator initialRouteName="Login">
+      <Stack.Navigator initialRouteName={initialRoute}>
         <Stack.Screen name="Wishlist" component={WishlistScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
+        <Stack.Screen name="MainTabs" component={BottomTabNavigator} options={{ headerShown: false }} />
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen name="OtpScreen" component={OtpScreen} options={{ headerShown: false }} />
         <Stack.Screen name="RegistraionScreen" component={RegistrationScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Cart" component={CartScreen} options={{ headerShown: false }} />
 
-        <Stack.Screen name="ProductDetails" component={ProductDetails} options={{ headerShown: false }} />
+        <Stack.Screen name="ProductDetailsScreen" component={ProductDetails} options={{ headerShown: false }} />
         <Stack.Screen name="MyOrder" component={MyOrder} options={{ headerShown: false }} />
         <Stack.Screen name="MyOrderDetails" component={MyOrderDetails} options={{ headerShown: false }} />
         <Stack.Screen name="Referral" component={ReferralScreen} options={{ headerShown: false }} />
@@ -47,11 +75,7 @@ export default function RootStack() {
         <Stack.Screen name="EditProfile" component={EditProfile} options={{ headerShown: false }} />
         {/* <Stack.Screen name="ChangePwdScreen" component={ChangePwdScreen} options={{ headerShown: false }} /> */}
         {/* <Stack.Screen name="LoginPwdScreen" component={LoginPwdScreen} options={{ headerShown: false }} /> */}
-        <Stack.Screen
-          name="Main"
-          component={BottomTabNavigator}
-          options={{ headerShown: false }}
-        />
+
         <Stack.Screen name="Details" component={DetailScreen} />
         <Stack.Screen name="CheckComponent" component={CheckApiScreen} options={{ headerShown: false }} />
         <Stack.Screen name="CheckApiScreen" component={CheckApiScreen} />

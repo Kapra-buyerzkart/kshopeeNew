@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Image, SafeAreaView, ActivityIndicator } from 'react-native';
 import { styles } from './styles';
 import { AppIcons } from '../../assets/icons';
@@ -13,11 +13,13 @@ import { useCart } from '../../context/CartContext';
 import { addToCartApi, removeFromCartApi } from '../../api/services/cartService';
 import FloatingCartButton from '../../components/FloatingCartButton/FloatingCartButton';
 import { Alert } from 'react-native';
+import ConfirmationModal from '../../components/ConfirmationModal';
 
 const WishlistScreen: React.FC = () => {
     const navigation = useNavigation<any>();
-    const { wishlistItems, loadWishlist, isLoading } = useWishlist();
+    const { wishlistItems, loadWishlist, isLoading, toggleWishlist } = useWishlist();
     const { cartItems, cartSummary, loadCart } = useCart();
+    const [itemToRemove, setItemToRemove] = useState<any>(null);
 
     const handleCartToggle = async (item: any) => {
         const productId = item.productId || item.id;
@@ -109,6 +111,7 @@ const WishlistScreen: React.FC = () => {
                                 isWishlisted={true}
                                 isInCart={cartItems.some(c => c.productId === (item.productId || item.id))}
                                 onAddToCart={() => handleCartToggle(item)}
+                                onWishlistPress={() => setItemToRemove(item)}
                             />
                         )}
                         keyExtractor={(item) => (item.productId || item.id).toString()}
@@ -120,6 +123,20 @@ const WishlistScreen: React.FC = () => {
                 </View>
             )}
             <FloatingCartButton />
+            <ConfirmationModal
+                visible={!!itemToRemove}
+                onClose={() => setItemToRemove(null)}
+                onConfirm={() => {
+                    if (itemToRemove) {
+                        toggleWishlist(itemToRemove);
+                        setItemToRemove(null);
+                    }
+                }}
+                title="Remove Item"
+                message="Are you sure you want to remove this item from your wishlist?"
+                confirmText="Remove"
+                themeColor={colors.themeTeal}
+            />
         </SafeAreaView>
     );
 };

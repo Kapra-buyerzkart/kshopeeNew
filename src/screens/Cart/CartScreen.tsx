@@ -103,6 +103,7 @@ const CartScreen = () => {
     const [statusMessage, setStatusMessage] = useState('');
     const [chosenSlot, setChosenSlot] = useState<any>(null);
     const [isFinalizingOrder, setIsFinalizingOrder] = useState(false);
+    const [itemToRemove, setItemToRemove] = useState<any>(null);
 
     const scrollViewRef = useRef<ScrollView>(null);
     const insets = useSafeAreaInsets();
@@ -462,12 +463,22 @@ const CartScreen = () => {
                     <AppIcons.Back color={colors.black} size={24} />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Cart</Text>
-                <TouchableOpacity style={styles.heartButton}
-                    onPress={() => navigation.navigate('Wishlist')}>
-                    <View style={styles.heartCircle}>
-                        <AppIcons.HeartOutline color={colors.white} size={20} />
-                    </View>
-                </TouchableOpacity>
+
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    {cartItems.length > 0 && (
+                        <TouchableOpacity style={styles.heartButton} onPress={() => setIsClearCartModalVisible(true)}>
+                            <View style={[styles.heartCircle, { backgroundColor: '#fbe2e6' }]}>
+                                <AntDesign name="delete" color={colors.red} size={18} />
+                            </View>
+                        </TouchableOpacity>
+                    )}
+                    <TouchableOpacity style={styles.heartButton}
+                        onPress={() => navigation.navigate('Wishlist')}>
+                        <View style={styles.heartCircle}>
+                            <AppIcons.HeartOutline color={colors.white} size={20} />
+                        </View>
+                    </TouchableOpacity>
+                </View>
             </View>
 
             <ScrollView
@@ -563,7 +574,13 @@ const CartScreen = () => {
                             }}
                             onDecrement={(id) => {
                                 const originalItem = cartItems.find(i => String(i.cartItemId) === id);
-                                if (originalItem) handleUpdateQty(originalItem, (originalItem.quantity || 0) - 1);
+                                if (originalItem) {
+                                    if ((originalItem.quantity || 0) <= 1) {
+                                        setItemToRemove(originalItem);
+                                    } else {
+                                        handleUpdateQty(originalItem, (originalItem.quantity || 0) - 1);
+                                    }
+                                }
                             }}
                         />
                     ))}
@@ -668,7 +685,22 @@ const CartScreen = () => {
                 slotsByDate={slotsByDate}
             />
             <CouponModal visible={showCouponModal} onClose={() => setShowCouponModal(false)} isGiftCard={isGiftCard} availableCoupons={availableCoupons} availableGiftCards={availableGiftCards} onCouponClick={handleCouponClick} />
-            <ConfirmationModal visible={isClearCartModalVisible} onClose={() => setIsClearCartModalVisible(false)} onConfirm={() => { clearCart(); setIsClearCartModalVisible(false); }} title="Clear Cart" message="Are you sure you want to remove all items?" />
+            <ConfirmationModal visible={isClearCartModalVisible} onClose={() => setIsClearCartModalVisible(false)} onConfirm={() => { clearCart(); setIsClearCartModalVisible(false); }} title="Clear Cart" message="Are you sure you want to remove all items?" confirmText="Clear All" themeColor={colors.red} />
+
+            <ConfirmationModal
+                visible={!!itemToRemove}
+                onClose={() => setItemToRemove(null)}
+                onConfirm={() => {
+                    if (itemToRemove) {
+                        handleRemoveItem(itemToRemove);
+                        setItemToRemove(null);
+                    }
+                }}
+                title="Remove Item"
+                message="Are you sure you want to remove this item from your cart?"
+                confirmText="Remove"
+                themeColor={colors.red}
+            />
 
             <AddressConfirmationModal
                 visible={!!addressConfirmationData}

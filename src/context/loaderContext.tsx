@@ -62,6 +62,12 @@ export const LoaderContextProvider = ({ children }: { children: React.ReactNode 
                                 height: windowWidth * (40 / 100),
                                 width: windowWidth * (40 / 100),
                             }}
+                            colorFilters={[
+                                {
+                                    keypath: "Stroke 1",
+                                    color: '#00A7B3',
+                                }
+                            ]}
                             autoPlay
                             loop
                         />

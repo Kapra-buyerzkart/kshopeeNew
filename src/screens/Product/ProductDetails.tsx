@@ -21,6 +21,7 @@ import { addToCartApi } from '../../api/services';
 import { updateCartItemApi } from '../../api/services/cartService';
 import { useCart } from '../../context/CartContext';
 import FloatingCartButton from '../../components/FloatingCartButton/FloatingCartButton';
+import { addToWishlistApi, removeFromWishlistApi } from '../../api/services/wishlistService';
 
 const ProductDetails = () => {
     const route = useRoute();
@@ -47,7 +48,7 @@ const ProductDetails = () => {
     const [selectedReviewFilter, setSelectedReviewFilter] = useState('All');
     const [activeImageIndex, setActiveImageIndex] = useState(0);
     const [productDetails, setProductDetails] = useState<any>(null);
-    const [relatedProducts, setRelatedProducts] = useState<any>(null);
+    const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
     const [pincodeAreaId, setPincodeAreaId] = useState<number | null>(null);
 
     const scrollViewRef = useRef<ScrollView>(null);
@@ -137,7 +138,7 @@ const ProductDetails = () => {
             }
             if (relatedResponse && relatedResponse.success && relatedResponse.data) {
                 console.log("related products response data---->", JSON.stringify(relatedResponse.data, null, 2))
-                setRelatedProducts(relatedResponse.data);
+                setRelatedProducts(relatedResponse.data?.items || []);
 
             } else {
                 setRelatedProducts([]);
@@ -201,6 +202,36 @@ const ProductDetails = () => {
             }
         } catch (error) {
             console.error('Error modifying cart:', error);
+        } finally {
+            showLoader(false);
+        }
+    };
+
+    const addToWishlist = async (productId: string) => {
+        try {
+            setRelatedProducts(prev => prev.map(p => (p.productId || p.id) === productId ? { ...p, isWishlist: true, isWishlisted: true } : p));
+            showLoader(true);
+            const response = await addToWishlistApi(productId);
+            console.log("addToWishlist response---->", JSON.stringify(response, null, 2))
+
+        } catch (error) {
+            console.error('Error adding to wishlist:', error);
+            setRelatedProducts(prev => prev.map(p => (p.productId || p.id) === productId ? { ...p, isWishlist: false, isWishlisted: false } : p));
+        } finally {
+            showLoader(false);
+        }
+    };
+
+    const removeFromWishlist = async (productId: string) => {
+        try {
+            setRelatedProducts(prev => prev.map(p => (p.productId || p.id) === productId ? { ...p, isWishlist: false, isWishlisted: false } : p));
+            showLoader(true);
+            const response = await removeFromWishlistApi(productId);
+            console.log("removeFromWishlist response---->", JSON.stringify(response, null, 2))
+
+        } catch (error) {
+            console.error('Error removing from wishlist:', error);
+            setRelatedProducts(prev => prev.map(p => (p.productId || p.id) === productId ? { ...p, isWishlist: true, isWishlisted: true } : p));
         } finally {
             showLoader(false);
         }
@@ -356,7 +387,16 @@ const ProductDetails = () => {
                         {item?.discountPercentage ? `${Math.round(item.discountPercentage)}%` : item?.discountBadge}
                     </Text>
                 </View>
-                <AppIcons.BookmarkOutline color={colors.tealIconFont} size={24} />
+                {/* <AppIcons.BookmarkOutline color={colors.tealIconFont} size={24} /> */}
+                {(item.isWishlist || item.isWishlisted) ? (
+                    <TouchableOpacity onPress={() => removeFromWishlist(item.productId || item.id)}>
+                        <AppIcons.BookmarkFilled color={colors.tealIconFont} size={24} />
+                    </TouchableOpacity>
+                ) : (
+                    <TouchableOpacity onPress={() => addToWishlist(item.productId || item.id)}>
+                        <AppIcons.BookmarkOutline color={colors.tealIconFont} size={24} />
+                    </TouchableOpacity>
+                )}
             </View>
 
             <Image source={getImageUrl(item?.featuredImage || item?.imageUrl || item?.image)} style={homeStyles.exploreItemImage} resizeMode="contain" />
@@ -605,7 +645,7 @@ const ProductDetails = () => {
                             horizontal
                             showsHorizontalScrollIndicator={false}
                             contentContainerStyle={styles.similarProductsScroll}
-                            data={relatedProducts?.items || similarProducts}
+                            data={relatedProducts?.length > 0 ? relatedProducts : similarProducts}
                             keyExtractor={(item, index) => item?.productId ? item?.productId.toString() : index.toString()}
                             renderItem={renderExploreItem}
                         />

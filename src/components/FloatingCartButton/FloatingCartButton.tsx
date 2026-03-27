@@ -42,7 +42,7 @@ const FloatingCartButton: React.FC = () => {
 
                     <View style={styles.textContainer}>
                         <Text style={styles.viewCartText}>View cart</Text>
-                        <Text style={styles.itemsCountText}>{cartCount} items</Text>
+                        <Text style={styles.itemsCountText}>{cartItems?.length} items</Text>
                     </View>
 
                     <View style={styles.arrowContainer}>

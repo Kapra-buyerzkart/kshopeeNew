@@ -121,6 +121,7 @@ export const useCartScreen = () => {
         cartError,
         fetchAddresses,
         navigation,
+        fetchAddresses,
 
         // Composed hooks (spread for backward compat)
         ...offersHook,

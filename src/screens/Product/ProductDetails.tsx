@@ -18,7 +18,7 @@ import CONFIG from '../../globals/config';
 import { addToCartApi } from '../../api/services';
 
 
-import { updateCartItemApi } from '../../api/services/cartService';
+import { removeFromCartApi, updateCartItemApi } from '../../api/services/cartService';
 import { useCart } from '../../context/CartContext';
 import FloatingCartButton from '../../components/FloatingCartButton/FloatingCartButton';
 import { addToWishlistApi, removeFromWishlistApi } from '../../api/services/wishlistService';
@@ -197,6 +197,13 @@ const ProductDetails = () => {
             if (response && response.success) {
                 console.log("cart operation successful, reloading cart...");
                 await loadCart();
+                setProductDetails((prev: any) => ({
+                    ...prev,
+                    customerspecific: {
+                        ...prev?.customerspecific,
+                        cartQty: (prev?.customerspecific?.cartQty || 0) + 1,
+                    }
+                }));
             } else {
                 console.log('cart operation failed');
             }
@@ -206,6 +213,72 @@ const ProductDetails = () => {
             showLoader(false);
         }
     };
+
+    const updateCartFunction = async (productId: string, quantity: number) => {
+        try {
+            showLoader(true);
+            const existingItem = cartItems.find((item: any) => String(item.productId) === String(productId));
+
+            let response;
+            if (existingItem) {
+                console.log('Updating existing item in cart...');
+                response = await updateCartItemApi(
+                    existingItem.cartItemId,
+                    quantity,
+                    cartSummary?.cartVersion,
+                    productId,
+                    pincodeAreaId
+                );
+            } else {
+                console.log('Adding new item to cart...');
+                response = await addToCartApi(productId, 1, pincodeAreaId);
+            }
+
+            console.log("cart operation response---->", JSON.stringify(response, null, 2));
+
+            if (response && response.success) {
+                console.log("cart operation successful, reloading cart...");
+                await loadCart();
+                setProductDetails((prev: any) => ({
+                    ...prev,
+                    customerspecific: {
+                        ...prev?.customerspecific,
+                        cartQty: quantity,
+                    }
+                }));
+            } else {
+                console.log('cart operation failed');
+            }
+        } catch (error) {
+            console.error('Error modifying cart:', error);
+        } finally {
+            showLoader(false);
+        }
+    };
+
+    const romoveFromCart = async (productId: string) => {
+        try {
+            showLoader(true);
+            const response = await removeFromCartApi(productId, cartSummary?.cartVersion, productId, pincodeAreaId);
+            console.log("removeFromCart response---->", JSON.stringify(response, null, 2))
+
+            if (response && response.success) {
+                await loadCart();
+                setProductDetails((prev: any) => ({
+                    ...prev,
+                    customerspecific: {
+                        ...prev?.customerspecific,
+                        cartQty: 0,
+                    }
+                }));
+            }
+
+        } catch (error) {
+            console.error('Error removing from cart:', error);
+        } finally {
+            showLoader(false);
+        }
+    }
 
     const addToWishlist = async (productId: string) => {
         try {
@@ -401,32 +474,36 @@ const ProductDetails = () => {
 
             <Image source={getImageUrl(item?.featuredImage || item?.imageUrl || item?.image)} style={homeStyles.exploreItemImage} resizeMode="contain" />
 
-            <View style={{ padding: 10 }}>
-                <Text style={[homeStyles.caption]} numberOfLines={3}>{item?.prName || item?.title}</Text>
+            <View style={{ padding: 10, flex: 1, justifyContent: 'space-between' }}>
+                <View>
+                    <Text style={[homeStyles.caption]} numberOfLines={3}>{item?.prName || item?.title}</Text>
+                </View>
 
-                <Rating
-                    type='custom'
-                    readonly
-                    startingValue={item?.rating || 1}
-                    ratingCount={5}
-                    imageSize={12}
-                    ratingColor={colors.starYellow}
-                    ratingBackgroundColor={colors.lightGrey}
-                    tintColor={colors.white}
-                    style={{ alignSelf: 'flex-start', marginVertical: 6 }}
-                />
+                <View>
+                    <Rating
+                        type='custom'
+                        readonly
+                        startingValue={item?.rating || 1}
+                        ratingCount={5}
+                        imageSize={12}
+                        ratingColor={colors.starYellow}
+                        ratingBackgroundColor={colors.lightGrey}
+                        tintColor={colors.white}
+                        style={{ alignSelf: 'flex-start', marginVertical: 6 }}
+                    />
 
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, gap: 2 }}>
-                    <View style={homeStyles.pricePill}>
-                        <Text style={homeStyles.pricePillText}>
-                            {item?.specialPrice || item?.unitPrice ? `₹${(item?.specialPrice || item?.unitPrice).toFixed(2)}` : (item?.currentPrice || '')}
-                        </Text>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, gap: 2 }}>
+                        <View style={homeStyles.pricePill}>
+                            <Text style={homeStyles.pricePillText}>
+                                {item?.specialPrice || item?.unitPrice ? `₹${(item?.specialPrice || item?.unitPrice).toFixed(2)}` : (item?.currentPrice || '')}
+                            </Text>
+                        </View>
+                        {(item?.unitPrice && item?.specialPrice && item.unitPrice > item.specialPrice) ? (
+                            <Text style={homeStyles.originalPriceText}>MRP ₹{item.unitPrice.toFixed(2)}</Text>
+                        ) : (
+                            item?.originalPrice ? <Text style={homeStyles.originalPriceText}>{item.originalPrice}</Text> : null
+                        )}
                     </View>
-                    {(item?.unitPrice && item?.specialPrice && item.unitPrice > item.specialPrice) ? (
-                        <Text style={homeStyles.originalPriceText}>MRP ₹{item.unitPrice.toFixed(2)}</Text>
-                    ) : (
-                        item?.originalPrice ? <Text style={homeStyles.originalPriceText}>{item.originalPrice}</Text> : null
-                    )}
                 </View>
             </View>
         </TouchableOpacity>
@@ -446,10 +523,10 @@ const ProductDetails = () => {
 
                     {/* Main Content Info */}
                     <View style={styles.contentPadding}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Text style={styles.title}>{ProductTitle}</Text>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                            <Text style={[styles.title, { flex: 1, marginRight: 10 }]}>{ProductTitle}</Text>
                             {productDetails?.product?.discountPercentage ? (
-                                <View style={[homeStyles.discountCircle, { opacity: 1, paddingHorizontal: 6, position: 'relative', alignSelf: 'flex-end' }]}>
+                                <View style={[homeStyles.discountCircle, { opacity: 1, paddingHorizontal: 6, position: 'relative', alignSelf: 'flex-start', marginTop: 4 }]}>
                                     <Text style={homeStyles.discountCircleText}>
                                         {Math.round(productDetails?.product?.discountPercentage)}% OFF
                                     </Text>
@@ -473,17 +550,46 @@ const ProductDetails = () => {
                             </View>
                         )}
                         <Text style={[styles.description, { marginTop: 4 }]}>{ProductDesc}</Text>
-                        <LinearGradient
-                            colors={[colors.themeTeal, colors.themeDarkTeal]}
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 0 }}
-                            style={[homeStyles.reviewFilterPillActiveGradient, { borderRadius: 50, alignSelf: 'flex-end', top: 10 }]}
-                        >
-                            <TouchableOpacity onPress={() => { addToCartFunction(productId) }} style={{ padding: 10, flexDirection: 'row' }} >
-                                <AppIcons.Add size={20} color={colors.themeWhite} />
-                                <Text style={[homeStyles.reviewFilterText, homeStyles.reviewFilterTextActive, { marginHorizontal: 5 }]}>Add</Text>
-                            </TouchableOpacity>
-                        </LinearGradient>
+
+                        {
+                            productDetails?.customerspecific.cartQty > 0 ?
+                                <LinearGradient
+                                    colors={[colors.themeTeal, colors.themeDarkTeal]}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 0 }}
+                                    style={[homeStyles.reviewFilterPillActiveGradient, { borderRadius: 50, alignSelf: 'flex-end', top: 10 }]}
+                                >
+                                    <View style={{ padding: 10, flexDirection: 'row' }}>
+                                        <TouchableOpacity onPress={() => { productDetails?.customerspecific?.cartQty > 0 ? updateCartFunction(productId, productDetails?.customerspecific?.cartQty - 1) : romoveFromCart(productId) }} >
+                                            <View style={styles.iconRoundBackground} >
+                                                <AppIcons.Remove size={20} color={colors.themeWhite} />
+                                            </View>
+                                        </TouchableOpacity>
+                                        <Text style={[homeStyles.reviewFilterText, homeStyles.reviewFilterTextActive, { marginHorizontal: 5 }]}>{productDetails?.customerspecific?.cartQty}</Text>
+                                        <TouchableOpacity onPress={() => { updateCartFunction(productId, productDetails?.customerspecific?.cartQty + 1) }} >
+                                            <View style={styles.iconRoundBackground} >
+                                                <AppIcons.Add size={20} color={colors.themeWhite} />
+                                            </View>
+                                        </TouchableOpacity>
+                                    </View>
+
+
+                                </LinearGradient> :
+                                <LinearGradient
+                                    colors={[colors.themeTeal, colors.themeDarkTeal]}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 0 }}
+                                    style={[homeStyles.reviewFilterPillActiveGradient, { borderRadius: 50, alignSelf: 'flex-end', top: 10 }]}
+                                >
+                                    <TouchableOpacity onPress={() => { addToCartFunction(productId) }} style={{ padding: 10, flexDirection: 'row' }} >
+                                        <View style={styles.iconRoundBackground} >
+                                            <AppIcons.Add size={20} color={colors.themeWhite} />
+                                        </View>
+                                        <Text style={[homeStyles.reviewFilterText, homeStyles.reviewFilterTextActive, { marginHorizontal: 5 }]}>Add</Text>
+                                    </TouchableOpacity>
+                                </LinearGradient>
+                        }
+
 
 
                         {/* <Text style={styles.sectionTitle}>Select Color</Text>

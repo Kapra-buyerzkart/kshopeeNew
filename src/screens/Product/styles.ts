@@ -611,4 +611,14 @@ export const styles = StyleSheet.create({
         fontSize: 14,
         color: colors.themeWhite,
     },
+    iconRoundBackground: {
+        width: 25,
+        height: 25,
+        borderRadius: 22,
+        //borderWidth: 1,
+        backgroundColor: colors.themeDarkTealHalf,
+        //flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    }
 });

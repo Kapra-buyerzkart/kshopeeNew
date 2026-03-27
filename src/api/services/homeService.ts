@@ -1,6 +1,8 @@
 import { get } from '../networkUtils';
 
 export const getHomepageData = async (pincodeAreaId: number | string | null, blocksize: number = 100): Promise<any> => {
+    console.log('pincodeAreaId---->', pincodeAreaId)
+    console.log('blocksize---->', blocksize)
     const config = {
         params: {
             pincodeAreaId,

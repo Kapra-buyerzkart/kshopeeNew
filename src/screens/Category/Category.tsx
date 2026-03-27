@@ -233,30 +233,35 @@ const CategoryScreen = () => {
 
             <Image source={imageSource(item)} style={styles.exploreItemImage} resizeMode="contain" />
 
-            <View style={{ padding: 8 }}>
-                <Text style={[styles.caption]} numberOfLines={3}>{item.prName || item.title || item.name}</Text>
+            <View style={{ padding: 8, flex: 1, justifyContent: 'space-between' }}>
+                <View>
+                    <Text style={[styles.caption]} numberOfLines={3}>{item.prName || item.title || item.name}</Text>
+                </View>
 
-                <Rating
-                    type='custom'
-                    readonly
-                    startingValue={item.rating || 1}
-                    ratingCount={5}
-                    imageSize={12}
-                    ratingColor={colors.starYellow}
-                    ratingBackgroundColor={colors.lightGrey}
-                    tintColor={colors.themeWhite}
-                    style={{ alignSelf: 'flex-start', marginVertical: 6 }}
-                />
+                <View>
+                    {/* <Rating
+                        type='custom'
+                        readonly
+                        startingValue={item.rating || 1}
+                        ratingCount={5}
+                        imageSize={12}
+                        ratingColor={colors.starYellow}
+                        ratingBackgroundColor={colors.lightGrey}
+                        tintColor={colors.themeWhite}
+                        style={{ alignSelf: 'flex-start', marginVertical: 6 }}
+                    /> */}
+                    <View style={{ height: 20 }} />
 
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, gap: 4 }}>
-                    <View style={styles.pricePill}>
-                        <Text style={styles.pricePillText}>{item.specialPrice?.toString().startsWith('₹') ? item.specialPrice : `₹${item.specialPrice || 0.00}`}</Text>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, gap: 4 }}>
+                        <View style={styles.pricePill}>
+                            <Text style={styles.pricePillText}>{item.specialPrice?.toString().startsWith('₹') ? item.specialPrice : `₹${item.specialPrice || 0.00}`}</Text>
+                        </View>
+                        {item.unitPrice ? (
+                            <Text style={styles.originalPriceText}>
+                                {(item.unitPrice)?.toString().includes('MRP') ? item.unitPrice : `MRP ₹${item.unitPrice || item.price}`}
+                            </Text>
+                        ) : null}
                     </View>
-                    {item.unitPrice ? (
-                        <Text style={styles.originalPriceText}>
-                            {(item.unitPrice)?.toString().includes('MRP') ? item.unitPrice : `MRP ₹${item.unitPrice || item.price}`}
-                        </Text>
-                    ) : null}
                 </View>
             </View>
         </TouchableOpacity>

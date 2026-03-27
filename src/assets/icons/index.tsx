@@ -54,6 +54,12 @@ const Add = ({ size = defaultSize, color = colors.primary, style }: IconProps) =
     <Ionicons name="add" size={size} color={color} style={style} />
 );
 
+const Remove = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
+    <Ionicons name="remove" size={size} color={color} style={style} />
+);
+
+
+
 const Menu = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
     <Ionicons name="menu" size={size} color={color} style={style} />
 );
@@ -165,10 +171,6 @@ const EyeClose = ({ size = defaultSize, color = colors.primary, style }: IconPro
     <Ionicons name="eye-off" size={size} color={color} style={style} />
 );
 
-
-
-
-
 const HeartOutline = ({ size = defaultSize, color = colors.primary, style }: IconProps) => (
     <Ionicons name="heart-outline" size={size} color={color} style={style} />
 );
@@ -262,6 +264,7 @@ export const AppIcons = {
     Back,
     Settings,
     Add,
+    Remove,
     Menu,
     Forward,
     Person,

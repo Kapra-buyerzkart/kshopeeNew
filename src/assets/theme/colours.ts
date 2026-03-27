@@ -16,6 +16,7 @@ const lightColors = {
     green: '#0cA201',
     blue: '#0000ff',
     halfTransparent: 'rgba(0, 0, 0, 0.5)',
+
     // Custom Colors
     themeWhite: '#FFFFFF',
     themeLightGray: '#DADADA',
@@ -24,9 +25,10 @@ const lightColors = {
     themeTealTwo: '#00A0B5',
     tealIconFont: '#00A7B3',
     themeBlack: '#000000',
-    themeDarkTeal: '#006168',
+    themeDarkTeal: 'rgba(0, 97, 104, 1)',
+    themeDarkTealHalf: 'rgba(0, 97, 104, 0.5)',
     themeBg: '#a1d3ce',
-    figmaTeal: '#00B4D8',
+    figmaTeal: '#00b4d8ff',
     outlineTeal: '#78BFB9',
     starYellow: '#FFD700',
     darkCardBackground: '#1F1F1F',

@@ -184,14 +184,15 @@ export const styles = StyleSheet.create({
         padding: 8,
     },
     exploreItemCard: {
-        width: 146,
-        marginRight: 16,
+        width: '47%',
         marginBottom: 16,
         backgroundColor: colors.themeWhite,
         borderRadius: 14,
         borderWidth: 1,
         borderColor: colors.outlineTeal,
         paddingTop: 10,
+        marginHorizontal: 4,
+        flex: 1,
     },
     exploreTopBadgesRow: {
         flexDirection: 'row',

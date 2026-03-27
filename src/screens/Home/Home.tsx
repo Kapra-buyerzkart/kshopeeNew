@@ -35,10 +35,38 @@ const HomeScreen: React.FC = () => {
   // Fetch dynamic data from the API endpoint
   const activeSliderImages = homeData?.banners?.filter((b: any) => b.placementKey === 'app_home_top_banner') || [];
   const activeGoatDeals = homeData?.banners?.filter((b: any) => b.placementKey === 'app_home_cat_top_sidebyside_four') || [];
-  const activeFirstProducts = homeData?.firstProductBlock?.items || [];
-  console.log("activeFirstProducts", activeFirstProducts)
-  const activeSecondProducts = homeData?.secondProductBlock?.items || [];
-  console.log("activeSecondProducts", activeSecondProducts)
+  console.log("activeGoatDeals--->", activeGoatDeals)
+  const unwrapBlock = (block: any): any => {
+    let current = block;
+    // Attempt to parse if string, up to 2 times (in case of double-stringify)
+    for (let i = 0; i < 2; i++) {
+      if (typeof current === 'string') {
+        try { current = JSON.parse(current); }
+        catch (e) { break; }
+      }
+    }
+    // Attempt to unwrap if nested: { firstProductBlock: { ... } }
+    if (typeof current === 'object' && current !== null) {
+      if (current.firstProductBlock) return current.firstProductBlock;
+      if (current.secondProductBlock) return current.secondProductBlock;
+      return current;
+    }
+    return current;
+  };
+
+  const parsedFirstBlock = unwrapBlock(homeData?.firstProductBlock);
+  const parsedSecondBlock = unwrapBlock(homeData?.secondProductBlock);
+
+  console.log("DEBUG parsedFirstBlock ->", typeof parsedFirstBlock, parsedFirstBlock ? Object.keys(parsedFirstBlock) : 'null');
+  if (parsedFirstBlock && !parsedFirstBlock.items) {
+    console.log("DEBUG raw homeData.firstProductBlock ->", typeof homeData?.firstProductBlock, homeData?.firstProductBlock);
+  }
+
+  const activeFirstProducts = parsedFirstBlock?.items || [];
+  console.log("activeFirstProducts", activeFirstProducts);
+  const activeSecondProducts = parsedSecondBlock?.items || [];
+  console.log("activeSecondProducts", activeSecondProducts);
+
   const activeBestSelling = homeData?.showcaseSlider || [];
   const activeTopBrands = homeData?.banners?.filter((b: any) => b.placementKey === 'app_top_brands') || [];
 
@@ -125,8 +153,18 @@ const HomeScreen: React.FC = () => {
       console.log("fetchHomeData response---->", JSON.stringify(response, null, 2))
       if (response && response.success && response.data) {
         setHomeData(response.data);
+        const bestSelling = response.data.showcaseSlider || [];
+        if (bestSelling.length > 2) {
+          setBestSellingIndex(1);
+          bestSellingIndexRef.current = 1;
+        } else {
+          setBestSellingIndex(0);
+          bestSellingIndexRef.current = 0;
+        }
       } else {
         setHomeData(null);
+        setBestSellingIndex(0);
+        bestSellingIndexRef.current = 0;
       }
     } catch (error) {
       console.error('Error fetching fetchHomeData:', error);
@@ -177,9 +215,10 @@ const HomeScreen: React.FC = () => {
   );
 
   const renderGoatDeal = ({ item }: { item: any }) => (
+    console.log("renderGoatDeal item--->", CONFIG.image_base_url + item.imageUrl),
     <TouchableOpacity style={styles.goatDealCard}>
       <Image
-        source={item.imageUrl ? { uri: CONFIG.image_base_url + item.imageUrl } : item.image}
+        source={{ uri: CONFIG.image_base_url + item.imageUrl }}
         style={styles.goatDealBg}
         resizeMode="cover"
       />
@@ -282,7 +321,7 @@ const HomeScreen: React.FC = () => {
           {/* Prev item — left side, 50% opacity */}
           {bestSellingIndex > 0 && (
             <Image
-              source={activeBestSelling[bestSellingIndex - 1].image ? { uri: CONFIG.image_base_url + activeBestSelling[bestSellingIndex - 1].image } : activeBestSelling[bestSellingIndex - 1].image}
+              source={(activeBestSelling[bestSellingIndex - 1].imageUrl || activeBestSelling[bestSellingIndex - 1].image) ? { uri: CONFIG.image_base_url + (activeBestSelling[bestSellingIndex - 1].imageUrl || activeBestSelling[bestSellingIndex - 1].image) } : activeBestSelling[bestSellingIndex - 1].image}
               style={[localStyle.sideImage, localStyle.sideImageLeft]}
               resizeMode="contain"
             />
@@ -291,20 +330,18 @@ const HomeScreen: React.FC = () => {
           {/* Next item — right side, 50% opacity */}
           {bestSellingIndex < activeBestSelling?.length - 1 && (
             <Image
-              source={activeBestSelling[bestSellingIndex + 1].image ? { uri: CONFIG.image_base_url + activeBestSelling[bestSellingIndex + 1].image } : activeBestSelling[bestSellingIndex + 1].image}
+              source={(activeBestSelling[bestSellingIndex + 1].imageUrl || activeBestSelling[bestSellingIndex + 1].image) ? { uri: CONFIG.image_base_url + (activeBestSelling[bestSellingIndex + 1].imageUrl || activeBestSelling[bestSellingIndex + 1].image) } : activeBestSelling[bestSellingIndex + 1].image}
               style={[localStyle.sideImage, localStyle.sideImageRight]}
               resizeMode="contain"
             />
           )}
 
           {/* Center (active) image with slide + scale animation */}
-          <TouchableOpacity activeOpacity={0.9} onPress={() => navigation.navigate('ProductDetailsScreen', { productId: activeBestSelling[bestSellingIndex]?.productId, product: activeBestSelling[bestSellingIndex] })}>
-            <Animated.Image
-              source={activeBestSelling[bestSellingIndex]?.featuredImage ? { uri: CONFIG.image_base_url + activeBestSelling[bestSellingIndex].featuredImage } : activeBestSelling[bestSellingIndex].image}
-              style={[localStyle.centerImage, { transform: [{ translateX: centerTranslateX }, { scale: centerScale }] }]}
-              resizeMode="contain"
-            />
-          </TouchableOpacity>
+          <Animated.Image
+            source={(activeBestSelling[bestSellingIndex]?.imageUrl || activeBestSelling[bestSellingIndex]?.image) ? { uri: CONFIG.image_base_url + (activeBestSelling[bestSellingIndex].imageUrl || activeBestSelling[bestSellingIndex].image) } : activeBestSelling[bestSellingIndex].image}
+            style={[localStyle.centerImage, { transform: [{ translateX: centerTranslateX }, { scale: centerScale }] }]}
+            resizeMode="contain"
+          />
 
           {/* Left Arrow */}
           {bestSellingIndex > 0 && (
@@ -358,8 +395,9 @@ const HomeScreen: React.FC = () => {
             pagingEnabled
             showsHorizontalScrollIndicator={false}
             scrollEnabled={false}
+            style={StyleSheet.absoluteFillObject}
           />
-          <View style={[StyleSheet.absoluteFillObject, { paddingTop: 50 }]}>
+          <View style={[StyleSheet.absoluteFillObject, { paddingTop: 50, pointerEvents: 'box-none' }]}>
             <View style={styles.topBar}>
               <TouchableOpacity style={styles.profileArea} onPress={() => navigation.navigate('KebraScreen')}>
                 <Image source={{ uri: 'https://picsum.photos/seed/user/100/100' }} style={styles.profileImageReal} />
@@ -411,7 +449,7 @@ const HomeScreen: React.FC = () => {
         {
           activeFirstProducts.length > 0 &&
           <View style={styles.sectionContainer}>
-            <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>{homeData?.firstProductBlock?.title}</Text>
+            <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>{parsedFirstBlock?.title}</Text>
             <FlatList
               data={activeFirstProducts}
               renderItem={renderExploreItem}
@@ -446,7 +484,7 @@ const HomeScreen: React.FC = () => {
         {activeGShockItems?.length > 0 && gShockMainBanner && (
           <View style={styles.gShockSectionWrapper}>
             <ImageBackground source={{ uri: CONFIG.image_base_url + gShockMainBanner.imageUrl }} style={styles.gShockTopBanner} resizeMode="cover">
-              <View style={{ paddingHorizontal: 16, position: 'absolute', bottom: -12, left: 0, right: 0 }}>
+              <View style={{ paddingHorizontal: 16, position: 'absolute', bottom: 20, left: 0, right: 0 }}>
                 <FlatList
                   data={activeGShockItems}
                   renderItem={renderGShockCard}
@@ -462,7 +500,7 @@ const HomeScreen: React.FC = () => {
 
         {/* 11.11 SUPER SALE Banner */}
         {activeSuperSaleBanners?.length > 0 && (
-          <View style={{ marginVertical: 20, alignItems: 'center' }}>
+          <View style={{ marginVertical: 10, alignItems: 'center' }}>
             <FlatList
               ref={superSaleRef}
               data={activeSuperSaleBanners}
@@ -513,7 +551,7 @@ const HomeScreen: React.FC = () => {
         {
           activeSecondProducts.length > 0 &&
           <View style={styles.sectionContainer}>
-            <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>{homeData?.secondProductBlock?.title}</Text>
+            <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>{parsedSecondBlock?.title}</Text>
             <FlatList
               data={activeSecondProducts}
               renderItem={renderExploreItem}

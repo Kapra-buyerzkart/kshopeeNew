@@ -350,13 +350,10 @@ export const useCommonStyles = () => {
 
         },
         goatDealBg: {
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: '105%',
+            width: '100%',
+            height: '100%',
             borderRadius: 14,
-            overflow: 'visible',
+            resizeMode: 'cover'
         },
         goatDealTitle: {
             position: 'absolute',
@@ -596,8 +593,8 @@ export const useCommonStyles = () => {
 
         gShockSectionWrapper: {
             //backgroundColor: colour.black,
-            marginTop: 40,
-            paddingBottom: 30
+            marginTop: 30,
+            paddingBottom: 20
         },
         gShockTopBanner: {
             width: width,
@@ -653,7 +650,7 @@ export const useCommonStyles = () => {
         flashSaleContainer: {
             //backgroundColor: '#A4E8DF',
             paddingBottom: 20,
-            marginTop: 20
+            marginTop: 10
         },
         hugeFlashText: {
             color: colour.white,

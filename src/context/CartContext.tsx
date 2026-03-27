@@ -69,8 +69,9 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const getCartSummary = useCallback(async (deliveryMode = 'express', deliverySlotId = null, cartVersion = null, couponCode = null, pincodeAreaId = null) => {
         const versionToUse = cartVersion || cartSummary?.cartVersion;
+        const cartIdToUse = cartSummary?.cartId;
         try {
-            const response = await getCartSummaryApi(deliveryMode, deliverySlotId, versionToUse, couponCode, pincodeAreaId);
+            const response = await getCartSummaryApi(deliveryMode, deliverySlotId, versionToUse, cartIdToUse, pincodeAreaId);
             if (response && response.success) {
                 setCartSummary(response.data);
                 return response;

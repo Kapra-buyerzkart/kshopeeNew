@@ -33,17 +33,18 @@ const HomeScreen: React.FC = () => {
   const superSaleRef = useRef<FlatList>(null);
 
   // Fetch dynamic data from the API endpoint
-  const activeSliderImages = homeData?.banners?.filter((b: any) => b.placementKey === 'app_showcase_slider') || [];
+  const activeSliderImages = homeData?.banners?.filter((b: any) => b.placementKey === 'app_home_top_banner') || [];
   const activeGoatDeals = homeData?.banners?.filter((b: any) => b.placementKey === 'app_home_cat_top_sidebyside_four') || [];
   const activeFirstProducts = homeData?.firstProductBlock?.items || [];
   const activeSecondProducts = homeData?.secondProductBlock?.items || [];
-  const activeBestSelling = homeData?.secondProductBlock?.items || []; 
+  const activeBestSelling = homeData?.secondProductBlock?.items || [];
   const activeTopBrands = homeData?.banners?.filter((b: any) => b.placementKey === 'app_top_brands') || [];
 
   const gShockMainBanner = homeData?.banners?.find((b: any) => b.placementKey === 'app_home_bottom_showcase_banner_image');
   const activeGShockItems = homeData?.banners?.filter((b: any) => b.placementKey === 'app_home_bottom_showcase_product_image') || [];
 
   const activeSuperSaleBanners = homeData?.banners?.filter((b: any) => b.placementKey === 'app_home_mid_banner') || [];
+  console.log("activeSuperSaleBanners---->", JSON.stringify(activeSuperSaleBanners, null, 2))
   const activeFlashSaleBanner = homeData?.banners?.find((b: any) => b.placementKey === 'app_flahs_sale');
 
   // Best Selling Carousel
@@ -348,7 +349,7 @@ const HomeScreen: React.FC = () => {
             ref={slideRef}
             data={activeSliderImages}
             renderItem={renderSliderItem}
-            keyExtractor={(item) => item.bannerId?.toString() || item.id}
+            keyExtractor={(item, index) => item.bannerId?.toString() || item.id?.toString() || index.toString()}
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
@@ -394,7 +395,7 @@ const HomeScreen: React.FC = () => {
             <FlatList
               data={activeGoatDeals}
               renderItem={renderGoatDeal}
-              keyExtractor={(item) => item.bannerId?.toString() || item.id}
+              keyExtractor={(item, index) => item.bannerId?.toString() || item.id?.toString() || index.toString()}
               numColumns={2}
               columnWrapperStyle={{ justifyContent: 'space-between' }}
               scrollEnabled={false}
@@ -410,7 +411,7 @@ const HomeScreen: React.FC = () => {
             <FlatList
               data={activeFirstProducts}
               renderItem={renderExploreItem}
-              keyExtractor={(item) => item.productId?.toString() || item.id}
+              keyExtractor={(item, index) => item.productId?.toString() || item.id?.toString() || index.toString()}
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.horizontalScrollPadding}
@@ -430,7 +431,7 @@ const HomeScreen: React.FC = () => {
           <FlatList
             data={activeTopBrands}
             renderItem={renderBrandItem}
-            keyExtractor={(item) => item.bannerId?.toString() || item.id}
+            keyExtractor={(item, index) => item.bannerId?.toString() || item.id?.toString() || index.toString()}
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.horizontalScrollPadding}
@@ -445,7 +446,7 @@ const HomeScreen: React.FC = () => {
                 <FlatList
                   data={activeGShockItems}
                   renderItem={renderGShockCard}
-                  keyExtractor={(item) => item.bannerId?.toString() || item.id}
+                  keyExtractor={(item, index) => item.bannerId?.toString() || item.id?.toString() || index.toString()}
                   numColumns={2}
                   columnWrapperStyle={{ justifyContent: 'space-between' }}
                   scrollEnabled={false}
@@ -461,7 +462,7 @@ const HomeScreen: React.FC = () => {
             <FlatList
               ref={superSaleRef}
               data={activeSuperSaleBanners}
-              keyExtractor={(item) => item.bannerId?.toString() || item.id}
+              keyExtractor={(item, index) => item.bannerId?.toString() || item.id?.toString() || index.toString()}
               horizontal
               snapToInterval={width - 12}
               decelerationRate="fast"
@@ -509,7 +510,7 @@ const HomeScreen: React.FC = () => {
             <FlatList
               data={activeSecondProducts}
               renderItem={renderExploreItem}
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item, index) => item.productId?.toString() || item.id?.toString() || index.toString()}
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.horizontalScrollPadding}

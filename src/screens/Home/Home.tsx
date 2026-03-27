@@ -187,7 +187,7 @@ const HomeScreen: React.FC = () => {
   );
 
   const renderExploreItem = ({ item }: { item: any }) => (
-    <TouchableOpacity style={styles.exploreItemCard}>
+    <TouchableOpacity style={styles.exploreItemCard} onPress={() => navigation.navigate('ProductDetailsScreen', { productId: item?.productId, product: item })}>
       <View style={styles.exploreTopBadgesRow}>
         <View style={styles.discountCircle}>
           <Text style={[styles.discountCircleText]}>{item.discountPercent ? `-${Math.round(item.discountPercent)}%` : item.discountBadge}</Text>
@@ -298,11 +298,13 @@ const HomeScreen: React.FC = () => {
           )}
 
           {/* Center (active) image with slide + scale animation */}
-          <Animated.Image
-            source={activeBestSelling[bestSellingIndex]?.image ? { uri: CONFIG.image_base_url + activeBestSelling[bestSellingIndex].image } : activeBestSelling[bestSellingIndex].image}
-            style={[localStyle.centerImage, { transform: [{ translateX: centerTranslateX }, { scale: centerScale }] }]}
-            resizeMode="contain"
-          />
+          <TouchableOpacity activeOpacity={0.9} onPress={() => navigation.navigate('ProductDetailsScreen', { productId: activeBestSelling[bestSellingIndex]?.productId, product: activeBestSelling[bestSellingIndex] })}>
+            <Animated.Image
+              source={activeBestSelling[bestSellingIndex]?.featuredImage ? { uri: CONFIG.image_base_url + activeBestSelling[bestSellingIndex].featuredImage } : activeBestSelling[bestSellingIndex].image}
+              style={[localStyle.centerImage, { transform: [{ translateX: centerTranslateX }, { scale: centerScale }] }]}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
 
           {/* Left Arrow */}
           {bestSellingIndex > 0 && (
@@ -383,7 +385,7 @@ const HomeScreen: React.FC = () => {
             </View>
 
             <View style={styles.headerDotsContainer}>
-              {activeSliderImages.map((_, index) => (
+              {activeSliderImages.map((_: any, index: number) => (
                 <View key={index} style={[styles.headerDot, currentSlideIndex === index && { backgroundColor: colors.outlineTeal }]} />
               ))}
             </View>
@@ -480,7 +482,7 @@ const HomeScreen: React.FC = () => {
             />
             {/* Dots */}
             <View style={styles.superSaleDotsContainer}>
-              {activeSuperSaleBanners.map((_, index) => (
+              {activeSuperSaleBanners.map((_: any, index: number) => (
                 <View key={index} style={[styles.superSalePill, superSaleIndex === index && { backgroundColor: colors.outlineTeal }]} />
               ))}
             </View>

@@ -46,7 +46,7 @@ const CartItemCard: React.FC<CartItemCardProps> = ({
                             <AppIcons.Delete color={colors.grey} size={20} />
                         </TouchableOpacity>
                     </View>
-                    <View style={[styles.variantRow, { marginTop: 19 }]}>
+                    {/* <View style={[styles.variantRow, { marginTop: 19 }]}>
                         <Text style={styles.variantLabel}>Size : </Text>
                         <Text style={styles.variantValue}>{item.size}</Text>
                     </View>
@@ -58,7 +58,7 @@ const CartItemCard: React.FC<CartItemCardProps> = ({
                                 { backgroundColor: item.color },
                             ]}
                         />
-                    </View>
+                    </View> */}
                 </View>
             </View>
             <View style={styles.separator} />

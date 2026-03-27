@@ -9,7 +9,7 @@ import {
     StatusBar,
     ImageBackground,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -30,10 +30,17 @@ const ProfileScreen: React.FC = () => {
     const { logout, profile, loadProfile } = useUser();
     const { showAlert } = useCustomAlert();
     const [isLogoutModalVisible, setIsLogoutModalVisible] = React.useState(false);
+    const scrollViewRef = React.useRef<ScrollView>(null);
 
     React.useEffect(() => {
         loadProfile();
     }, []);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            scrollViewRef.current?.scrollTo({ x: 0, y: 0, animated: true });
+        }, [])
+    );
 
     const handleLogout = async () => {
         setIsLogoutModalVisible(false);
@@ -58,7 +65,7 @@ const ProfileScreen: React.FC = () => {
     return (
         <SafeAreaView style={styles.mainContainer}>
             <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView ref={scrollViewRef} showsVerticalScrollIndicator={false}>
                 {/* Header Section */}
                 <ImageBackground
                     style={[styles.backgroundImage, { paddingTop: hp('2%'), paddingBottom: hp('2%') }]}

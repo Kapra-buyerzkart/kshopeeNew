@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, SafeAreaView, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Image, ActivityIndicator, Platform, StatusBar, SafeAreaView } from 'react-native';
 import { styles } from './styles';
 import { AppIcons } from '../../assets/icons';
 import ProductCard from '../../components/ProductCard';
@@ -80,7 +80,7 @@ const WishlistScreen: React.FC = () => {
 
     if (isLoading && wishlistItems.length === 0) {
         return (
-            <SafeAreaView style={styles.mainContainer}>
+            <SafeAreaView style={[styles.mainContainer, { paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }]}>
                 {renderHeader()}
                 <View style={[styles.emptyContainer, { justifyContent: 'center' }]}>
                     <ActivityIndicator size="large" color={colors.themeBg} />
@@ -90,7 +90,7 @@ const WishlistScreen: React.FC = () => {
     }
 
     return (
-        <SafeAreaView style={styles.mainContainer}>
+        <SafeAreaView style={[styles.mainContainer, { paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }]}>
             {renderHeader()}
 
             {wishlistItems.length === 0 ? (

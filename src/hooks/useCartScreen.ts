@@ -8,7 +8,7 @@ import { useUser } from '../context/UserContext';
 
 export const useCartScreen = () => {
     const navigation = useNavigation<any>();
-    const { cartItems, loadCart, cartTotal, cartCount, cartSummary, getCartSummary, clearCart, error: cartError } = useCart();
+    const { cartItems, loadCart, cartTotal, cartCount, cartSummary, getCartSummary, clearCart, error: cartError, fetchAddresses } = useCart();
 
     // ─── Composed hooks ───
     const { profile } = useUser();
@@ -31,17 +31,17 @@ export const useCartScreen = () => {
         const deliveryCharge = (itemTotal > 0 && itemTotal < 500) ? 0 : 0;
         const totalSavings = savings + (deliveryCharge === 0 && itemTotal >= 500 ? 5 : 0);
         const toPay = itemTotal + deliveryCharge;
-        return { 
-            mrpTotal, 
-            itemTotal, 
-            savings, 
-            deliveryCharge, 
-            couponDiscount: 0, 
-            giftCardAmount: 0, 
-            bcoinsAppliedValue: 0, 
-            totalBtokens: 0, 
-            totalSavings: savings, 
-            toPay 
+        return {
+            mrpTotal,
+            itemTotal,
+            savings,
+            deliveryCharge,
+            couponDiscount: 0,
+            giftCardAmount: 0,
+            bcoinsAppliedValue: 0,
+            totalBtokens: 0,
+            totalSavings: savings,
+            toPay
         };
     }, [cartItems]);
 
@@ -120,6 +120,7 @@ export const useCartScreen = () => {
         clearCart,
         cartError,
         navigation,
+        fetchAddresses,
 
         // Composed hooks (spread for backward compat)
         ...offersHook,

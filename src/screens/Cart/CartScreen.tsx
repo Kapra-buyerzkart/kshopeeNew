@@ -41,8 +41,14 @@ const CartScreen = () => {
     const { profile } = useUser();
     const {
         // Cart
-        billCalculations,
+        cartItems,
         cartSummary,
+        billCalculations,
+        loadCart,
+        getCartSummary,
+        clearCart,
+        cartError,
+        fetchAddresses,
 
         // Offers
         showCouponModal,
@@ -59,7 +65,7 @@ const CartScreen = () => {
         handleApplyCoupon,
         handleCouponClick,
 
-        // Delivery
+        // Delivery & Addresses
         selectedDeliveryType,
         setSelectedDeliveryType,
         selectedSlot,
@@ -70,18 +76,7 @@ const CartScreen = () => {
         slotsByDate,
         onSelectDate,
         deliveryModes,
-    } = useCartScreen();
-
-    const { showLoader } = useContext(LoaderContext);
-    const {
-        cartItems,
-        clearCart,
-        getCartSummary,
-        error: cartError,
         addresses,
-        fetchAddresses,
-        showAddressModal,
-        setShowAddressModal,
         onSelectAddress,
         onThreeDotsClicked,
         onDeleteClicked,
@@ -89,15 +84,17 @@ const CartScreen = () => {
         addressConfirmationData,
         setAddressConfirmationData,
         refreshAddresses,
-        refreshCart,
-        serviceabilityTrigger,
-        setServiceabilityTrigger
-    } = useCart();
+    } = useCartScreen();
+
+    const { showLoader } = useContext(LoaderContext);
+    const { refreshCart } = useCart();
 
     const [isClearCartModalVisible, setIsClearCartModalVisible] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState('cod');
     const [paymentModes, setPaymentModes] = useState<any[]>([]);
+    const [showAddressModal, setShowAddressModal] = useState(false);
+    const [serviceabilityTrigger, setServiceabilityTrigger] = useState(false);
 
     // Status Modal State
     const [statusModalVisible, setStatusModalVisible] = useState(false);
@@ -270,8 +267,8 @@ const CartScreen = () => {
 
             const createPayload = {
                 cartId: cartSummary?.cartId || cartItems?.[0]?.cartId,
-                shippingAddressId: selectedAddress.id,
-                billingAddressId: selectedAddress.id,
+                shippingAddressId: selectedAddress?.id,
+                billingAddressId: selectedAddress?.id,
                 paymentMethod: isOnlinePayment ? "online" : paymentMethod,
                 ifMatchCartVersion: cartSummary?.cartVersion,
                 deliverySlotDate: selectedDeliveryType === 'slot'
@@ -280,7 +277,7 @@ const CartScreen = () => {
                 deliverySlotTime: selectedDeliveryType === 'slot' ? (chosenSlot?.slotValue || null) : null,
                 deliveryMode: "express",
                 orderPlacedFromDevice: "app",
-                pincodeAreaId: selectedAddress.pincodeAreaId
+                pincodeAreaId: selectedAddress?.pincodeAreaId
             };
 
             console.log('📤 [ORDER] Sending createOrderApi call...', createPayload);
@@ -535,7 +532,7 @@ const CartScreen = () => {
                         <View style={styles.addressInfo}>
                             <View style={styles.deliveringToRow}>
                                 <Text style={styles.deliveringToText}>Delivering to : </Text>
-                                <Text style={styles.addressType}>{selectedAddress?.addressType || 'Home'}</Text>
+                                <Text style={styles.addressType}>{selectedAddress?.type || 'Home'}</Text>
                             </View>
                             <Text style={styles.addressDetail} numberOfLines={2}>
                                 {selectedAddress ? selectedAddress.address : 'No address selected'}

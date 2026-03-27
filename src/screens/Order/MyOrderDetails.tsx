@@ -195,7 +195,9 @@ const MyOrderDetails = () => {
                                 if (item?.productId && i.productId) return i.productId !== item.productId;
                                 return i.productName !== item?.productName;
                             }).map((otherItem: any) => (
-                                <Image key={otherItem.orderItemId} source={getImageUrl(otherItem.featuredImage)} style={styles.otherProductItemImage} resizeMode="contain" />
+                                <TouchableOpacity key={otherItem.orderItemId} onPress={() => navigation.navigate('ProductDetailsScreen', { productId: otherItem.productId, product: otherItem })}>
+                                    <Image source={getImageUrl(otherItem.featuredImage)} style={styles.otherProductItemImage} resizeMode="contain" />
+                                </TouchableOpacity>
                             ))}
                         </ScrollView>
                         <View style={styles.orderIdContainer}>

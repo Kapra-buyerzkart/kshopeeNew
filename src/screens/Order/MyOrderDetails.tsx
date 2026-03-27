@@ -10,8 +10,13 @@ import { useCommonStyles } from '../../assets/styles';
 import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LoaderContext } from '../../context/loaderContext';
-import { getOrderDetailsApi } from '../../api/services/orderService';
+import { getOrderDetailsApi, reorderApi, returnOrderItemApi, cancelOrderApi } from '../../api/services/orderService';
+import { verifyRazorpayPaymentApi } from '../../api/services/paymentService';
+import RazorpayCheckout from 'react-native-razorpay';
+import { useUser } from '../../context/UserContext';
 import CONFIG from '../../globals/config';
+import ConfirmationModal from '../../components/ConfirmationModal';
+import StatusModal from '../../components/StatusModal';
 
 const DashedLine = () => (
     <View style={styles.trackingDashedSeparator}>
@@ -33,6 +38,7 @@ const MyOrderDetails = () => {
     const route = useRoute<any>();
     const [isTrackOpen, setIsTrackOpen] = useState(false);
     const homeStyles = useCommonStyles();
+    const { profile } = useUser();
 
     const [orderDetails, setOrderDetails] = useState<any>([]);
     const { showLoader } = useContext(LoaderContext) || { showLoader: () => { } };
@@ -40,7 +46,29 @@ const MyOrderDetails = () => {
     const order: any = route.params?.order;
     const item: any = route.params?.selectedItem;
 
+    const [confirmModal, setConfirmModal] = useState<{
+        visible: boolean;
+        type: 'return' | 'reorder' | 'cancel' | null;
+    }>({ visible: false, type: null });
+
+    const [statusModal, setStatusModal] = useState<{
+        visible: boolean;
+        type: 'success' | 'error';
+        title: string;
+        message: string;
+        navigateOnClose?: boolean;
+    }>({ visible: false, type: 'success', title: '', message: '' });
+
     if (!order || !item) return <View style={styles.container} />;
+
+    const loadedItem = orderDetails?.items?.find((i: any) => {
+        if (item?.productId && i.productId) return i.productId === item.productId;
+        return i.productName === item?.productName;
+    }) || item;
+
+    const canReturn = loadedItem?.canReturn === true;
+    const canCancel = orderDetails?.header?.canCancel === true || order?.canCancel === true;
+    const canRetryPayment = orderDetails?.header?.canRetryPayment === true;
 
     const trackingSteps = orderDetails?.timeline ? orderDetails.timeline.map((step: any, index: number, arr: any[]) => {
         const isCurrent = index === arr.length - 1;
@@ -84,6 +112,184 @@ const MyOrderDetails = () => {
         }
     };
 
+    const handleReorder = async () => {
+        try {
+            showLoader(true);
+            const res = await reorderApi({ orderId: order?.orderId });
+            if (res?.success) {
+                setStatusModal({
+                    visible: true,
+                    type: 'success',
+                    title: 'Success',
+                    message: 'Items added to cart for reorder.',
+                    navigateOnClose: true
+                });
+            } else {
+                setStatusModal({
+                    visible: true,
+                    type: 'error',
+                    title: 'Error',
+                    message: res?.message || 'Failed to reorder'
+                });
+            }
+        } catch (error) {
+            setStatusModal({
+                visible: true,
+                type: 'error',
+                title: 'Error',
+                message: 'An error occurred while reordering'
+            });
+        } finally {
+            showLoader(false);
+        }
+    };
+
+    const handleReturn = async () => {
+        try {
+            showLoader(true);
+            const payload = {
+                orderId: order?.orderId,
+                orderItemId: item?.orderItemId,
+                quantity: item?.quantity || 1,
+                requestReason: "Damaged product"
+            };
+            const res = await returnOrderItemApi(payload);
+            if (res?.success) {
+                setStatusModal({
+                    visible: true,
+                    type: 'success',
+                    title: 'Success',
+                    message: 'Return requested successfully.'
+                });
+            } else {
+                setStatusModal({
+                    visible: true,
+                    type: 'error',
+                    title: 'Error',
+                    message: res?.message || 'Failed to process return'
+                });
+            }
+        } catch (error) {
+            setStatusModal({
+                visible: true,
+                type: 'error',
+                title: 'Error',
+                message: 'An error occurred while processing return'
+            });
+        } finally {
+            showLoader(false);
+        }
+    };
+
+    const handleCancel = async () => {
+        try {
+            showLoader(true);
+            const payload = {
+                orderId: order?.orderId,
+                reason: "Cancelled by Customer",
+                requestedFromDevice: "app"
+            };
+            const res = await cancelOrderApi(payload);
+            if (res?.success) {
+                setStatusModal({
+                    visible: true,
+                    type: 'success',
+                    title: 'Success',
+                    message: 'Order cancelled successfully.'
+                });
+                fetchMyOrderDetailsFunction();
+            } else {
+                setStatusModal({
+                    visible: true,
+                    type: 'error',
+                    title: 'Error',
+                    message: res?.message || 'Failed to cancel order'
+                });
+            }
+        } catch (error) {
+            setStatusModal({
+                visible: true,
+                type: 'error',
+                title: 'Error',
+                message: 'An error occurred while cancelling the order'
+            });
+        } finally {
+            showLoader(false);
+        }
+    };
+
+    const handleRetryPayment = async () => {
+        const header = orderDetails?.header;
+        const razorpayOrderId = header?.razorPayOrderId;
+        const razorpayKeyId = header?.razorPayKeyId;
+        const razorpayAmount = header?.razorPayAmount;
+
+        if (!razorpayOrderId || !razorpayKeyId || !razorpayAmount) {
+            setStatusModal({
+                visible: true,
+                type: 'error',
+                title: 'Error',
+                message: 'Payment details not available. Please try again later.'
+            });
+            return;
+        }
+
+        try {
+            const options = {
+                key: razorpayKeyId,
+                amount: razorpayAmount,
+                currency: 'INR',
+                name: 'Kapra Daily',
+                description: `Order #${header?.orderNumber || order?.orderId}`,
+                order_id: razorpayOrderId,
+                prefill: {
+                    email: profile?.email || '',
+                    contact: profile?.phone || profile?.phoneNo || ''
+                },
+                theme: { color: '#F25000' }
+            };
+
+            const sdkResponse = await RazorpayCheckout.open(options);
+            showLoader(true);
+
+            const verifyPayload = {
+                orderId: order?.orderId,
+                razorpayOrderId: sdkResponse.razorpay_order_id,
+                razorpayPaymentId: sdkResponse.razorpay_payment_id,
+                razorpaySignature: sdkResponse.razorpay_signature,
+                amount: Number(razorpayAmount)
+            };
+
+            const verifyResponse = await verifyRazorpayPaymentApi(verifyPayload);
+            showLoader(false);
+
+            if (verifyResponse?.success) {
+                setStatusModal({
+                    visible: true,
+                    type: 'success',
+                    title: 'Payment Successful',
+                    message: 'Your payment has been completed successfully.'
+                });
+                fetchMyOrderDetailsFunction();
+            } else {
+                setStatusModal({
+                    visible: true,
+                    type: 'error',
+                    title: 'Verification Pending',
+                    message: verifyResponse?.message || 'Payment verification is pending. Please check back later.'
+                });
+            }
+        } catch (sdkError: any) {
+            showLoader(false);
+            setStatusModal({
+                visible: true,
+                type: 'error',
+                title: 'Payment Failed',
+                message: sdkError?.description || 'Payment was cancelled or failed.'
+            });
+        }
+    };
+
     return (
         <SafeAreaView style={styles.detailsContainer}>
             <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
@@ -105,7 +311,7 @@ const MyOrderDetails = () => {
                             <Text style={styles.productNameDetail}>{item?.productName}</Text>
                         </View>
                     </View>
-                    <TouchableOpacity style={styles.buyAgainBtn}>
+                    <TouchableOpacity style={styles.buyAgainBtn} onPress={() => setConfirmModal({ visible: true, type: 'reorder' })}>
                         <Text style={styles.buyAgainText}>Buy again</Text>
                     </TouchableOpacity>
                 </View>
@@ -164,16 +370,15 @@ const MyOrderDetails = () => {
 
                     <DashedLine />
 
-                    <View style={styles.returnWindowRow}>
-                        <AppIcons.Reload size={16} color={colors.themeTeal} />
+                    {/* <View style={styles.returnWindowRow}> */}
+                    {/* <AppIcons.Reload size={16} color={colors.themeTeal} />
                         <Text style={styles.returnWindowText}>
                             {/* {order.returnWindowText ? (
                                 <> */}
-                            Return window close after <Text style={styles.returnWindowRedText}>7 days</Text>
-                            {/* </>
-                            ) : null} */}
-                        </Text>
-                    </View>
+                    {/* Return window close after <Text style={styles.returnWindowRedText}>7 days</Text>
+
+                        </Text> */}
+                    {/* </View> */}
                 </View>
 
                 {/* Rating Banner */}
@@ -220,31 +425,80 @@ const MyOrderDetails = () => {
                     </Text>
                 </View>
 
+                {/* Retry Payment */}
+                {canRetryPayment && (
+                    <TouchableOpacity onPress={handleRetryPayment} style={{ marginHorizontal: 16, marginBottom: 16 }}>
+                        <LinearGradient
+                            colors={['#00eeffff', '#00aeffff']}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                            style={{ borderRadius: 30, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height: 48 }}
+                        >
+                            <AppIcons.ArrowUpBold color={colors.white} size={20} />
+                            <Text style={[homeStyles.reviewFilterText, homeStyles.reviewFilterTextActive, { marginLeft: 4 }]}>Retry Payment</Text>
+                        </LinearGradient>
+                    </TouchableOpacity>
+                )}
+
             </ScrollView>
 
             {/* Bottom Bar */}
             <View style={styles.fixedBottomBar}>
-                <TouchableOpacity style={styles.returnBtn}>
-                    <AppIcons.ArrowDownBold size={20} color={colors.black} />
-                    <Text style={styles.returnBtnText}>Return</Text>
-                </TouchableOpacity>
-                {/* <TouchableOpacity style={styles.reorderBtn}>
-                    <AppIcons.ArrowUpBold size={20} color={colors.white} />
-                    <Text style={styles.reorderBtnText}>Reorder</Text>
-                </TouchableOpacity> */}
+                {canCancel && (
+                    <TouchableOpacity style={styles.returnBtn} onPress={() => setConfirmModal({ visible: true, type: 'cancel' })}>
+                        <AppIcons.Close size={20} color={colors.themeTeal} />
+                        <Text style={[styles.returnBtnText, { color: colors.themeTeal }]}>Cancel</Text>
+                    </TouchableOpacity>
+                )}
+
+                {canReturn && (
+                    <TouchableOpacity style={styles.returnBtn} onPress={() => setConfirmModal({ visible: true, type: 'return' })}>
+                        <AppIcons.ArrowDownBold size={20} color={colors.black} />
+                        <Text style={styles.returnBtnText}>Return</Text>
+                    </TouchableOpacity>
+                )}
+
 
                 <LinearGradient
                     colors={[colors.themeTeal, colors.themeDarkTeal]}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
-                    style={[homeStyles.reviewFilterPillActiveGradient, { borderRadius: 30, flexDirection: 'row' }]}
+                    style={[homeStyles.reviewFilterPillActiveGradient, { borderRadius: 39, flexDirection: 'row', flex: 1, justifyContent: 'center', alignItems: 'center', height: 48 }]}
                 >
                     <AppIcons.ArrowUpBold color={colors.white} size={20} />
-                    <TouchableOpacity onPress={() => { }} style={{ padding: 4 }} >
+                    <TouchableOpacity onPress={() => setConfirmModal({ visible: true, type: 'reorder' })} style={{ marginLeft: 4 }} >
                         <Text style={[homeStyles.reviewFilterText, homeStyles.reviewFilterTextActive]}>Reorder</Text>
                     </TouchableOpacity>
                 </LinearGradient>
             </View>
+
+            <ConfirmationModal
+                visible={confirmModal.visible}
+                onClose={() => setConfirmModal({ visible: false, type: null })}
+                onConfirm={() => {
+                    setConfirmModal({ visible: false, type: null });
+                    if (confirmModal.type === 'reorder') handleReorder();
+                    else if (confirmModal.type === 'return') handleReturn();
+                    else if (confirmModal.type === 'cancel') handleCancel();
+                }}
+                title={confirmModal.type === 'cancel' ? "Cancel Order" : confirmModal.type === 'return' ? "Return Item" : "Reorder"}
+                message={confirmModal.type === 'cancel' ? "Are you sure you want to cancel this order?" : confirmModal.type === 'return' ? "Are you sure you want to return this item?" : "Are you sure you want to reorder?"}
+                confirmText={confirmModal.type === 'cancel' ? "Cancel Order" : confirmModal.type === 'return' ? "Return" : "Reorder"}
+                themeColor={confirmModal.type === 'cancel' ? colors.themeTeal : confirmModal.type === 'return' ? colors.themeTeal : colors.themeTeal}
+            />
+
+            <StatusModal
+                visible={statusModal.visible}
+                onClose={() => {
+                    setStatusModal(prev => ({ ...prev, visible: false }));
+                    if (statusModal.navigateOnClose) {
+                        navigation.navigate('Cart');
+                    }
+                }}
+                type={statusModal.type}
+                title={statusModal.title}
+                message={statusModal.message}
+            />
         </SafeAreaView>
     );
 };

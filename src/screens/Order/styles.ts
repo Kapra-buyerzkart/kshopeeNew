@@ -413,7 +413,7 @@ export const styles = StyleSheet.create({
     returnBtn: {
         flex: 1,
         borderWidth: 1,
-        borderColor: '#D0D0D0',
+        borderColor: colors.themeTeal,
         borderRadius: wp('8%'),
         flexDirection: 'row',
         justifyContent: 'center',

@@ -716,7 +716,7 @@ export const useCommonStyles = () => {
             //borderWidth: 1,
             borderColor: 'transparent',
             width: 100,
-            flex: 1,
+            //flex: 1,
         },
         reviewFilterText: {
             fontFamily: Fonts.regular,

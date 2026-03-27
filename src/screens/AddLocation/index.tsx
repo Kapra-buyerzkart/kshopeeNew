@@ -253,7 +253,7 @@ const AddLocationScreen: React.FC = () => {
                     <Marker
                         coordinate={markerPosition}
                         draggable
-                        onDragEnd={(e) => {
+                        onDragEnd={(e: any) => {
                             const { latitude, longitude } = e.nativeEvent.coordinate;
                             setMarkerPosition({ latitude, longitude });
                             setRegion(r => ({ ...r, latitude, longitude }));

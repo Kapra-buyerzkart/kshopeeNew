@@ -36,8 +36,10 @@ const HomeScreen: React.FC = () => {
   const activeSliderImages = homeData?.banners?.filter((b: any) => b.placementKey === 'app_home_top_banner') || [];
   const activeGoatDeals = homeData?.banners?.filter((b: any) => b.placementKey === 'app_home_cat_top_sidebyside_four') || [];
   const activeFirstProducts = homeData?.firstProductBlock?.items || [];
+  console.log("activeFirstProducts", activeFirstProducts)
   const activeSecondProducts = homeData?.secondProductBlock?.items || [];
-  const activeBestSelling = homeData?.secondProductBlock?.items || [];
+  console.log("activeSecondProducts", activeSecondProducts)
+  const activeBestSelling = homeData?.showcaseSlider || [];
   const activeTopBrands = homeData?.banners?.filter((b: any) => b.placementKey === 'app_top_brands') || [];
 
   const gShockMainBanner = homeData?.banners?.find((b: any) => b.placementKey === 'app_home_bottom_showcase_banner_image');
@@ -199,7 +201,7 @@ const HomeScreen: React.FC = () => {
         <Text style={[styles.caption]} numberOfLines={3}>{item.prName || item.title}</Text>
 
         <View>
-          <Rating
+          {/* <Rating
             type='custom'
             readonly
             startingValue={item.rating || 4}
@@ -209,7 +211,7 @@ const HomeScreen: React.FC = () => {
             ratingBackgroundColor={colors.lightGrey}
             tintColor={colors.white}
             style={{ alignSelf: 'flex-start', marginVertical: 6 }}
-          />
+          /> */}
 
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, gap: 2 }}>
             <View style={styles.pricePill}>
@@ -272,7 +274,7 @@ const HomeScreen: React.FC = () => {
 
     return (
       <View style={styles.sectionContainer}>
-        <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>BEST SELLING</Text>
+        <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>IN THE SPOTLIGHT</Text>
 
         {/* Single card — prev/next images peek inside at 50% opacity */}
         <View style={localStyle.bestSellingCard} {...panResponder.panHandlers}>
@@ -280,7 +282,7 @@ const HomeScreen: React.FC = () => {
           {/* Prev item — left side, 50% opacity */}
           {bestSellingIndex > 0 && (
             <Image
-              source={activeBestSelling[bestSellingIndex - 1].featuredImage ? { uri: CONFIG.image_base_url + activeBestSelling[bestSellingIndex - 1].featuredImage } : activeBestSelling[bestSellingIndex - 1].image}
+              source={activeBestSelling[bestSellingIndex - 1].image ? { uri: CONFIG.image_base_url + activeBestSelling[bestSellingIndex - 1].image } : activeBestSelling[bestSellingIndex - 1].image}
               style={[localStyle.sideImage, localStyle.sideImageLeft]}
               resizeMode="contain"
             />
@@ -289,7 +291,7 @@ const HomeScreen: React.FC = () => {
           {/* Next item — right side, 50% opacity */}
           {bestSellingIndex < activeBestSelling?.length - 1 && (
             <Image
-              source={activeBestSelling[bestSellingIndex + 1].featuredImage ? { uri: CONFIG.image_base_url + activeBestSelling[bestSellingIndex + 1].featuredImage } : activeBestSelling[bestSellingIndex + 1].image}
+              source={activeBestSelling[bestSellingIndex + 1].image ? { uri: CONFIG.image_base_url + activeBestSelling[bestSellingIndex + 1].image } : activeBestSelling[bestSellingIndex + 1].image}
               style={[localStyle.sideImage, localStyle.sideImageRight]}
               resizeMode="contain"
             />
@@ -297,7 +299,7 @@ const HomeScreen: React.FC = () => {
 
           {/* Center (active) image with slide + scale animation */}
           <Animated.Image
-            source={activeBestSelling[bestSellingIndex]?.featuredImage ? { uri: CONFIG.image_base_url + activeBestSelling[bestSellingIndex].featuredImage } : activeBestSelling[bestSellingIndex].image}
+            source={activeBestSelling[bestSellingIndex]?.image ? { uri: CONFIG.image_base_url + activeBestSelling[bestSellingIndex].image } : activeBestSelling[bestSellingIndex].image}
             style={[localStyle.centerImage, { transform: [{ translateX: centerTranslateX }, { scale: centerScale }] }]}
             resizeMode="contain"
           />
@@ -405,7 +407,7 @@ const HomeScreen: React.FC = () => {
 
         {/* EXPLORE */}
         {
-          homeData?.firstProductBlock?.items?.length > 0 &&
+          activeFirstProducts.length > 0 &&
           <View style={styles.sectionContainer}>
             <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>{homeData?.firstProductBlock?.title}</Text>
             <FlatList
@@ -498,13 +500,16 @@ const HomeScreen: React.FC = () => {
                 </React.Fragment>
               ))}
             </ScrollView> */}
-            <ClickForMoreButton onPress={() => { }} title="View all Flash Deals" />
+            <View style={{ marginTop: -60, position: 'relative' }}>
+              <ClickForMoreButton onPress={() => { }} title="View all Flash Deals" />
+            </View>
+
           </View>
         )}
 
         {/* EXPLORE */}
         {
-          homeData?.secondProductBlock?.items?.length > 0 &&
+          activeSecondProducts.length > 0 &&
           <View style={styles.sectionContainer}>
             <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>{homeData?.secondProductBlock?.title}</Text>
             <FlatList

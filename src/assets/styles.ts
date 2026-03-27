@@ -595,7 +595,7 @@ export const useCommonStyles = () => {
         },
 
         gShockSectionWrapper: {
-            backgroundColor: colour.black,
+            //backgroundColor: colour.black,
             marginTop: 40,
             paddingBottom: 30
         },
@@ -651,8 +651,8 @@ export const useCommonStyles = () => {
         },
 
         flashSaleContainer: {
-            backgroundColor: '#A4E8DF',
-            paddingBottom: 40,
+            //backgroundColor: '#A4E8DF',
+            paddingBottom: 20,
             marginTop: 20
         },
         hugeFlashText: {
@@ -666,7 +666,7 @@ export const useCommonStyles = () => {
         },
         podiumImageBackground: {
             width: width,
-            height: 700,
+            height: 720,
             resizeMode: 'cover',
             //opacity: 0.6
 

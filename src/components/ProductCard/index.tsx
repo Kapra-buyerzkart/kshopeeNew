@@ -107,9 +107,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     {displayTitle}
                 </Text>
 
-                <View style={styles.ratingContainer}>
+                {/* <View style={styles.ratingContainer}>
                     {renderStars()}
-                </View>
+                </View> */}
 
                 <View style={styles.priceContainer}>
                     <Text style={styles.price}>₹{displayPrice}</Text>

@@ -278,7 +278,7 @@ const CartScreen = () => {
                     ? (chosenSlot?.date?.split('T')[0] || (typeof chosenSlot?.date === 'string' ? chosenSlot.date : null))
                     : null,
                 deliverySlotTime: selectedDeliveryType === 'slot' ? (chosenSlot?.slotValue || null) : null,
-                deliveryMode: selectedDeliveryType === 'slot' ? "slotted" : "express",
+                deliveryMode: "express",
                 orderPlacedFromDevice: "app",
                 pincodeAreaId: selectedAddress.pincodeAreaId
             };
@@ -490,7 +490,7 @@ const CartScreen = () => {
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
             >
                 {/* Delivery Method Toggle */}
-                <View style={styles.deliveryToggleRow}>
+                {/* <View style={styles.deliveryToggleRow}>
                     <TouchableOpacity
                         activeOpacity={0.8}
                         onPress={() => setSelectedDeliveryType('express')}
@@ -524,7 +524,7 @@ const CartScreen = () => {
                             <Text style={[styles.toggleText, selectedDeliveryType === 'slot' && styles.toggleTextActive]}>Scheduled</Text>
                         </LinearGradient>
                     </TouchableOpacity>
-                </View>
+                </View> */}
 
                 {/* Delivering to Section */}
                 <View style={styles.addressCard}>
@@ -569,7 +569,7 @@ const CartScreen = () => {
                             item={item}
                             onDelete={(id) => {
                                 const originalItem = cartItems.find(i => String(i.cartItemId) === id);
-                                if (originalItem) handleRemoveItem(originalItem);
+                                if (originalItem) setItemToRemove(originalItem);
                             }}
                             onIncrement={(id) => {
                                 const originalItem = cartItems.find(i => String(i.cartItemId) === id);
@@ -702,7 +702,7 @@ const CartScreen = () => {
                 title="Remove Item"
                 message="Are you sure you want to remove this item from your cart?"
                 confirmText="Remove"
-                themeColor={colors.red}
+                themeColor={colors.themeTeal}
             />
 
             <AddressConfirmationModal

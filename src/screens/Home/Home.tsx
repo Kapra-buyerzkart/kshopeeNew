@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { View, Text, ScrollView, Image, TouchableOpacity, FlatList, Dimensions, StyleSheet, ImageBackground, Animated, PanResponder } from 'react-native';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { useCommonStyles } from '../../assets/styles';
@@ -6,11 +6,14 @@ import { colors } from '../../assets/theme/colours';
 import { RootStackParamList } from '../../types/types';
 import HomeSearchBar from '../../components/HomeSearchBar/HomeSearchBar';
 import ClickForMoreButton from '../../components/ClickForMoreButton/ClickForMoreButton';
-import { sliderImages, goatDeals, exploreItems, bestSellingItems, topBrands, gShockData, superSaleBanners, flashSaleItems } from './dummyData';
 import { AppIcons } from '../../assets/icons';
 import { Rating } from 'react-native-ratings';
 import LinearGradient from 'react-native-linear-gradient';
 import FloatingCartButton from '../../components/FloatingCartButton/FloatingCartButton';
+import { LoaderContext } from '../../context/loaderContext';
+import { getHomepageData } from '../../api/services/homeService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import CONFIG from '../../globals/config';
 
 const { width } = Dimensions.get('window');
 
@@ -18,10 +21,30 @@ const HomeScreen: React.FC = () => {
   const styles = useCommonStyles();
   const navigation = useNavigation<any>();
 
+  const { showLoader } = useContext(LoaderContext) || { showLoader: () => { } };
+  const [pincodeAreaId, setPincodeAreaId] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [homeData, setHomeData] = useState<any>(null);
+  const blockSize = 100;
+
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const slideRef = useRef<FlatList>(null);
   const [superSaleIndex, setSuperSaleIndex] = useState(0);
   const superSaleRef = useRef<FlatList>(null);
+
+  // Fetch dynamic data from the API endpoint
+  const activeSliderImages = homeData?.banners?.filter((b: any) => b.placementKey === 'app_showcase_slider') || [];
+  const activeGoatDeals = homeData?.banners?.filter((b: any) => b.placementKey === 'app_home_cat_top_sidebyside_four') || [];
+  const activeFirstProducts = homeData?.firstProductBlock?.items || [];
+  const activeSecondProducts = homeData?.secondProductBlock?.items || [];
+  const activeBestSelling = homeData?.secondProductBlock?.items || []; 
+  const activeTopBrands = homeData?.banners?.filter((b: any) => b.placementKey === 'app_top_brands') || [];
+
+  const gShockMainBanner = homeData?.banners?.find((b: any) => b.placementKey === 'app_home_bottom_showcase_banner_image');
+  const activeGShockItems = homeData?.banners?.filter((b: any) => b.placementKey === 'app_home_bottom_showcase_product_image') || [];
+
+  const activeSuperSaleBanners = homeData?.banners?.filter((b: any) => b.placementKey === 'app_home_mid_banner') || [];
+  const activeFlashSaleBanner = homeData?.banners?.find((b: any) => b.placementKey === 'app_flahs_sale');
 
   // Best Selling Carousel
   const [bestSellingIndex, setBestSellingIndex] = useState(0);
@@ -71,6 +94,45 @@ const HomeScreen: React.FC = () => {
       ]).start();
     });
   };
+  //getHomepageData
+
+  useEffect(() => {
+    const initializeLocationAndSettings = async () => {
+      try {
+        const storedPincodeAreaId = await AsyncStorage.getItem('pincodeAreaId');
+        const parsedPincodeAreaId = storedPincodeAreaId ? parseInt(storedPincodeAreaId) : null;
+        setPincodeAreaId(parsedPincodeAreaId);
+        fetchHomeData(parsedPincodeAreaId);
+      } catch (error) {
+        console.error("Error in initializeLocationAndSettings:", error);
+        fetchHomeData(pincodeAreaId);
+      }
+    };
+
+    initializeLocationAndSettings();
+  }, []);
+
+  const fetchHomeData = async (currentPincodeAreaId: number | null = pincodeAreaId) => {
+    try {
+      setLoading(true);
+      showLoader(true);
+      console.log('Initial load pincodeAreaId---->', currentPincodeAreaId)
+
+      const response = await getHomepageData(currentPincodeAreaId, blockSize); // Fetch root categories
+      console.log("fetchHomeData response---->", JSON.stringify(response, null, 2))
+      if (response && response.success && response.data) {
+        setHomeData(response.data);
+      } else {
+        setHomeData(null);
+      }
+    } catch (error) {
+      console.error('Error fetching fetchHomeData:', error);
+      setHomeData(null);
+    } finally {
+      setLoading(false);
+      showLoader(false);
+    }
+  };
 
   const panResponder = useRef(
     PanResponder.create({
@@ -83,7 +145,7 @@ const HomeScreen: React.FC = () => {
       },
       onPanResponderRelease: (_, g) => {
         const cur = bestSellingIndexRef.current;
-        if (g.dx < -50 && cur < bestSellingItems.length - 1) {
+        if (g.dx < -50 && cur < activeBestSelling.length - 1) {
           goToIndex(cur + 1, 1);
         } else if (g.dx > 50 && cur > 0) {
           goToIndex(cur - 1, -1);
@@ -100,36 +162,24 @@ const HomeScreen: React.FC = () => {
   useEffect(() => {
     const slideInterval = setInterval(() => {
       let nextIndex = currentSlideIndex + 1;
-      if (nextIndex >= sliderImages.length) nextIndex = 0;
+      if (nextIndex >= activeSliderImages.length) nextIndex = 0;
       slideRef.current?.scrollToIndex({ index: nextIndex, animated: true });
       setCurrentSlideIndex(nextIndex);
     }, 3000);
     return () => clearInterval(slideInterval);
-  }, [currentSlideIndex]);
+  }, [currentSlideIndex, activeSliderImages.length]);
 
   const renderSliderItem = ({ item }: { item: any }) => (
-    <Image source={item.image} style={styles.headerSectionImageBackground} resizeMode="cover" />
+    <Image source={item.imageUrl ? { uri: CONFIG.image_base_url + item.imageUrl } : item.image} style={styles.headerSectionImageBackground} resizeMode="cover" />
   );
 
   const renderGoatDeal = ({ item }: { item: any }) => (
     <TouchableOpacity style={styles.goatDealCard}>
-      <Text style={styles.goatDealTitle}>{item.title}</Text>
-      <ImageBackground
-        source={require('../../assets/images/home/k_symbol.png')}
+      <Image
+        source={item.imageUrl ? { uri: CONFIG.image_base_url + item.imageUrl } : item.image}
         style={styles.goatDealBg}
-        imageStyle={{ opacity: 0.3 }}
-      >
-        <Image source={item.image} style={styles.goatDealImage} resizeMode="contain" />
-      </ImageBackground>
-      <View style={styles.goatDealBadge}>
-        <Text style={styles.goatDealBadgeText}>{item.badgeText}</Text>
-        <View style={[styles.goatDealArrowCircle]}>
-          <View style={{ bottom: 1, right: 1 }}>
-            <AppIcons.ChevronRight color={colors.black} size={18} />
-          </View>
-
-        </View>
-      </View>
+        resizeMode="cover"
+      />
     </TouchableOpacity>
   );
 
@@ -137,35 +187,35 @@ const HomeScreen: React.FC = () => {
     <TouchableOpacity style={styles.exploreItemCard}>
       <View style={styles.exploreTopBadgesRow}>
         <View style={styles.discountCircle}>
-          <Text style={[styles.discountCircleText]}>{item.discountBadge}</Text>
+          <Text style={[styles.discountCircleText]}>{item.discountPercent ? `-${Math.round(item.discountPercent)}%` : item.discountBadge}</Text>
         </View>
-        {/* <Text style={{ color: colors.figmaTeal, fontFamily: 'Gilroy-Bold', fontSize: 20 }}>W</Text> */}
         <AppIcons.BookmarkOutline color={colors.tealIconFont} size={24} />
       </View>
 
-      <Image source={item.image} style={styles.exploreItemImage} />
+      <Image source={item.featuredImage ? { uri: CONFIG.image_base_url + item.featuredImage } : item.image} style={styles.exploreItemImage} resizeMode="contain" />
 
-      <View style={{ padding: 10 }}>
-        <Text style={[styles.caption]} numberOfLines={3}>{item.title}</Text>
+      <View style={{ padding: 10, flex: 1, justifyContent: 'space-between' }}>
+        <Text style={[styles.caption]} numberOfLines={3}>{item.prName || item.title}</Text>
 
-        {/* react-native-ratings stars */}
-        <Rating
-          type='custom'
-          readonly
-          startingValue={item.rating || 1}
-          ratingCount={5}
-          imageSize={12}
-          ratingColor={colors.starYellow}
-          ratingBackgroundColor={colors.lightGrey}
-          tintColor={colors.white}
-          style={{ alignSelf: 'flex-start', marginVertical: 6 }}
-        />
+        <View>
+          <Rating
+            type='custom'
+            readonly
+            startingValue={item.rating || 4}
+            ratingCount={5}
+            imageSize={12}
+            ratingColor={colors.starYellow}
+            ratingBackgroundColor={colors.lightGrey}
+            tintColor={colors.white}
+            style={{ alignSelf: 'flex-start', marginVertical: 6 }}
+          />
 
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, gap: 2 }}>
-          <View style={styles.pricePill}>
-            <Text style={styles.pricePillText}>{item.currentPrice}</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, gap: 2 }}>
+            <View style={styles.pricePill}>
+              <Text style={styles.pricePillText}>₹{item.specialPrice || item.currentPrice}</Text>
+            </View>
+            <Text style={styles.originalPriceText}>MRP₹{item.unitPrice || item.originalPrice}</Text>
           </View>
-          <Text style={styles.originalPriceText}>{item.originalPrice}</Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -173,41 +223,35 @@ const HomeScreen: React.FC = () => {
 
   const renderBrandItem = ({ item }: { item: any }) => (
     <TouchableOpacity style={[styles.brandItemCard, { backgroundColor: 'transparent' }]}>
-      <LinearGradient
+      <Image source={item.logo || { uri: CONFIG.image_base_url + item.imageUrl }} style={[styles.brandLogo, { zIndex: 2 }]} resizeMode="contain" />
+      {/* <LinearGradient
         colors={[colors.outlineTeal, colors.white]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
         style={localStyle.brandGradient}
       >
-        {/* Decorative background watermark — top 70%, no children */}
         <ImageBackground
           source={require('../../assets/images/logo_02.png')}
           style={styles.brandImageArea}
           imageStyle={{ opacity: 0.25 }}
         />
 
-        {/* Brand logo sits on top of the watermark */}
-        <Image source={item.logo} style={[styles.brandLogo, { zIndex: 2 }]} resizeMode="contain" />
+        <Image source={item.logo || { uri: CONFIG.image_base_url + item.imageUrl }} style={[styles.brandLogo, { zIndex: 2 }]} resizeMode="contain" />
 
-        {/* Product image: bottom 70% of the card */}
         <Image
-          source={item.image}
+          source={item.imageUrl ? { uri: CONFIG.image_base_url + item.imageUrl } : item.image}
           style={localStyle.brandProductImage}
           resizeMode="contain"
         />
-      </LinearGradient>
+      </LinearGradient> */}
     </TouchableOpacity>
   );
 
   const renderGShockCard = ({ item }: { item: any }) => {
-    const isDark = item.theme === 'dark';
+    const isDark = item.theme === 'dark' || item.displayOrder % 2 === 0;
     return (
-      <TouchableOpacity style={[styles.gShockSmallCard, { backgroundColor: isDark ? colors.darkCardBackground : colors.white, height: 90, borderRadius: 20 }]}>
-        <Image source={item.image} style={styles.gShockSmallImage} resizeMode="contain" />
-        <View style={{ justifyContent: 'center', alignItems: 'flex-end', paddingLeft: 10, alignContent: 'flex-end', paddingRight: 6 }}>
-          <Text style={[styles.onlyAt, { color: isDark ? colors.white : colors.black }]}>Only @</Text>
-          <Text style={[styles.priceOnly]}>{item.title}</Text>
-        </View>
+      <TouchableOpacity style={[styles.gShockSmallCard, { backgroundColor: 'transparent', borderRadius: 20 }]}>
+        <Image source={item.imageUrl ? { uri: CONFIG.image_base_url + item.imageUrl } : item.image} style={styles.gShockSmallImage} resizeMode="cover" />
       </TouchableOpacity>
     );
   };
@@ -222,6 +266,78 @@ const HomeScreen: React.FC = () => {
     </View>
   );
 
+  const showCaseSliderFunc = () => {
+    if (!activeBestSelling || activeBestSelling.length === 0) return null;
+
+    return (
+      <View style={styles.sectionContainer}>
+        <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>BEST SELLING</Text>
+
+        {/* Single card — prev/next images peek inside at 50% opacity */}
+        <View style={localStyle.bestSellingCard} {...panResponder.panHandlers}>
+
+          {/* Prev item — left side, 50% opacity */}
+          {bestSellingIndex > 0 && (
+            <Image
+              source={activeBestSelling[bestSellingIndex - 1].featuredImage ? { uri: CONFIG.image_base_url + activeBestSelling[bestSellingIndex - 1].featuredImage } : activeBestSelling[bestSellingIndex - 1].image}
+              style={[localStyle.sideImage, localStyle.sideImageLeft]}
+              resizeMode="contain"
+            />
+          )}
+
+          {/* Next item — right side, 50% opacity */}
+          {bestSellingIndex < activeBestSelling?.length - 1 && (
+            <Image
+              source={activeBestSelling[bestSellingIndex + 1].featuredImage ? { uri: CONFIG.image_base_url + activeBestSelling[bestSellingIndex + 1].featuredImage } : activeBestSelling[bestSellingIndex + 1].image}
+              style={[localStyle.sideImage, localStyle.sideImageRight]}
+              resizeMode="contain"
+            />
+          )}
+
+          {/* Center (active) image with slide + scale animation */}
+          <Animated.Image
+            source={activeBestSelling[bestSellingIndex]?.featuredImage ? { uri: CONFIG.image_base_url + activeBestSelling[bestSellingIndex].featuredImage } : activeBestSelling[bestSellingIndex].image}
+            style={[localStyle.centerImage, { transform: [{ translateX: centerTranslateX }, { scale: centerScale }] }]}
+            resizeMode="contain"
+          />
+
+          {/* Left Arrow */}
+          {bestSellingIndex > 0 && (
+            <TouchableOpacity
+              style={[styles.carouselArrowLeft, localStyle.arrowOverlay]}
+              onPress={() => goToIndex(bestSellingIndex - 1, -1)}
+            >
+              <AppIcons.RightArrow color={colors.outlineTeal} size={20} style={{ transform: [{ scaleX: -1 }] }} />
+            </TouchableOpacity>
+          )}
+
+          {/* Right Arrow */}
+          {bestSellingIndex < activeBestSelling.length - 1 && (
+            <TouchableOpacity
+              style={[styles.carouselArrowRight, localStyle.arrowOverlay]}
+              onPress={() => goToIndex(bestSellingIndex + 1, 1)}
+            >
+              <AppIcons.RightArrow color={colors.outlineTeal} size={20} />
+            </TouchableOpacity>
+          )}
+
+          {/* Text row at the bottom */}
+          <View style={[styles.bestSellingTextRow, { zIndex: 3, bottom: 20 }]}>
+            <Text style={styles.bestSellingTitle}>{activeBestSelling[bestSellingIndex].brand || activeBestSelling[bestSellingIndex].prName}</Text>
+            <View style={{ alignItems: 'flex-end' }}>
+              <Text style={styles.bestSellingOriginalPrice}>₹{activeBestSelling[bestSellingIndex].unitPrice || activeBestSelling[bestSellingIndex].originalPrice}</Text>
+              <Text style={styles.bestSellingCurrentPrice}>₹{activeBestSelling[bestSellingIndex].specialPrice || activeBestSelling[bestSellingIndex].price}</Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={{ marginTop: 16 }}>
+          <ClickForMoreButton onPress={() => { }} title="Click for more offers" />
+        </View>
+      </View>
+    )
+  }
+
   return (
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 80, backgroundColor: colors.homeScreenBackground }}>
@@ -230,9 +346,9 @@ const HomeScreen: React.FC = () => {
         <View style={styles.headerSectionWrapper}>
           <FlatList
             ref={slideRef}
-            data={sliderImages}
+            data={activeSliderImages}
             renderItem={renderSliderItem}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => item.bannerId?.toString() || item.id}
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
@@ -264,7 +380,7 @@ const HomeScreen: React.FC = () => {
             </View>
 
             <View style={styles.headerDotsContainer}>
-              {sliderImages.map((_, index) => (
+              {activeSliderImages.map((_, index) => (
                 <View key={index} style={[styles.headerDot, currentSlideIndex === index && { backgroundColor: colors.outlineTeal }]} />
               ))}
             </View>
@@ -276,9 +392,9 @@ const HomeScreen: React.FC = () => {
           <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>GOAT DEALS</Text>
           <View style={styles.horizontalScrollPadding}>
             <FlatList
-              data={goatDeals}
+              data={activeGoatDeals}
               renderItem={renderGoatDeal}
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item) => item.bannerId?.toString() || item.id}
               numColumns={2}
               columnWrapperStyle={{ justifyContent: 'space-between' }}
               scrollEnabled={false}
@@ -287,173 +403,123 @@ const HomeScreen: React.FC = () => {
         </View>
 
         {/* EXPLORE */}
-        <View style={styles.sectionContainer}>
-          <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>EXPLORE</Text>
-          <FlatList
-            data={exploreItems}
-            renderItem={renderExploreItem}
-            keyExtractor={(item) => item.id}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.horizontalScrollPadding}
-          />
-          <View style={{ marginTop: 16 }}>
-            <ClickForMoreButton onPress={() => { }} title="Click for more" />
-          </View>
-        </View>
-
-        {/* BEST SELLING */}
-        <View style={styles.sectionContainer}>
-          <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>BEST SELLING</Text>
-
-          {/* Single card — prev/next images peek inside at 50% opacity */}
-          <View style={localStyle.bestSellingCard} {...panResponder.panHandlers}>
-
-            {/* Prev item — left side, 50% opacity */}
-            {bestSellingIndex > 0 && (
-              <Image
-                source={bestSellingItems[bestSellingIndex - 1].image}
-                style={[localStyle.sideImage, localStyle.sideImageLeft]}
-                resizeMode="contain"
-              />
-            )}
-
-            {/* Next item — right side, 50% opacity */}
-            {bestSellingIndex < bestSellingItems.length - 1 && (
-              <Image
-                source={bestSellingItems[bestSellingIndex + 1].image}
-                style={[localStyle.sideImage, localStyle.sideImageRight]}
-                resizeMode="contain"
-              />
-            )}
-
-            {/* Center (active) image with slide + scale animation */}
-            <Animated.Image
-              source={bestSellingItems[bestSellingIndex].image}
-              style={[localStyle.centerImage, { transform: [{ translateX: centerTranslateX }, { scale: centerScale }] }]}
-              resizeMode="contain"
+        {
+          homeData?.firstProductBlock?.items?.length > 0 &&
+          <View style={styles.sectionContainer}>
+            <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>{homeData?.firstProductBlock?.title}</Text>
+            <FlatList
+              data={activeFirstProducts}
+              renderItem={renderExploreItem}
+              keyExtractor={(item) => item.productId?.toString() || item.id}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.horizontalScrollPadding}
             />
-
-            {/* Left Arrow */}
-            {bestSellingIndex > 0 && (
-              <TouchableOpacity
-                style={[styles.carouselArrowLeft, localStyle.arrowOverlay]}
-                onPress={() => goToIndex(bestSellingIndex - 1, -1)}
-              >
-                <AppIcons.RightArrow color={colors.outlineTeal} size={20} style={{ transform: [{ scaleX: -1 }] }} />
-              </TouchableOpacity>
-            )}
-
-            {/* Right Arrow */}
-            {bestSellingIndex < bestSellingItems.length - 1 && (
-              <TouchableOpacity
-                style={[styles.carouselArrowRight, localStyle.arrowOverlay]}
-                onPress={() => goToIndex(bestSellingIndex + 1, 1)}
-              >
-                <AppIcons.RightArrow color={colors.outlineTeal} size={20} />
-              </TouchableOpacity>
-            )}
-
-            {/* Text row at the bottom */}
-            <View style={[styles.bestSellingTextRow, { zIndex: 3, bottom: 20 }]}>
-              <Text style={styles.bestSellingTitle}>{bestSellingItems[bestSellingIndex].brand}</Text>
-              <View style={{ alignItems: 'flex-end' }}>
-                <Text style={styles.bestSellingOriginalPrice}>{bestSellingItems[bestSellingIndex].originalPrice}</Text>
-                <Text style={styles.bestSellingCurrentPrice}>{bestSellingItems[bestSellingIndex].price}</Text>
-              </View>
+            <View style={{ marginTop: 16 }}>
+              <ClickForMoreButton onPress={() => { }} title="Click for more" />
             </View>
           </View>
+        }
 
-          <View style={{ marginTop: 16 }}>
-            <ClickForMoreButton onPress={() => { }} title="Click for more offers" />
-          </View>
-        </View>
+        {/* BEST SELLING */}
+        {showCaseSliderFunc()}
 
         {/* TOP BRANDS */}
         <View style={styles.sectionContainer}>
           <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>TOP BRANDS</Text>
           <FlatList
-            data={topBrands}
+            data={activeTopBrands}
             renderItem={renderBrandItem}
-            keyExtractor={(item) => item.id}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={[styles.horizontalScrollPadding, { justifyContent: 'space-around', flex: 1 }]}
-          />
-        </View>
-
-        {/* G-SHOCK Black Section */}
-        <View style={styles.gShockSectionWrapper}>
-          <Image source={gShockData.mainImage} style={styles.gShockTopBanner} resizeMode="cover" />
-          <View style={{ paddingHorizontal: 16, marginTop: -10 }}>
-            <FlatList
-              data={gShockData.items}
-              renderItem={renderGShockCard}
-              keyExtractor={(item) => item.id}
-              numColumns={2}
-              columnWrapperStyle={{ justifyContent: 'space-between' }}
-              scrollEnabled={false}
-            />
-          </View>
-        </View>
-
-        {/* 11.11 SUPER SALE Banner */}
-        <View style={{ marginVertical: 20, alignItems: 'center' }}>
-          <FlatList
-            ref={superSaleRef}
-            data={superSaleBanners}
-            keyExtractor={(item) => item.id}
-            horizontal
-            snapToInterval={width - 12}
-            decelerationRate="fast"
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 6 }}
-            onMomentumScrollEnd={(e) => {
-              const idx = Math.round(e.nativeEvent.contentOffset.x / (width - 12));
-              setSuperSaleIndex(Math.max(0, Math.min(idx, superSaleBanners.length - 1)));
-            }}
-            renderItem={({ item }) => (
-              <Image source={item.image} style={styles.superSaleBannerImage} resizeMode="cover" />
-            )}
-          />
-          {/* Dots */}
-          <View style={styles.superSaleDotsContainer}>
-            {superSaleBanners.map((_, index) => (
-              <View key={index} style={[styles.superSalePill, superSaleIndex === index && { backgroundColor: colors.outlineTeal }]} />
-            ))}
-          </View>
-        </View>
-
-        {/* FLASH SALE */}
-        <View style={styles.flashSaleContainer}>
-          {/* <Text style={styles.hugeFlashText}>FLASH</Text> */}
-          <Image source={require('../../assets/images/home/flashSale.png')} style={styles.podiumImageBackground} />
-
-          {/* <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, marginTop: -90 }}>
-            {flashSaleItems.map((item, index) => (
-              <React.Fragment key={item.id}>
-                {renderFlashSaleItem({ item })}
-              </React.Fragment>
-            ))}
-          </ScrollView> */}
-          <ClickForMoreButton onPress={() => { }} title="View all Flash Deals" />
-        </View>
-
-        {/* EXPLORE */}
-        <View style={styles.sectionContainer}>
-          <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>EXPLORE</Text>
-          <FlatList
-            data={exploreItems}
-            renderItem={renderExploreItem}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => item.bannerId?.toString() || item.id}
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.horizontalScrollPadding}
           />
-          <View style={{ marginTop: 16 }}>
-            <ClickForMoreButton onPress={() => { }} title="Click for more" />
-          </View>
         </View>
+
+        {/* G-SHOCK Black Section */}
+        {activeGShockItems?.length > 0 && gShockMainBanner && (
+          <View style={styles.gShockSectionWrapper}>
+            <ImageBackground source={{ uri: CONFIG.image_base_url + gShockMainBanner.imageUrl }} style={styles.gShockTopBanner} resizeMode="cover">
+              <View style={{ paddingHorizontal: 16, position: 'absolute', bottom: -12, left: 0, right: 0 }}>
+                <FlatList
+                  data={activeGShockItems}
+                  renderItem={renderGShockCard}
+                  keyExtractor={(item) => item.bannerId?.toString() || item.id}
+                  numColumns={2}
+                  columnWrapperStyle={{ justifyContent: 'space-between' }}
+                  scrollEnabled={false}
+                />
+              </View>
+            </ImageBackground>
+          </View>
+        )}
+
+        {/* 11.11 SUPER SALE Banner */}
+        {activeSuperSaleBanners?.length > 0 && (
+          <View style={{ marginVertical: 20, alignItems: 'center' }}>
+            <FlatList
+              ref={superSaleRef}
+              data={activeSuperSaleBanners}
+              keyExtractor={(item) => item.bannerId?.toString() || item.id}
+              horizontal
+              snapToInterval={width - 12}
+              decelerationRate="fast"
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 6 }}
+              onMomentumScrollEnd={(e) => {
+                const idx = Math.round(e.nativeEvent.contentOffset.x / (width - 12));
+                setSuperSaleIndex(Math.max(0, Math.min(idx, activeSuperSaleBanners.length - 1)));
+              }}
+              renderItem={({ item }) => (
+                <Image source={{ uri: CONFIG.image_base_url + item.imageUrl }} style={styles.superSaleBannerImage} resizeMode="cover" />
+              )}
+            />
+            {/* Dots */}
+            <View style={styles.superSaleDotsContainer}>
+              {activeSuperSaleBanners.map((_, index) => (
+                <View key={index} style={[styles.superSalePill, superSaleIndex === index && { backgroundColor: colors.outlineTeal }]} />
+              ))}
+            </View>
+          </View>
+        )}
+
+        {/* FLASH SALE */}
+        {activeFlashSaleBanner && (
+          <View style={styles.flashSaleContainer}>
+            {/* <Text style={styles.hugeFlashText}>FLASH</Text> */}
+            <Image source={{ uri: CONFIG.image_base_url + activeFlashSaleBanner.imageUrl }} style={styles.podiumImageBackground} resizeMode="cover" />
+
+            {/* <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, marginTop: -90 }}>
+              {flashSaleItems.map((item, index) => (
+                <React.Fragment key={item.id}>
+                  {renderFlashSaleItem({ item })}
+                </React.Fragment>
+              ))}
+            </ScrollView> */}
+            <ClickForMoreButton onPress={() => { }} title="View all Flash Deals" />
+          </View>
+        )}
+
+        {/* EXPLORE */}
+        {
+          homeData?.secondProductBlock?.items?.length > 0 &&
+          <View style={styles.sectionContainer}>
+            <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>{homeData?.secondProductBlock?.title}</Text>
+            <FlatList
+              data={activeSecondProducts}
+              renderItem={renderExploreItem}
+              keyExtractor={(item) => item.id}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.horizontalScrollPadding}
+            />
+            <View style={{ marginTop: 16 }}>
+              <ClickForMoreButton onPress={() => { }} title="Click for more" />
+            </View>
+          </View>
+        }
+
       </ScrollView>
       <FloatingCartButton />
     </View>

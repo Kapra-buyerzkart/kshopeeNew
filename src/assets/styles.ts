@@ -341,23 +341,22 @@ export const useCommonStyles = () => {
         goatDealCard: {
             width: (width - 32 - 16) / 2,
             backgroundColor: colour.white,
-            borderRadius: 16,
+            borderRadius: 26,
             marginBottom: 24,
-            borderWidth: 1,
-            borderColor: colors.outlineTeal,
+            //borderWidth: 1,
+            //borderColor: colors.outlineTeal,
             height: 140,
             overflow: 'visible',
 
         },
         goatDealBg: {
             position: 'absolute',
-            left: '40%',
-            right: 6,
             top: 0,
-            bottom: 0,
-            borderTopRightRadius: 14,
-            borderBottomRightRadius: 14,
-            //overflow: 'hidden',
+            left: 0,
+            right: 0,
+            height: '105%',
+            borderRadius: 14,
+            overflow: 'visible',
         },
         goatDealTitle: {
             position: 'absolute',
@@ -459,7 +458,8 @@ export const useCommonStyles = () => {
             shadowOpacity: 0.85,
             shadowRadius: 2,
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            minWidth: 65
         },
         pricePillText: {
             color: colour.white,
@@ -589,8 +589,9 @@ export const useCommonStyles = () => {
             height: 110
         },
         brandLogo: {
-            width: 25,
-            height: 19
+            width: ((width - 32) / 3) - 6,
+            height: 215,
+            borderRadius: 16
         },
 
         gShockSectionWrapper: {
@@ -600,21 +601,19 @@ export const useCommonStyles = () => {
         },
         gShockTopBanner: {
             width: width,
-            height: 400
+            height: 700
         },
         gShockSmallCard: {
             width: (width - 32 - 16) / 2,
-            borderRadius: 12,
-            //padding: 8,
+            borderRadius: 20,
             marginBottom: 16,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between'
+            height: 90,
+            overflow: 'hidden'
         },
         gShockSmallImage: {
-            width: 100,
-            height: 90,
-            start: -5
+            ...StyleSheet.absoluteFillObject,
+            width: '100%',
+            height: '100%',
         },
         onlyAt:
         {
@@ -667,9 +666,9 @@ export const useCommonStyles = () => {
         },
         podiumImageBackground: {
             width: width,
-            height: 868,
+            height: 700,
             resizeMode: 'cover',
-            opacity: 0.6
+            //opacity: 0.6
 
         },
         flashSaleItemCard: {

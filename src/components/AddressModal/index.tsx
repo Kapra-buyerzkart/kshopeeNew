@@ -1,11 +1,11 @@
 import React from 'react';
-import { 
-    Modal, 
-    View, 
-    Text, 
-    TouchableOpacity, 
-    StyleSheet, 
-    ScrollView, 
+import {
+    Modal,
+    View,
+    Text,
+    TouchableOpacity,
+    StyleSheet,
+    ScrollView,
     Dimensions,
     Platform
 } from 'react-native';
@@ -29,8 +29,8 @@ const AddressModal: React.FC<AddressModalProps> = ({ visible, onClose, addresses
     const renderAddressItem = (item: any) => {
         const isSelected = item.selected;
         return (
-            <TouchableOpacity 
-                key={item.id} 
+            <TouchableOpacity
+                key={item.id}
                 style={[styles.addressItem, isSelected && styles.addressItemActive]}
                 onPress={() => {
                     onSelectAddress(item.id, false);
@@ -69,8 +69,8 @@ const AddressModal: React.FC<AddressModalProps> = ({ visible, onClose, addresses
                                 <AppIcons.Close color={colors.black} size={24} />
                             </TouchableOpacity>
                         </View>
-                        <TouchableOpacity 
-                            style={styles.addNewButton} 
+                        <TouchableOpacity
+                            style={styles.addNewButton}
                             onPress={() => {
                                 navigation.navigate('AddLocation');
                                 onClose();
@@ -80,9 +80,9 @@ const AddressModal: React.FC<AddressModalProps> = ({ visible, onClose, addresses
                             <Text style={styles.addNewText}>Add New Address</Text>
                         </TouchableOpacity>
                     </View>
-                    
-                    <ScrollView 
-                        style={styles.scroll} 
+
+                    <ScrollView
+                        style={styles.scroll}
                         contentContainerStyle={styles.scrollContent}
                         showsVerticalScrollIndicator={false}
                     >
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     },
     header: {
         padding: 24,
-        borderBottomWidth:1,
+        borderBottomWidth: 1,
         borderBottomColor: '#F0F0F0',
     },
     headerTop: {

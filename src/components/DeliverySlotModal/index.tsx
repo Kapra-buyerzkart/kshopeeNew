@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { 
-    View, 
-    Text, 
-    Modal, 
-    TouchableOpacity, 
-    ScrollView, 
-    StyleSheet, 
+import {
+    View,
+    Text,
+    Modal,
+    TouchableOpacity,
+    ScrollView,
+    StyleSheet,
     Dimensions,
     Platform
 } from 'react-native';
@@ -23,9 +23,9 @@ interface DeliverySlotModalProps {
     slotsByDate: any;
 }
 
-const DeliverySlotModal: React.FC<DeliverySlotModalProps> = ({ 
-    visible, 
-    onClose, 
+const DeliverySlotModal: React.FC<DeliverySlotModalProps> = ({
+    visible,
+    onClose,
     onSelectSlot,
     datesList,
     slotsByDate
@@ -57,9 +57,9 @@ const DeliverySlotModal: React.FC<DeliverySlotModalProps> = ({
                         </TouchableOpacity>
                     </View>
 
-                    <ScrollView 
-                        horizontal 
-                        showsHorizontalScrollIndicator={false} 
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
                         style={styles.dateListContainer}
                         contentContainerStyle={styles.dateListContent}
                     >
@@ -79,7 +79,7 @@ const DeliverySlotModal: React.FC<DeliverySlotModalProps> = ({
                         })}
                     </ScrollView>
 
-                    <ScrollView 
+                    <ScrollView
                         style={styles.slotList}
                         contentContainerStyle={styles.slotListContent}
                         showsVerticalScrollIndicator={false}

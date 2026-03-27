@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
-import { 
-    applyBCoinApi, removeBCoinApi, 
-    applyCouponApi, removeCouponApi, 
+import {
+    applyBCoinApi, removeBCoinApi,
+    applyCouponApi, removeCouponApi,
     applyGiftCardApi, removeGiftCardApi,
     getAvailableCouponsApi, getAvailableGiftCardsApi
 } from '../api/services/cartService';

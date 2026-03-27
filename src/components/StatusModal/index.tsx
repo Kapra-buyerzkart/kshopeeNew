@@ -1,13 +1,13 @@
 import React, { useEffect, useRef } from 'react';
-import { 
-    View, 
-    Text, 
-    Modal, 
-    TouchableOpacity, 
-    StyleSheet, 
-    Animated, 
+import {
+    View,
+    Text,
+    Modal,
+    TouchableOpacity,
+    StyleSheet,
+    Animated,
     Dimensions,
-    Platform 
+    Platform
 } from 'react-native';
 import { colors } from '../../assets/theme/colours';
 import { Fonts } from '../../assets/theme/fonts';
@@ -23,12 +23,12 @@ interface StatusModalProps {
     message: string;
 }
 
-const StatusModal: React.FC<StatusModalProps> = ({ 
-    visible, 
-    onClose, 
-    type = 'success', 
-    title, 
-    message 
+const StatusModal: React.FC<StatusModalProps> = ({
+    visible,
+    onClose,
+    type = 'success',
+    title,
+    message
 }) => {
     const scaleAnim = useRef(new Animated.Value(0)).current;
 
@@ -71,12 +71,12 @@ const StatusModal: React.FC<StatusModalProps> = ({
                     <View style={[styles.iconContainer, { backgroundColor: getIconBackground() }]}>
                         {getIcon()}
                     </View>
-                    
+
                     <Text style={styles.title}>{title}</Text>
                     <Text style={styles.message}>{message}</Text>
-                    
-                    <TouchableOpacity 
-                        style={styles.closeButton} 
+
+                    <TouchableOpacity
+                        style={styles.closeButton}
                         onPress={onClose}
                         activeOpacity={0.8}
                     >

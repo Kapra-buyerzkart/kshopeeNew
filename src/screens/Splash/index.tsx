@@ -28,7 +28,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
 
     return (
         <View style={styles.container}>
-            <SplashSvg width="100%" height="100%" />
+            <SplashSvg height="100%" />
         </View>
     );
 };

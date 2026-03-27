@@ -9,7 +9,7 @@ import DetailScreen from '../screens/Details';
 import WishlistScreen from '../screens/Wishlist';
 
 import { colors } from '../assets/theme/colours';
-import { Image, View, Text, StyleSheet } from 'react-native';
+import { Image, View, Text, StyleSheet, Linking } from 'react-native';
 
 
 const Tab = createBottomTabNavigator();
@@ -68,7 +68,16 @@ const BottomTabNavigator = () => {
             <Tab.Screen name="HomeScreen" component={HomeScreen} />
             <Tab.Screen name="CategoryScreen" component={CategoryScreen} />
             <Tab.Screen name="WishlistScreen" component={WishlistScreen} />
-            <Tab.Screen name="KebraScreen" component={ProfileScreen} />
+            <Tab.Screen
+                name="KebraScreen"
+                component={ProfileScreen}
+                listeners={{
+                    tabPress: (e) => {
+                        e.preventDefault();
+                        Linking.openURL('https://play.google.com/store/apps/details?id=com.buyerskart.customer');
+                    },
+                }}
+            />
         </Tab.Navigator>
     );
 };

@@ -33,7 +33,11 @@ local.properties
 .cxx/
 *.keystore
 !debug.keystore
+android/gradle-local.properties
+android/app/*.keystore
+android/app/*.jks
 .kotlin/
+*.jks
 
 # node.js
 #

@@ -7,6 +7,7 @@ import {
     SafeAreaView,
     StatusBar,
     ScrollView,
+    Platform
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -23,7 +24,7 @@ const EditProfile: React.FC = () => {
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
     return (
-        <SafeAreaView style={styles.editProfileContainer}>
+        <SafeAreaView style={[styles.editProfileContainer, { paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }]}>
             <StatusBar barStyle="dark-content" backgroundColor={colors.white} translucent={false} />
             <ScrollView showsVerticalScrollIndicator={false}>
                 {/* Header Section */}

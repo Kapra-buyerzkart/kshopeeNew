@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -17,6 +17,7 @@ import { checkPhone, sendForgotPwdOtp } from '../../api/services';
 import { validatePhoneNumbers } from '../../utils/validation';
 import CustomGradientButton from '../../components/CustomGradientButton';
 import CustomPhoneInput from '../../components/CustomPhoneInput';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type RootStackParamList = {
     Login: { type?: 'login' | 'register' | 'reset' };
@@ -36,6 +37,13 @@ const LoginScreen: React.FC = () => {
     const [loading, setLoading] = useState(false);
 
     const type = route.params?.type || 'login';
+    useEffect(() => {
+        setPincodeData();
+    }, [])
+
+    const setPincodeData = async () => {
+        await AsyncStorage.setItem('pincodeAreaId', "10652");
+    }
 
     const handleContinueLogin = async () => {
         if (!validatePhoneNumbers(phone)) {

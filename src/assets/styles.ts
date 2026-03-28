@@ -279,7 +279,9 @@ export const useCommonStyles = () => {
             height: 32,
             borderRadius: 30,
             backgroundColor: colour.white,
-            marginRight: 10
+            marginRight: 10,
+            justifyContent: 'center',
+            alignItems: 'center',
         },
         userName: {
             fontFamily: Fonts.medium,

@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from 'react';
-import { 
-    View, 
-    Text, 
-    StyleSheet, 
-    TouchableOpacity, 
-    SafeAreaView, 
+import {
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+    SafeAreaView,
     Dimensions,
     Animated,
     Image,
@@ -21,14 +21,14 @@ const { width } = Dimensions.get('window');
 const OrderSuccessScreen: React.FC = () => {
     const navigation = useNavigation<any>();
     const route = useRoute<any>();
-    const { 
-        orderId, 
-        orderNumber, 
-        paymentMethod, 
-        totalItems, 
-        totalAmount, 
+    const {
+        orderId,
+        orderNumber,
+        paymentMethod,
+        totalItems,
+        totalAmount,
         deliveryMode,
-        address 
+        address
     } = route.params || {};
 
     const scaleAnim = useRef(new Animated.Value(0)).current;
@@ -101,9 +101,9 @@ const OrderSuccessScreen: React.FC = () => {
             </View>
 
             <View style={styles.footer}>
-                <TouchableOpacity 
+                <TouchableOpacity
                     style={styles.trackButton}
-                    onPress={() => navigation.navigate('MyOrderDetails', { orderId: orderId })}
+                    onPress={() => navigation.navigate('MyOrder')}
                 >
                     <LinearGradient
                         colors={[colors.themeTeal, colors.themeDarkTeal]}
@@ -111,11 +111,11 @@ const OrderSuccessScreen: React.FC = () => {
                         end={{ x: 1, y: 0.5 }}
                         style={styles.buttonGradient}
                     >
-                        <Text style={styles.trackButtonText}>Track Order</Text>
+                        <Text style={styles.trackButtonText}>View My Orders</Text>
                     </LinearGradient>
                 </TouchableOpacity>
 
-                <TouchableOpacity 
+                <TouchableOpacity
                     style={styles.homeButton}
                     onPress={() => navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] })}
                 >

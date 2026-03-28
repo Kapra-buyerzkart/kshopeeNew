@@ -545,7 +545,7 @@ const CartScreen = () => {
 
                     <View style={styles.separator} />
 
-                    <View style={styles.deliveryDateRow}>
+                    {/* <View style={styles.deliveryDateRow}>
                         <View style={styles.calendarIconContainer}>
                             <AppIcons.Calendar color={colors.themeTeal} size={18} />
                         </View>
@@ -555,7 +555,7 @@ const CartScreen = () => {
                                 ? (chosenSlot ? `${chosenSlot.dateDisplay} | ${chosenSlot.slotDisplay}` : 'Select Slot')
                                 : 'Express (20-30 min)'}
                         </Text>
-                    </View>
+                    </View> */}
                 </View>
 
                 {/* Cart Items List */}
@@ -596,7 +596,8 @@ const CartScreen = () => {
                     onRejectOffer={onRejectOffer}
                 />
 
-                {/* Payment Method Selection */}
+                {/* Payment Method Selection - Hidden for now, defaulting to COD */}
+                {/* 
                 <View
                     style={styles.paymentSection}
                     onLayout={(event) => {
@@ -626,6 +627,7 @@ const CartScreen = () => {
                         })}
                     </View>
                 </View>
+                */}
 
                 {/* Bill Summary */}
                 <View style={{ marginBottom: 120 }}>
@@ -646,17 +648,14 @@ const CartScreen = () => {
                 <View style={styles.paymentActionRow}>
                     <View style={styles.paymentInfo}>
                         <Text style={styles.payUsingLabel}>PAYING VIA</Text>
-                        <TouchableOpacity
+                        <View
                             style={styles.paymentMethod}
-                            onPress={() => {
-                                scrollViewRef.current?.scrollToEnd({ animated: true });
-                            }}
                         >
                             <View style={styles.paymentIconCircle}>
                                 <AppIcons.Check color={colors.white} size={14} />
                             </View>
                             <Text style={styles.payUsingValue}>{paymentMethod}</Text>
-                        </TouchableOpacity>
+                        </View>
                     </View>
 
                     <TouchableOpacity

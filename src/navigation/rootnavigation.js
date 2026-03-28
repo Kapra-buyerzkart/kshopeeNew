@@ -14,6 +14,7 @@ import WishlistScreen from '../screens/Wishlist';
 import CartScreen from '../screens/Cart/CartScreen';
 // import RegistraionScreen from '../screens/RegistraionScreen';
 import ProductDetails from '../screens/Product/ProductDetails';
+import ProductCategoryDetail from '../screens/Product/ProductCategoryDetail/ProductCategoryDetail';
 import MyOrder from '../screens/Order/MyOrder';
 import MyOrderDetails from '../screens/Order/MyOrderDetails';
 import ReferralScreen from '../screens/Referral';
@@ -74,6 +75,7 @@ export default function RootStack() {
         <Stack.Screen name="Cart" component={CartScreen} options={{ headerShown: false }} />
 
         <Stack.Screen name="ProductDetailsScreen" component={ProductDetails} options={{ headerShown: false }} />
+        <Stack.Screen name="ProductCategoryDetail" component={ProductCategoryDetail} options={{ headerShown: false }} />
         <Stack.Screen name="MyOrder" component={MyOrder} options={{ headerShown: false }} />
         <Stack.Screen name="MyOrderDetails" component={MyOrderDetails} options={{ headerShown: false }} />
         <Stack.Screen name="Referral" component={ReferralScreen} options={{ headerShown: false }} />

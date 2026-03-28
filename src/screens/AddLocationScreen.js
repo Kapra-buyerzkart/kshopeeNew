@@ -274,7 +274,8 @@ const AddLocationScreen = () => {
         try {
             let response;
             if (isEditMode) {
-                response = await updateAddressApi(editAddress.addressId, payload);
+                const addressId = editAddress?.custAddressId || editAddress?.addressId || editAddress?.id;
+                response = await updateAddressApi(addressId, payload);
             } else {
                 response = await addAddressApi(payload);
             }

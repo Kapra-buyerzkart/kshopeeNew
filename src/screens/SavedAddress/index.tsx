@@ -161,6 +161,8 @@ const SavedAddressScreen: React.FC = () => {
             <AddressConfirmationModal
                 visible={!!addressConfirmationData}
                 onClose={() => setAddressConfirmationData(null)}
+                onConfirm={() => setAddressConfirmationData(null)}
+                data={addressConfirmationData}
             />
         </SafeAreaView>
     );

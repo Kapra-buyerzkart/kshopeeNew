@@ -446,13 +446,18 @@ const HomeScreen: React.FC = () => {
             pagingEnabled
             showsHorizontalScrollIndicator={false}
             scrollEnabled={false}
-            style={StyleSheet.absoluteFillObject}
           />
-          <View style={[StyleSheet.absoluteFillObject, { paddingTop: 50, pointerEvents: 'box-none' }]}>
+          <View style={[StyleSheet.absoluteFillObject, { paddingTop: 50 }]}>
             <View style={styles.topBar}>
               <TouchableOpacity style={styles.profileArea} onPress={() => navigation.navigate('KebraScreen')}>
-                <Image source={{ uri: 'https://picsum.photos/seed/user/100/100' }} style={styles.profileImageReal} />
-                <Text style={styles.userName}>Rahul KR</Text>
+                <View style={styles.profileImageReal}>
+                  <AppIcons.User size={20} color={colors.themeTeal} />
+                </View>
+                <Text style={styles.userName}>
+                  {profile?.custName
+                    ? (profile.custName.length > 15 ? `${profile.custName.substring(0, 15)}...` : profile.custName)
+                    : "Guest User"}
+                </Text>
               </TouchableOpacity>
 
               <View style={styles.actionsPill}>

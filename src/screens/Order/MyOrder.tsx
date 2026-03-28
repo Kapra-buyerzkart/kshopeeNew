@@ -12,6 +12,7 @@ import { AppIcons } from '../../assets/icons';
 import { LoaderContext } from '../../context/loaderContext';
 import { getMyOrdersApi } from '../../api/services/orderService';
 import CONFIG from '../../globals/config';
+import { hp, wp } from '../../utils/responsive';
 
 const DashedSeparator = () => (
     <View style={styles.separatorContainer}>
@@ -134,6 +135,24 @@ const MyOrder = () => {
         );
     };
 
+    const renderEmptyComponent = () => (
+        <View style={styles.emptyContainer}>
+            <Image
+                source={require('../../assets/images/nowishlist.png')}
+                style={styles.emptyImage}
+                resizeMode="contain"
+            />
+            <Text style={styles.emptyTitle}>No Orders Yet</Text>
+            <Text style={styles.emptySubtitle}>You haven't placed any orders yet. Start shopping to see your orders here!</Text>
+            <TouchableOpacity
+                style={[styles.buyAgainBtn, { marginTop: hp('3%'), width: wp('50%'), backgroundColor: colors.themeTeal }]}
+                onPress={() => navigation.navigate('MainTabs', { screen: 'Home' })}
+            >
+                <Text style={[styles.buyAgainText, { color: colors.white }]}>Start Shopping</Text>
+            </TouchableOpacity>
+        </View>
+    );
+
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
@@ -146,10 +165,14 @@ const MyOrder = () => {
             </View>
 
             <FlatList
-                data={orderData?.items || []}
+                data={Array.isArray(orderData) ? orderData : (orderData?.items || [])}
                 keyExtractor={(item, index) => item.orderId ? item.orderId.toString() : index.toString()}
                 renderItem={renderOrderCard}
-                contentContainerStyle={styles.listContent}
+                ListEmptyComponent={renderEmptyComponent}
+                contentContainerStyle={[
+                    styles.listContent,
+                    (Array.isArray(orderData) ? orderData.length === 0 : !orderData?.items?.length) && { flex: 1 }
+                ]}
                 showsVerticalScrollIndicator={false}
             />
         </SafeAreaView>

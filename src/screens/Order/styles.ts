@@ -12,7 +12,7 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: wp('5%'),
-        paddingTop: hp('2%'),
+        paddingTop: hp('4%'),
         paddingBottom: hp('2%'),
         backgroundColor: colors.themeWhite,
     },
@@ -530,5 +530,31 @@ export const styles = StyleSheet.create({
         fontFamily: Fonts.regular,
         fontSize: 12,
         color: colors.grey,
-    }
+    },
+    emptyContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: hp('20%'),
+        paddingHorizontal: wp('10%'),
+    },
+    emptyImage: {
+        width: wp('60%'),
+        height: wp('60%'),
+        marginBottom: hp('3%'),
+    },
+    emptyTitle: {
+        fontFamily: Fonts.bold,
+        fontSize: wp('5%'),
+        color: colors.black,
+        marginBottom: hp('1%'),
+        textAlign: 'center',
+    },
+    emptySubtitle: {
+        fontFamily: Fonts.regular,
+        fontSize: wp('3.8%'),
+        color: colors.grey,
+        textAlign: 'center',
+        lineHeight: 22,
+    },
 });

@@ -66,6 +66,8 @@ export const useAddresses = () => {
             setAddressConfirmationData({
                 pincode: selectedAddr.pin,
                 areaName: selectedAddr.raw?.pincodeAreaName || '',
+                isServiceable: true,
+                isPlacingOrder: false,
             });
         }
     }, [addresses]);

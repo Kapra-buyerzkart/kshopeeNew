@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import { colors } from "../../assets/theme/colours";
 
 export const getStyles = (colour: any) => StyleSheet.create({
     container:
@@ -6,7 +7,8 @@ export const getStyles = (colour: any) => StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: colour.primary
+        backgroundColor: colors.themeTeal
+
     },
     title:
     {

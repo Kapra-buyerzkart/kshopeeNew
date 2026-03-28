@@ -6,6 +6,7 @@ import { colors } from '../../assets/theme/colours';
 import { RootStackParamList } from '../../types/types';
 import HomeSearchBar from '../../components/HomeSearchBar/HomeSearchBar';
 import ClickForMoreButton from '../../components/ClickForMoreButton/ClickForMoreButton';
+import ExploreItemCard from '../../components/ExploreItemCard';
 import { AppIcons } from '../../assets/icons';
 import { Rating } from 'react-native-ratings';
 import LinearGradient from 'react-native-linear-gradient';
@@ -40,19 +41,18 @@ const HomeScreen: React.FC = () => {
   console.log("activeGoatDeals--->", activeGoatDeals)
   const unwrapBlock = (block: any): any => {
     let current = block;
-    // Attempt to parse if string, up to 2 times (in case of double-stringify)
-    for (let i = 0; i < 2; i++) {
-      if (typeof current === 'string') {
-        try { current = JSON.parse(current); }
-        catch (e) { break; }
-      }
+    // Attempt to parse string deeply (up to 3 levels)
+    for (let i = 0; typeof current === 'string' && i < 3; i++) {
+      try { current = JSON.parse(current); }
+      catch (e) { break; }
     }
-    // Attempt to unwrap if nested: { firstProductBlock: { ... } }
+
+    // Attempt to unwrap if nested loosely e.g. { firstProductBlock: { ... } }
     if (typeof current === 'object' && current !== null) {
-      if (current.firstProductBlock) return current.firstProductBlock;
-      if (current.secondProductBlock) return current.secondProductBlock;
-      return current;
+      if (current.firstProductBlock) return unwrapBlock(current.firstProductBlock);
+      if (current.secondProductBlock) return unwrapBlock(current.secondProductBlock);
     }
+
     return current;
   };
 
@@ -64,9 +64,9 @@ const HomeScreen: React.FC = () => {
     console.log("DEBUG raw homeData.firstProductBlock ->", typeof homeData?.firstProductBlock, homeData?.firstProductBlock);
   }
 
-  const activeFirstProducts = parsedFirstBlock?.items || [];
+  const activeFirstProducts = Array.isArray(parsedFirstBlock) ? parsedFirstBlock : (parsedFirstBlock?.Items ? parsedFirstBlock?.Items : parsedFirstBlock?.items || []);
   console.log("activeFirstProducts", activeFirstProducts);
-  const activeSecondProducts = parsedSecondBlock?.items || [];
+  const activeSecondProducts = Array.isArray(parsedSecondBlock) ? parsedSecondBlock : (parsedSecondBlock?.Items ? parsedSecondBlock?.Items : parsedSecondBlock?.items || []);
   console.log("activeSecondProducts", activeSecondProducts);
 
   const activeBestSelling = homeData?.showcaseSlider || [];
@@ -248,46 +248,7 @@ const HomeScreen: React.FC = () => {
   );
 
   const renderExploreItem = ({ item }: { item: any }) => (
-    <TouchableOpacity
-      style={styles.exploreItemCard}
-      onPress={() => handleBannerPress(item)}
-    >
-      <View style={styles.exploreTopBadgesRow}>
-        <View style={styles.discountCircle}>
-          <Text style={[styles.discountCircleText]}>
-            {item.discountPercent ? `-${Math.round(item.discountPercent)}%` : item.discountBadge}
-          </Text>
-        </View>
-        <AppIcons.BookmarkOutline color={colors.tealIconFont} size={24} />
-      </View>
-
-      <Image source={item.featuredImage ? { uri: CONFIG.image_base_url + item.featuredImage } : item.image} style={styles.exploreItemImage} resizeMode="contain" />
-
-      <View style={{ padding: 10, flex: 1, justifyContent: 'space-between' }}>
-        <Text style={[styles.caption]} numberOfLines={3}>{item.prName || item.title}</Text>
-
-        <View>
-          {/* <Rating
-            type='custom'
-            readonly
-            startingValue={item.rating || 4}
-            ratingCount={5}
-            imageSize={12}
-            ratingColor={colors.starYellow}
-            ratingBackgroundColor={colors.lightGrey}
-            tintColor={colors.white}
-            style={{ alignSelf: 'flex-start', marginVertical: 6 }}
-          /> */}
-
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, gap: 2 }}>
-            <View style={styles.pricePill}>
-              <Text style={styles.pricePillText}>₹{item.specialPrice || item.currentPrice}</Text>
-            </View>
-            <Text style={styles.originalPriceText}>MRP₹{item.unitPrice || item.originalPrice}</Text>
-          </View>
-        </View>
-      </View>
-    </TouchableOpacity>
+    <ExploreItemCard item={item} onPress={() => handleBannerPress(item)} />
   );
 
   const renderBrandItem = ({ item }: { item: any }) => (

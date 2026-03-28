@@ -113,7 +113,7 @@ const CategoryScreen = () => {
     const fetchSubCategories = async (parentId: string) => {
         try {
             showLoader(true);
-            const response = await getCategoriesApi('10');
+            const response = await getCategoriesApi(parentId);
             console.log("Subcategory response---->", JSON.stringify(response, null, 2))
             if (response && response.success && response.data && response.data.items) {
                 setSubCategoriesList(response.data.items);

@@ -22,6 +22,7 @@ import { removeFromCartApi, updateCartItemApi } from '../../api/services/cartSer
 import { useCart } from '../../context/CartContext';
 import FloatingCartButton from '../../components/FloatingCartButton/FloatingCartButton';
 import { addToWishlistApi, removeFromWishlistApi } from '../../api/services/wishlistService';
+import { useWishlist } from '../../context/WishlistContext';
 
 const ProductDetails = () => {
     const route = useRoute();
@@ -30,6 +31,7 @@ const ProductDetails = () => {
 
     const { cartItems, cartSummary, loadCart } = useCart();
     const { showLoader } = useContext(LoaderContext) || { showLoader: () => { } };
+    const { isInWishlist, toggleWishlist } = useWishlist();
 
     // Retrieve item from params or provide fallback
 
@@ -134,7 +136,7 @@ const ProductDetails = () => {
                 console.log("product details response data---->", JSON.stringify(response.data, null, 2))
                 setProductDetails(response.data);
             } else {
-                setProductDetails([]);
+                setProductDetails(null);
             }
             if (relatedResponse && relatedResponse.success && relatedResponse.data) {
                 console.log("related products response data---->", JSON.stringify(relatedResponse.data, null, 2))
@@ -145,7 +147,7 @@ const ProductDetails = () => {
             }
         } catch (error) {
             console.error('Error fetching product details:', error);
-            setProductDetails([]);
+            setProductDetails(null);
         } finally {
             showLoader(false);
         }
@@ -318,8 +320,15 @@ const ProductDetails = () => {
                 <AppIcons.ArrowLeft size={26} color={colors.themeBlack} />
             </TouchableOpacity>
             <View style={styles.headerRightIcons}>
-                <TouchableOpacity style={styles.headerIconBg}>
-                    <AppIcons.HeartOutline size={24} color={colors.themeBlack} />
+                <TouchableOpacity
+                    style={styles.headerIconBg}
+                    onPress={() => toggleWishlist(productDetails?.product || item)}
+                >
+                    {isInWishlist(product_id) ? (
+                        <Ionicons name="heart" size={24} color={colors.red || 'red'} />
+                    ) : (
+                        <AppIcons.HeartOutline size={24} color={colors.themeBlack} />
+                    )}
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.headerIconBg}>
                     <Ionicons name="share-social-outline" size={24} color={colors.themeBlack} />
@@ -453,7 +462,7 @@ const ProductDetails = () => {
     };
 
     const renderExploreItem = ({ item }: { item: any }) => (
-        <TouchableOpacity style={homeStyles.exploreItemCard} onPress={() => { navigation.navigate('ProductDetailsScreen', { productId: item?.productId, product: item }) }}>
+        <TouchableOpacity style={homeStyles.exploreItemCard} onPress={() => { navigation.push('ProductDetailsScreen', { productId: item?.productId, product: item }) }}>
             <View style={homeStyles.exploreTopBadgesRow}>
                 <View style={[homeStyles.discountCircle, { opacity: item?.discountPercentage || item?.discountBadge ? 1 : 0 }]}>
                     <Text style={[homeStyles.discountCircleText]}>
@@ -549,15 +558,20 @@ const ProductDetails = () => {
 
                             </View>
                         )}
-                        <Text style={[styles.description, { marginTop: 4 }]}>{ProductDesc}</Text>
 
                         {
-                            productDetails?.customerspecific.cartQty > 0 ?
+                            (productDetails?.product?.stockQty <= 0 || productDetails?.product?.stockAvailability === 'Out Of Stock') ?
+                                <View 
+                                    style={[homeStyles.reviewFilterPillActiveGradient, { borderRadius: 50, alignSelf: 'flex-end', top: 4, marginBottom: 10, backgroundColor: '#E0E0E0', paddingHorizontal: 20, paddingVertical: 10 }]}
+                                >
+                                    <Text style={[homeStyles.reviewFilterText, { color: '#888' }]}>Out of Stock</Text>
+                                </View> :
+                            productDetails?.customerspecific?.cartQty > 0 ?
                                 <LinearGradient
                                     colors={[colors.themeTeal, colors.themeDarkTeal]}
                                     start={{ x: 0, y: 0 }}
                                     end={{ x: 1, y: 0 }}
-                                    style={[homeStyles.reviewFilterPillActiveGradient, { borderRadius: 50, alignSelf: 'flex-end', top: 10 }]}
+                                    style={[homeStyles.reviewFilterPillActiveGradient, { borderRadius: 50, alignSelf: 'flex-end', top: 4, marginBottom: 10 }]}
                                 >
                                     <View style={{ padding: 10, flexDirection: 'row' }}>
                                         <TouchableOpacity onPress={() => { productDetails?.customerspecific?.cartQty > 0 ? updateCartFunction(productId, productDetails?.customerspecific?.cartQty - 1) : romoveFromCart(productId) }} >
@@ -579,7 +593,7 @@ const ProductDetails = () => {
                                     colors={[colors.themeTeal, colors.themeDarkTeal]}
                                     start={{ x: 0, y: 0 }}
                                     end={{ x: 1, y: 0 }}
-                                    style={[homeStyles.reviewFilterPillActiveGradient, { borderRadius: 50, alignSelf: 'flex-end', top: 10 }]}
+                                    style={[homeStyles.reviewFilterPillActiveGradient, { borderRadius: 50, alignSelf: 'flex-end', top: 4, marginBottom: 10 }]}
                                 >
                                     <TouchableOpacity onPress={() => { addToCartFunction(productId) }} style={{ padding: 10, flexDirection: 'row' }} >
                                         <View style={styles.iconRoundBackground} >
@@ -589,6 +603,8 @@ const ProductDetails = () => {
                                     </TouchableOpacity>
                                 </LinearGradient>
                         }
+                        <Text style={[styles.description, { marginTop: 4 }]}>{ProductDesc}</Text>
+
 
 
 

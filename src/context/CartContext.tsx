@@ -37,6 +37,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [cartSummary, setCartSummary] = useState<any | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [addresses, setAddresses] = useState<any[]>([]);
+    const cartSummaryRef = React.useRef<any>(null);
 
     const loadCart = useCallback(async () => {
         try {
@@ -53,11 +54,15 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
                 // Keep cart version in summary state if available
                 if (response.data.cart) {
-                    setCartSummary((prev: any) => ({
-                        ...(prev || {}),
-                        cartVersion: response.data.cart.cartVersion,
-                        cartId: response.data.cart.cartId
-                    }));
+                    setCartSummary((prev: any) => {
+                        const newSummary = {
+                            ...(prev || {}),
+                            cartVersion: response.data.cart.cartVersion,
+                            cartId: response.data.cart.cartId
+                        };
+                        cartSummaryRef.current = newSummary;
+                        return newSummary;
+                    });
                 }
                 return response.data;
             }
@@ -68,12 +73,13 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, []);
 
     const getCartSummary = useCallback(async (deliveryMode = 'express', deliverySlotId = null, cartVersion = null, couponCode = null, pincodeAreaId = null) => {
-        const versionToUse = cartVersion || cartSummary?.cartVersion;
-        const cartIdToUse = cartSummary?.cartId;
+        const versionToUse = cartVersion || cartSummaryRef.current?.cartVersion;
+        const cartIdToUse = cartSummaryRef.current?.cartId;
         try {
             const response = await getCartSummaryApi(deliveryMode, deliverySlotId, versionToUse, cartIdToUse, pincodeAreaId);
             if (response && response.success) {
                 setCartSummary(response.data);
+                cartSummaryRef.current = response.data;
                 return response;
             } else {
                 setError(response?.message || 'Failed to get cart summary');
@@ -82,17 +88,18 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setError(err.message || 'Error occurred while fetching summary');
         }
         return null;
-    }, [cartSummary?.cartVersion]);
+    }, []);
 
     const clearCart = useCallback(async () => {
         try {
-            await clearCartApi(cartSummary?.cartVersion);
+            await clearCartApi(cartSummaryRef.current?.cartVersion);
             setCartItems([]);
             setCartSummary(null);
+            cartSummaryRef.current = null;
         } catch (err: any) {
             setError(err.message || 'Failed to clear cart');
         }
-    }, [cartSummary]);
+    }, []);
 
     const fetchAddresses = useCallback(async () => {
         // This will be handled by useAddresses hook mostly, but keeping it here for compat

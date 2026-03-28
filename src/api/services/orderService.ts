@@ -25,7 +25,7 @@ export const createOrderApi = async (payload: any): Promise<any> => {
 };
 
 export const confirmCodApi = async (orderId: string | number): Promise<any> => {
-    return post(`order/${orderId}/confirmcod`);
+    return post(`order/${orderId}/confirmcod`, {});
 };
 
 export const rateDeliveryAgentApi = async (payload: any): Promise<any> => {

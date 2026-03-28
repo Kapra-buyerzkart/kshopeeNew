@@ -72,7 +72,7 @@ const AddressModal: React.FC<AddressModalProps> = ({ visible, onClose, addresses
                         <TouchableOpacity
                             style={styles.addNewButton}
                             onPress={() => {
-                                navigation.navigate('AddLocation');
+                                navigation.navigate('AddLocationScreen');
                                 onClose();
                             }}
                         >

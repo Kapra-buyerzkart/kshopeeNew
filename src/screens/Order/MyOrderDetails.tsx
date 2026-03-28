@@ -43,8 +43,8 @@ const MyOrderDetails = () => {
     const [orderDetails, setOrderDetails] = useState<any>([]);
     const { showLoader } = useContext(LoaderContext) || { showLoader: () => { } };
 
-    const order: any = route.params?.order;
-    const item: any = route.params?.selectedItem;
+    const order: any = route.params?.order || orderDetails?.header || { orderId: route.params?.orderId };
+    const item: any = route.params?.selectedItem || orderDetails?.items?.[0] || {};
 
     const [confirmModal, setConfirmModal] = useState<{
         visible: boolean;
@@ -59,7 +59,7 @@ const MyOrderDetails = () => {
         navigateOnClose?: boolean;
     }>({ visible: false, type: 'success', title: '', message: '' });
 
-    if (!order || !item) return <View style={styles.container} />;
+    if (!order?.orderId) return <View style={styles.container} />;
 
     const loadedItem = orderDetails?.items?.find((i: any) => {
         if (item?.productId && i.productId) return i.productId === item.productId;
@@ -96,7 +96,7 @@ const MyOrderDetails = () => {
     const fetchMyOrderDetailsFunction = async () => {
         try {
             showLoader(true);
-            const response = await getOrderDetailsApi(order?.orderId);
+            const response = await getOrderDetailsApi(route.params?.orderId || route.params?.order?.orderId);
             console.log("Order details response---->", JSON.stringify(response, null, 2))
             if (response && response.success && response.data) {
                 //console.log("Order details response data---->", JSON.stringify(response.data, null, 2))
@@ -311,9 +311,9 @@ const MyOrderDetails = () => {
                             <Text style={styles.productNameDetail}>{item?.productName}</Text>
                         </View>
                     </View>
-                    <TouchableOpacity style={styles.buyAgainBtn} onPress={() => setConfirmModal({ visible: true, type: 'reorder' })}>
+                    {/* <TouchableOpacity style={styles.buyAgainBtn} onPress={() => setConfirmModal({ visible: true, type: 'reorder' })}>
                         <Text style={styles.buyAgainText}>Buy again</Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                 </View>
 
                 {/* Tracking Card */}

@@ -231,7 +231,32 @@ const CategoryScreen = () => {
 
             </View>
 
-            <Image source={imageSource(item)} style={styles.exploreItemImage} resizeMode="contain" />
+            <View style={{ position: 'relative' }}>
+                <Image source={imageSource(item)} style={styles.exploreItemImage} resizeMode="contain" />
+                {(item.stockQty <= 0 || item.stockAvailability === 'Out Of Stock') && (
+                    <View style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: 'rgba(255,255,255,0.6)',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}>
+                        <Text style={{
+                            color: colors.black,
+                            fontFamily: 'Gilroy-Bold',
+                            fontSize: 10,
+                            backgroundColor: 'rgba(255,255,255,0.9)',
+                            paddingHorizontal: 6,
+                            paddingVertical: 3,
+                            borderRadius: 4,
+                            overflow: 'hidden'
+                        }}>OUT OF STOCK</Text>
+                    </View>
+                )}
+            </View>
 
             <View style={{ padding: 8, flex: 1, justifyContent: 'space-between' }}>
                 <View>

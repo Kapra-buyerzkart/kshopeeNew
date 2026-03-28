@@ -11,6 +11,7 @@ import { Rating } from 'react-native-ratings';
 import LinearGradient from 'react-native-linear-gradient';
 import FloatingCartButton from '../../components/FloatingCartButton/FloatingCartButton';
 import { LoaderContext } from '../../context/loaderContext';
+import { useUser } from '../../context/UserContext';
 import { getHomepageData } from '../../api/services/homeService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CONFIG from '../../globals/config';
@@ -22,6 +23,7 @@ const HomeScreen: React.FC = () => {
   const navigation = useNavigation<any>();
 
   const { showLoader } = useContext(LoaderContext) || { showLoader: () => { } };
+  const { profile } = useUser();
   const [pincodeAreaId, setPincodeAreaId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [homeData, setHomeData] = useState<any>(null);
@@ -211,13 +213,32 @@ const HomeScreen: React.FC = () => {
     return () => clearInterval(slideInterval);
   }, [currentSlideIndex, activeSliderImages.length]);
 
+  const handleBannerPress = (item: any) => {
+    const type = item.targetType || item.linkType;
+    const value = item.targetId || item.linkValue;
+
+    if (type && value) {
+      if (type.toLowerCase() === 'product') {
+        navigation.navigate('ProductDetailsScreen', { productId: value });
+      } else if (type.toLowerCase() === 'category') {
+        navigation.navigate('ProductCategoryDetail', {
+          catId: value.toString(),
+          title: "Category"
+        });
+      }
+    } else if (item.productId) {
+      navigation.navigate('ProductDetailsScreen', { productId: item.productId, product: item });
+    }
+  };
+
   const renderSliderItem = ({ item }: { item: any }) => (
-    <Image source={item.imageUrl ? { uri: CONFIG.image_base_url + item.imageUrl } : item.image} style={styles.headerSectionImageBackground} resizeMode="cover" />
+    <TouchableOpacity activeOpacity={0.9} onPress={() => handleBannerPress(item)}>
+      <Image source={item.imageUrl ? { uri: CONFIG.image_base_url + item.imageUrl } : item.image} style={styles.headerSectionImageBackground} resizeMode="cover" />
+    </TouchableOpacity>
   );
 
   const renderGoatDeal = ({ item }: { item: any }) => (
-    console.log("renderGoatDeal item--->", CONFIG.image_base_url + item.imageUrl),
-    <TouchableOpacity style={styles.goatDealCard}>
+    <TouchableOpacity style={styles.goatDealCard} onPress={() => handleBannerPress(item)}>
       <Image
         source={{ uri: CONFIG.image_base_url + item.imageUrl }}
         style={styles.goatDealBg}
@@ -227,10 +248,15 @@ const HomeScreen: React.FC = () => {
   );
 
   const renderExploreItem = ({ item }: { item: any }) => (
-    <TouchableOpacity style={styles.exploreItemCard} onPress={() => navigation.navigate('ProductDetailsScreen', { productId: item?.productId, product: item })}>
+    <TouchableOpacity
+      style={styles.exploreItemCard}
+      onPress={() => handleBannerPress(item)}
+    >
       <View style={styles.exploreTopBadgesRow}>
         <View style={styles.discountCircle}>
-          <Text style={[styles.discountCircleText]}>{item.discountPercent ? `-${Math.round(item.discountPercent)}%` : item.discountBadge}</Text>
+          <Text style={[styles.discountCircleText]}>
+            {item.discountPercent ? `-${Math.round(item.discountPercent)}%` : item.discountBadge}
+          </Text>
         </View>
         <AppIcons.BookmarkOutline color={colors.tealIconFont} size={24} />
       </View>
@@ -291,22 +317,23 @@ const HomeScreen: React.FC = () => {
   );
 
   const renderGShockCard = ({ item }: { item: any }) => {
-    const isDark = item.theme === 'dark' || item.displayOrder % 2 === 0;
     return (
-      <TouchableOpacity style={[styles.gShockSmallCard, { backgroundColor: 'transparent', borderRadius: 20 }]}>
+      <TouchableOpacity
+        style={[styles.gShockSmallCard, { backgroundColor: 'transparent', borderRadius: 20 }]}
+        onPress={() => handleBannerPress(item)}
+      >
         <Image source={item.imageUrl ? { uri: CONFIG.image_base_url + item.imageUrl } : item.image} style={styles.gShockSmallImage} resizeMode="cover" />
       </TouchableOpacity>
     );
   };
 
   const renderFlashSaleItem = ({ item }: { item: any }) => (
-    <View style={styles.flashSaleItemCard}>
-      <Image source={item.image} style={styles.flashSaleImage} />
-      {/* <View style={styles.flashBadgeDark}>
-        <Text style={styles.flashBadgeTextDark}>Off 50%</Text>
-      </View>
-      <Text style={styles.flashSalePrice}>{item.price}</Text> */}
-    </View>
+    <TouchableOpacity
+      style={styles.flashSaleItemCard}
+      onPress={() => handleBannerPress(item)}
+    >
+      <Image source={item.image || { uri: CONFIG.image_base_url + item.imageUrl }} style={styles.flashSaleImage} />
+    </TouchableOpacity>
   );
 
   const showCaseSliderFunc = () => {
@@ -342,7 +369,7 @@ const HomeScreen: React.FC = () => {
             <TouchableOpacity
               activeOpacity={0.9}
               style={{ width: '100%', height: '100%' }}
-              onPress={() => navigation.navigate('ProductDetailsScreen', { productId: activeBestSelling[bestSellingIndex]?.productId, product: activeBestSelling[bestSellingIndex] })}
+              onPress={() => handleBannerPress(activeBestSelling[bestSellingIndex])}
             >
               <Image
                 source={(activeBestSelling[bestSellingIndex]?.imageUrl || activeBestSelling[bestSellingIndex]?.image) ? { uri: CONFIG.image_base_url + (activeBestSelling[bestSellingIndex]?.imageUrl || activeBestSelling[bestSellingIndex]?.image) } : activeBestSelling[bestSellingIndex]?.image}
@@ -383,7 +410,12 @@ const HomeScreen: React.FC = () => {
         </View>
 
         <View style={{ marginTop: 16 }}>
-          <ClickForMoreButton onPress={() => { }} title="Click for more offers" />
+          <ClickForMoreButton
+            onPress={() => {
+              navigation.navigate('ProductCategoryDetail', { title: 'Category', products: activeBestSelling });
+            }}
+            title="Click for more offers"
+          />
         </View>
       </View>
     )
@@ -404,13 +436,18 @@ const HomeScreen: React.FC = () => {
             pagingEnabled
             showsHorizontalScrollIndicator={false}
             scrollEnabled={false}
-            style={StyleSheet.absoluteFillObject}
           />
-          <View style={[StyleSheet.absoluteFillObject, { paddingTop: 50, pointerEvents: 'box-none' }]}>
+          <View style={[StyleSheet.absoluteFillObject, { paddingTop: 50 }]}>
             <View style={styles.topBar}>
               <TouchableOpacity style={styles.profileArea} onPress={() => navigation.navigate('KebraScreen')}>
-                <Image source={{ uri: 'https://picsum.photos/seed/user/100/100' }} style={styles.profileImageReal} />
-                <Text style={styles.userName}>Rahul KR</Text>
+                <View style={styles.profileImageReal}>
+                  <AppIcons.User size={20} color={colors.themeTeal} />
+                </View>
+                <Text style={styles.userName}>
+                  {profile?.custName
+                    ? (profile.custName.length > 15 ? `${profile.custName.substring(0, 15)}...` : profile.custName)
+                    : "Guest User"}
+                </Text>
               </TouchableOpacity>
 
               <View style={styles.actionsPill}>
@@ -468,7 +505,17 @@ const HomeScreen: React.FC = () => {
               contentContainerStyle={styles.horizontalScrollPadding}
             />
             <View style={{ marginTop: 16 }}>
-              <ClickForMoreButton onPress={() => { }} title="Click for more" />
+              <ClickForMoreButton
+                onPress={() => {
+                  const id = parsedFirstBlock?.catId || parsedFirstBlock?.id || parsedFirstBlock?.categoryId || parsedFirstBlock?.CategoryId;
+                  navigation.navigate('ProductCategoryDetail', {
+                    catId: id?.toString(),
+                    title: "Category",
+                    products: activeFirstProducts
+                  });
+                }}
+                title="Click for more"
+              />
             </View>
           </View>
         }
@@ -524,7 +571,9 @@ const HomeScreen: React.FC = () => {
                 setSuperSaleIndex(Math.max(0, Math.min(idx, activeSuperSaleBanners.length - 1)));
               }}
               renderItem={({ item }) => (
-                <Image source={{ uri: CONFIG.image_base_url + item.imageUrl }} style={styles.superSaleBannerImage} resizeMode="cover" />
+                <TouchableOpacity activeOpacity={0.9} onPress={() => handleBannerPress(item)}>
+                  <Image source={{ uri: CONFIG.image_base_url + item.imageUrl }} style={styles.superSaleBannerImage} resizeMode="cover" />
+                </TouchableOpacity>
               )}
             />
             {/* Dots */}
@@ -540,7 +589,9 @@ const HomeScreen: React.FC = () => {
         {activeFlashSaleBanner && (
           <View style={styles.flashSaleContainer}>
             {/* <Text style={styles.hugeFlashText}>FLASH</Text> */}
-            <Image source={{ uri: CONFIG.image_base_url + activeFlashSaleBanner.imageUrl }} style={styles.podiumImageBackground} resizeMode="cover" />
+            <TouchableOpacity activeOpacity={0.9} onPress={() => handleBannerPress(activeFlashSaleBanner)}>
+              <Image source={{ uri: CONFIG.image_base_url + activeFlashSaleBanner.imageUrl }} style={styles.podiumImageBackground} resizeMode="cover" />
+            </TouchableOpacity>
 
             {/* <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, marginTop: -90 }}>
               {flashSaleItems.map((item, index) => (
@@ -550,7 +601,18 @@ const HomeScreen: React.FC = () => {
               ))}
             </ScrollView> */}
             <View style={{ marginTop: -60, position: 'relative' }}>
-              <ClickForMoreButton onPress={() => { }} title="View all Flash Deals" />
+              <ClickForMoreButton
+                onPress={() => {
+                  const id = activeFlashSaleBanner?.targetId || activeFlashSaleBanner?.linkValue || activeFlashSaleBanner?.id || activeFlashSaleBanner?.catId;
+                  if (id) {
+                    navigation.navigate('ProductCategoryDetail', {
+                      catId: id.toString(),
+                      title: "Category"
+                    });
+                  }
+                }}
+                title="View all Flash Deals"
+              />
             </View>
 
           </View>
@@ -570,7 +632,17 @@ const HomeScreen: React.FC = () => {
               contentContainerStyle={styles.horizontalScrollPadding}
             />
             <View style={{ marginTop: 16 }}>
-              <ClickForMoreButton onPress={() => { }} title="Click for more" />
+              <ClickForMoreButton
+                onPress={() => {
+                  const id = parsedSecondBlock?.catId || parsedSecondBlock?.id || parsedSecondBlock?.categoryId || parsedSecondBlock?.CategoryId;
+                  navigation.navigate('ProductCategoryDetail', {
+                    catId: id?.toString(),
+                    title: "Category",
+                    products: activeSecondProducts
+                  });
+                }}
+                title="Click for more"
+              />
             </View>
           </View>
         }

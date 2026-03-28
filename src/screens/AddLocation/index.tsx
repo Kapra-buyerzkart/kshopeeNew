@@ -61,6 +61,7 @@ const AddLocationScreen: React.FC = () => {
     const [isInitialLoading, setIsInitialLoading] = useState(!isEditMode);
     const [isAreasLoading, setIsAreasLoading] = useState(false);
     const [isGeocoding, setIsGeocoding] = useState(false);
+    const [hasLocationPermission, setHasLocationPermission] = useState(false);
 
     const googleAutocompleteRef = useRef<any>(null);
     const defaultCoords = { latitude: 10.0205, longitude: 76.3052 };
@@ -86,13 +87,16 @@ const AddLocationScreen: React.FC = () => {
     const requestLocationPermission = async () => {
         if (Platform.OS === 'ios') {
             Geolocation.requestAuthorization();
+            setHasLocationPermission(true);
             return true;
         }
         try {
             const granted = await PermissionsAndroid.request(
                 PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
             );
-            return granted === PermissionsAndroid.RESULTS.GRANTED;
+            const isGranted = granted === PermissionsAndroid.RESULTS.GRANTED;
+            setHasLocationPermission(isGranted);
+            return isGranted;
         } catch (err) {
             console.warn(err);
             return false;
@@ -220,8 +224,9 @@ const AddLocationScreen: React.FC = () => {
 
         setIsLoading(true);
         try {
+            const addressId = editAddress?.custAddressId || editAddress?.addressId || editAddress?.id;
             const response = isEditMode 
-                ? await updateAddressApi(editAddress.addressId, payload)
+                ? await updateAddressApi(addressId, payload)
                 : await addAddressApi(payload);
 
             if (response && response.success !== false) {
@@ -247,7 +252,7 @@ const AddLocationScreen: React.FC = () => {
                     style={styles.map}
                     region={region}
                     onRegionChangeComplete={setRegion}
-                    showsUserLocation={true}
+                    showsUserLocation={hasLocationPermission}
                     showsMyLocationButton={false}
                 >
                     <Marker

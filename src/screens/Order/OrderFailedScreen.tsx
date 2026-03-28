@@ -1,10 +1,10 @@
 import React from 'react';
-import { 
-    View, 
-    Text, 
-    StyleSheet, 
-    TouchableOpacity, 
-    SafeAreaView, 
+import {
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+    SafeAreaView,
     Dimensions,
     Image,
     Platform
@@ -48,7 +48,7 @@ const OrderFailedScreen: React.FC = () => {
             </View>
 
             <View style={styles.footer}>
-                <TouchableOpacity 
+                {/* <TouchableOpacity 
                     style={styles.retryButton}
                     onPress={() => navigation.goBack()}
                 >
@@ -60,9 +60,9 @@ const OrderFailedScreen: React.FC = () => {
                     >
                         <Text style={styles.retryButtonText}>Retry Payment</Text>
                     </LinearGradient>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
 
-                <TouchableOpacity 
+                <TouchableOpacity
                     style={styles.homeButton}
                     onPress={() => navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] })}
                 >

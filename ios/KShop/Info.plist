@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>KShop</string>
+	<string>KShope</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -33,14 +33,14 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>KShope needs access to your location to find nearby stores and delivery areas.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>KShope needs access to your location to find nearby stores and delivery areas.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>KShope needs access to your location to find nearby stores and delivery areas.</string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>KShop needs access to your location to find nearby stores and delivery areas.</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>KShop needs access to your location to find nearby stores and delivery areas.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>KShop needs access to your location to find nearby stores and delivery areas.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Fontisto.ttf</string>

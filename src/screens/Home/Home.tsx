@@ -70,6 +70,7 @@ const HomeScreen: React.FC = () => {
   console.log("activeSecondProducts", activeSecondProducts);
 
   const activeBestSelling = homeData?.showcaseSlider || [];
+  console.log("The best selling products", JSON.stringify(activeBestSelling, null, 2))
   const activeTopBrands = homeData?.banners?.filter((b: any) => b.placementKey === 'app_top_brands') || [];
 
   const gShockMainBanner = homeData?.banners?.find((b: any) => b.placementKey === 'app_home_bottom_showcase_banner_image');
@@ -220,7 +221,7 @@ const HomeScreen: React.FC = () => {
       if (type.toLowerCase() === 'product') {
         navigation.navigate('ProductDetailsScreen', { productId: value });
       } else if (type.toLowerCase() === 'category') {
-        navigation.navigate('ProductCategoryDetail', { 
+        navigation.navigate('ProductCategoryDetail', {
           catId: value.toString(),
           title: "Category"
         });
@@ -247,8 +248,8 @@ const HomeScreen: React.FC = () => {
   );
 
   const renderExploreItem = ({ item }: { item: any }) => (
-    <TouchableOpacity 
-      style={styles.exploreItemCard} 
+    <TouchableOpacity
+      style={styles.exploreItemCard}
       onPress={() => handleBannerPress(item)}
     >
       <View style={styles.exploreTopBadgesRow}>
@@ -261,10 +262,10 @@ const HomeScreen: React.FC = () => {
       </View>
 
       <View style={{ position: 'relative' }}>
-        <Image 
-          source={item.featuredImage ? { uri: CONFIG.image_base_url + item.featuredImage } : item.image} 
-          style={styles.exploreItemImage} 
-          resizeMode="contain" 
+        <Image
+          source={item.featuredImage ? { uri: CONFIG.image_base_url + item.featuredImage } : item.image}
+          style={styles.exploreItemImage}
+          resizeMode="contain"
         />
         {(item.stockQty <= 0 || item.stockAvailability === 'Out Of Stock') && (
           <View style={{
@@ -308,14 +309,14 @@ const HomeScreen: React.FC = () => {
   );
 
   const renderBrandItem = ({ item }: { item: any }) => (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={[styles.brandItemCard, { backgroundColor: 'transparent' }]}
       onPress={() => handleBannerPress(item)}
     >
-      <Image 
-        source={item.logo || { uri: CONFIG.image_base_url + item.imageUrl }} 
-        style={[styles.brandLogo, { zIndex: 2 }]} 
-        resizeMode="contain" 
+      <Image
+        source={item.logo || { uri: CONFIG.image_base_url + item.imageUrl }}
+        style={[styles.brandLogo, { zIndex: 2 }]}
+        resizeMode="contain"
       />
       <Image
         source={item.imageUrl ? { uri: CONFIG.image_base_url + item.imageUrl } : item.image}
@@ -327,7 +328,7 @@ const HomeScreen: React.FC = () => {
 
   const renderGShockCard = ({ item }: { item: any }) => {
     return (
-      <TouchableOpacity 
+      <TouchableOpacity
         style={[styles.gShockSmallCard, { backgroundColor: 'transparent', borderRadius: 20 }]}
         onPress={() => handleBannerPress(item)}
       >
@@ -337,7 +338,7 @@ const HomeScreen: React.FC = () => {
   };
 
   const renderFlashSaleItem = ({ item }: { item: any }) => (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={styles.flashSaleItemCard}
       onPress={() => handleBannerPress(item)}
     >
@@ -348,7 +349,7 @@ const HomeScreen: React.FC = () => {
   const showCaseSliderFunc = () => {
     if (!activeBestSelling || activeBestSelling.length === 0) return null;
 
-      return (
+    return (
       <View style={styles.sectionContainer}>
         <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>IN THE SPOTLIGHT</Text>
 
@@ -374,13 +375,19 @@ const HomeScreen: React.FC = () => {
           )}
 
           {/* Center (active) image with slide + scale animation */}
-          <TouchableOpacity activeOpacity={0.9} onPress={() => handleBannerPress(activeBestSelling[bestSellingIndex])}>
-            <Animated.Image
-              source={activeBestSelling[bestSellingIndex]?.featuredImage ? { uri: CONFIG.image_base_url + activeBestSelling[bestSellingIndex].featuredImage } : activeBestSelling[bestSellingIndex].image}
-              style={[localStyle.centerImage, { transform: [{ translateX: centerTranslateX }, { scale: centerScale }] }]}
-              resizeMode="contain"
-            />
-          </TouchableOpacity>
+          <Animated.View style={[localStyle.centerImage, { transform: [{ translateX: centerTranslateX }, { scale: centerScale }] }]}>
+            <TouchableOpacity
+              activeOpacity={0.9}
+              style={{ width: '100%', height: '100%' }}
+              onPress={() => navigation.navigate('ProductDetailsScreen', { productId: activeBestSelling[bestSellingIndex]?.productId, product: activeBestSelling[bestSellingIndex] })}
+            >
+              <Image
+                source={(activeBestSelling[bestSellingIndex]?.imageUrl || activeBestSelling[bestSellingIndex]?.image) ? { uri: CONFIG.image_base_url + (activeBestSelling[bestSellingIndex]?.imageUrl || activeBestSelling[bestSellingIndex]?.image) } : activeBestSelling[bestSellingIndex]?.image}
+                style={{ width: '100%', height: '100%' }}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+          </Animated.View>
 
           {/* Left Arrow */}
           {bestSellingIndex > 0 && (
@@ -413,364 +420,359 @@ const HomeScreen: React.FC = () => {
         </View>
 
         <View style={{ marginTop: 16 }}>
-          <ClickForMoreButton 
+          <ClickForMoreButton
             onPress={() => {
               navigation.navigate('ProductCategoryDetail', { title: 'Category', products: activeBestSelling });
-            }} 
-            title="Click for more offers" 
+            }}
+            title="Click for more offers"
           />
         </View>
       </View>
-      )
+    )
   }
 
-      return (
-      <View style={styles.container}>
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 80, backgroundColor: colors.homeScreenBackground }}>
+  return (
+    <View style={styles.container}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 80, backgroundColor: colors.homeScreenBackground }}>
 
-          {/* Header Section from Screenshot 1 & 5 */}
-          <View style={styles.headerSectionWrapper}>
+        {/* Header Section from Screenshot 1 & 5 */}
+        <View style={styles.headerSectionWrapper}>
+          <FlatList
+            ref={slideRef}
+            data={activeSliderImages}
+            renderItem={renderSliderItem}
+            keyExtractor={(item, index) => item.bannerId?.toString() || item.id?.toString() || index.toString()}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            scrollEnabled={false}
+            style={StyleSheet.absoluteFillObject}
+          />
+          <View style={[StyleSheet.absoluteFillObject, { paddingTop: 50, pointerEvents: 'box-none' }]}>
+            <View style={styles.topBar}>
+              <TouchableOpacity style={styles.profileArea} onPress={() => navigation.navigate('KebraScreen')}>
+                <Image source={{ uri: 'https://picsum.photos/seed/user/100/100' }} style={styles.profileImageReal} />
+                <Text style={styles.userName}>Rahul KR</Text>
+              </TouchableOpacity>
+
+              <View style={styles.actionsPill}>
+                <TouchableOpacity
+                  style={styles.actionIcon}
+                  onPress={() => navigation.navigate('Cart')}
+                >
+                  <AppIcons.Bag color={colors.black} size={20} />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.actionIcon}>
+                  {/* <View style={styles.notificationDot} /> */}
+                  <AppIcons.Bell color={colors.black} size={20} />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={{ paddingHorizontal: 16 }}>
+              <HomeSearchBar placeholder="Search product" />
+            </View>
+
+            <View style={styles.headerDotsContainer}>
+              {activeSliderImages.map((_: any, index: number) => (
+                <View key={index} style={[styles.headerDot, currentSlideIndex === index && { backgroundColor: colors.outlineTeal }]} />
+              ))}
+            </View>
+          </View>
+        </View>
+
+        {/* GOAT DEALS */}
+        <View style={styles.sectionContainer}>
+          <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>GOAT DEALS</Text>
+          <View style={styles.horizontalScrollPadding}>
             <FlatList
-              ref={slideRef}
-              data={activeSliderImages}
-              renderItem={renderSliderItem}
+              data={activeGoatDeals}
+              renderItem={renderGoatDeal}
               keyExtractor={(item, index) => item.bannerId?.toString() || item.id?.toString() || index.toString()}
-              horizontal
-              pagingEnabled
-              showsHorizontalScrollIndicator={false}
+              numColumns={2}
+              columnWrapperStyle={{ justifyContent: 'space-between' }}
               scrollEnabled={false}
             />
-            <View style={[StyleSheet.absoluteFillObject, { paddingTop: 50 }]}>
-              <View style={styles.topBar}>
-                <TouchableOpacity style={styles.profileArea} onPress={() => navigation.navigate('KebraScreen')}>
-                  <View style={styles.profileImageReal}>
-                    <AppIcons.User size={20} color={colors.themeTeal} />
-                  </View>
-                  <Text style={styles.userName}>
-                  {profile?.custName
-                    ? (profile.custName.length > 15 ? `${profile.custName.substring(0, 15)}...` : profile.custName)
-                    : "Guest User"}
-                  </Text>
-                </TouchableOpacity>
-
-                <View style={styles.actionsPill}>
-                  <TouchableOpacity
-                    style={styles.actionIcon}
-                    onPress={() => navigation.navigate('Cart')}
-                  >
-                    <AppIcons.Bag color={colors.black} size={20} />
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.actionIcon}>
-                    {/* <View style={styles.notificationDot} /> */}
-                    <AppIcons.Bell color={colors.black} size={20} />
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <View style={{ paddingHorizontal: 16 }}>
-                <HomeSearchBar placeholder="Search product" />
-              </View>
-
-              <View style={styles.headerDotsContainer}>
-                {activeSliderImages.map((_: any, index: number) => (
-                  <View key={index} style={[styles.headerDot, currentSlideIndex === index && { backgroundColor: colors.outlineTeal }]} />
-                ))}
-              </View>
-            </View>
           </View>
+        </View>
 
-          {/* GOAT DEALS */}
+        {/* EXPLORE */}
+        {
+          activeFirstProducts.length > 0 &&
           <View style={styles.sectionContainer}>
-            <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>GOAT DEALS</Text>
-            <View style={styles.horizontalScrollPadding}>
-              <FlatList
-                data={activeGoatDeals}
-                renderItem={renderGoatDeal}
-                keyExtractor={(item, index) => item.bannerId?.toString() || item.id?.toString() || index.toString()}
-                numColumns={2}
-                columnWrapperStyle={{ justifyContent: 'space-between' }}
-                scrollEnabled={false}
-              />
-            </View>
-          </View>
-
-          {/* EXPLORE */}
-          {
-            activeFirstProducts.length > 0 &&
-            <View style={styles.sectionContainer}>
-              <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>{parsedFirstBlock?.title}</Text>
-              <FlatList
-                data={activeFirstProducts}
-                renderItem={renderExploreItem}
-                keyExtractor={(item, index) => item.productId?.toString() || item.id?.toString() || index.toString()}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.horizontalScrollPadding}
-              />
-              <View style={{ marginTop: 16 }}>
-                <ClickForMoreButton 
-                  onPress={() => {
-                    const id = parsedFirstBlock?.catId || parsedFirstBlock?.id || parsedFirstBlock?.categoryId || parsedFirstBlock?.CategoryId;
-                    navigation.navigate('ProductCategoryDetail', { 
-                        catId: id?.toString(),
-                        title: "Category",
-                        products: activeFirstProducts
-                    });
-                  }} 
-                  title="Click for more" 
-                />
-              </View>
-            </View>
-          }
-
-          {/* BEST SELLING */}
-          {showCaseSliderFunc()}
-
-          {/* TOP BRANDS */}
-          <View style={styles.sectionContainer}>
-            <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>TOP BRANDS</Text>
+            <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>{parsedFirstBlock?.title}</Text>
             <FlatList
-              data={activeTopBrands}
-              renderItem={renderBrandItem}
-              keyExtractor={(item, index) => item.bannerId?.toString() || item.id?.toString() || index.toString()}
+              data={activeFirstProducts}
+              renderItem={renderExploreItem}
+              keyExtractor={(item, index) => item.productId?.toString() || item.id?.toString() || index.toString()}
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.horizontalScrollPadding}
             />
-          </View>
-
-          {/* G-SHOCK Black Section */}
-          {activeGShockItems?.length > 0 && gShockMainBanner && (
-            <View style={styles.gShockSectionWrapper}>
-              <ImageBackground source={{ uri: CONFIG.image_base_url + gShockMainBanner.imageUrl }} style={styles.gShockTopBanner} resizeMode="cover">
-                <View style={{ paddingHorizontal: 16, position: 'absolute', bottom: 20, left: 0, right: 0 }}>
-                  <FlatList
-                    data={activeGShockItems}
-                    renderItem={renderGShockCard}
-                    keyExtractor={(item, index) => item.bannerId?.toString() || item.id?.toString() || index.toString()}
-                    numColumns={2}
-                    columnWrapperStyle={{ justifyContent: 'space-between' }}
-                    scrollEnabled={false}
-                  />
-                </View>
-              </ImageBackground>
-            </View>
-          )}
-
-          {/* 11.11 SUPER SALE Banner */}
-          {activeSuperSaleBanners?.length > 0 && (
-            <View style={{ marginVertical: 10, alignItems: 'center' }}>
-              <FlatList
-                ref={superSaleRef}
-                data={activeSuperSaleBanners}
-                keyExtractor={(item, index) => item.bannerId?.toString() || item.id?.toString() || index.toString()}
-                horizontal
-                snapToInterval={width - 12}
-                decelerationRate="fast"
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingHorizontal: 6 }}
-                onMomentumScrollEnd={(e) => {
-                  const idx = Math.round(e.nativeEvent.contentOffset.x / (width - 12));
-                  setSuperSaleIndex(Math.max(0, Math.min(idx, activeSuperSaleBanners.length - 1)));
+            <View style={{ marginTop: 16 }}>
+              <ClickForMoreButton
+                onPress={() => {
+                  const id = parsedFirstBlock?.catId || parsedFirstBlock?.id || parsedFirstBlock?.categoryId || parsedFirstBlock?.CategoryId;
+                  navigation.navigate('ProductCategoryDetail', {
+                    catId: id?.toString(),
+                    title: "Category",
+                    products: activeFirstProducts
+                  });
                 }}
-                renderItem={({ item }) => (
-                  <TouchableOpacity activeOpacity={0.9} onPress={() => handleBannerPress(item)}>
-                    <Image source={{ uri: CONFIG.image_base_url + item.imageUrl }} style={styles.superSaleBannerImage} resizeMode="cover" />
-                  </TouchableOpacity>
-                )}
+                title="Click for more"
               />
-              {/* Dots */}
-              <View style={styles.superSaleDotsContainer}>
-                {activeSuperSaleBanners.map((_: any, index: number) => (
-                  <View key={index} style={[styles.superSalePill, superSaleIndex === index && { backgroundColor: colors.outlineTeal }]} />
-                ))}
-              </View>
             </View>
-          )}
+          </View>
+        }
 
-          {/* FLASH SALE */}
-          {activeFlashSaleBanner && (
-            <View style={styles.flashSaleContainer}>
-              {/* <Text style={styles.hugeFlashText}>FLASH</Text> */}
-              <TouchableOpacity activeOpacity={0.9} onPress={() => handleBannerPress(activeFlashSaleBanner)}>
-                <Image source={{ uri: CONFIG.image_base_url + activeFlashSaleBanner.imageUrl }} style={styles.podiumImageBackground} resizeMode="cover" />
-              </TouchableOpacity>
+        {/* BEST SELLING */}
+        {showCaseSliderFunc()}
 
-              {/* <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, marginTop: -90 }}>
+        {/* TOP BRANDS */}
+        <View style={styles.sectionContainer}>
+          <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>TOP BRANDS</Text>
+          <FlatList
+            data={activeTopBrands}
+            renderItem={renderBrandItem}
+            keyExtractor={(item, index) => item.bannerId?.toString() || item.id?.toString() || index.toString()}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.horizontalScrollPadding}
+          />
+        </View>
+
+        {/* G-SHOCK Black Section */}
+        {activeGShockItems?.length > 0 && gShockMainBanner && (
+          <View style={styles.gShockSectionWrapper}>
+            <ImageBackground source={{ uri: CONFIG.image_base_url + gShockMainBanner.imageUrl }} style={styles.gShockTopBanner} resizeMode="cover">
+              <View style={{ paddingHorizontal: 16, position: 'absolute', bottom: 20, left: 0, right: 0 }}>
+                <FlatList
+                  data={activeGShockItems}
+                  renderItem={renderGShockCard}
+                  keyExtractor={(item, index) => item.bannerId?.toString() || item.id?.toString() || index.toString()}
+                  numColumns={2}
+                  columnWrapperStyle={{ justifyContent: 'space-between' }}
+                  scrollEnabled={false}
+                />
+              </View>
+            </ImageBackground>
+          </View>
+        )}
+
+        {/* 11.11 SUPER SALE Banner */}
+        {activeSuperSaleBanners?.length > 0 && (
+          <View style={{ marginVertical: 10, alignItems: 'center' }}>
+            <FlatList
+              ref={superSaleRef}
+              data={activeSuperSaleBanners}
+              keyExtractor={(item, index) => item.bannerId?.toString() || item.id?.toString() || index.toString()}
+              horizontal
+              snapToInterval={width - 12}
+              decelerationRate="fast"
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 6 }}
+              onMomentumScrollEnd={(e) => {
+                const idx = Math.round(e.nativeEvent.contentOffset.x / (width - 12));
+                setSuperSaleIndex(Math.max(0, Math.min(idx, activeSuperSaleBanners.length - 1)));
+              }}
+              renderItem={({ item }) => (
+                <TouchableOpacity activeOpacity={0.9} onPress={() => handleBannerPress(item)}>
+                  <Image source={{ uri: CONFIG.image_base_url + item.imageUrl }} style={styles.superSaleBannerImage} resizeMode="cover" />
+                </TouchableOpacity>
+              )}
+            />
+            {/* Dots */}
+            <View style={styles.superSaleDotsContainer}>
+              {activeSuperSaleBanners.map((_: any, index: number) => (
+                <View key={index} style={[styles.superSalePill, superSaleIndex === index && { backgroundColor: colors.outlineTeal }]} />
+              ))}
+            </View>
+          </View>
+        )}
+
+        {/* FLASH SALE */}
+        {activeFlashSaleBanner && (
+          <View style={styles.flashSaleContainer}>
+            {/* <Text style={styles.hugeFlashText}>FLASH</Text> */}
+            <TouchableOpacity activeOpacity={0.9} onPress={() => handleBannerPress(activeFlashSaleBanner)}>
+              <Image source={{ uri: CONFIG.image_base_url + activeFlashSaleBanner.imageUrl }} style={styles.podiumImageBackground} resizeMode="cover" />
+            </TouchableOpacity>
+
+            {/* <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, marginTop: -90 }}>
               {flashSaleItems.map((item, index) => (
                 <React.Fragment key={item.id}>
                   {renderFlashSaleItem({ item })}
                 </React.Fragment>
               ))}
             </ScrollView> */}
-              <View style={{ marginTop: -60, position: 'relative' }}>
-                <ClickForMoreButton 
-                  onPress={() => {
-                    const id = activeFlashSaleBanner?.targetId || activeFlashSaleBanner?.linkValue || activeFlashSaleBanner?.id || activeFlashSaleBanner?.catId;
-                    if (id) {
-                      navigation.navigate('ProductCategoryDetail', { 
-                        catId: id.toString(),
-                        title: "Category"
-                      });
-                    }
-                  }} 
-                  title="View all Flash Deals" 
-                />
-              </View>
-
-            </View>
-          )}
-
-          {/* EXPLORE */}
-          {
-            activeSecondProducts.length > 0 &&
-            <View style={styles.sectionContainer}>
-              <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>{parsedSecondBlock?.title}</Text>
-              <FlatList
-                data={activeSecondProducts}
-                renderItem={renderExploreItem}
-                keyExtractor={(item, index) => item.productId?.toString() || item.id?.toString() || index.toString()}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.horizontalScrollPadding}
-              />
-              <View style={{ marginTop: 16 }}>
-                <ClickForMoreButton 
-                  onPress={() => {
-                    const id = parsedSecondBlock?.catId || parsedSecondBlock?.id || parsedSecondBlock?.categoryId || parsedSecondBlock?.CategoryId;
-                    navigation.navigate('ProductCategoryDetail', { 
-                        catId: id?.toString(),
-                        title: "Category",
-                        products: activeSecondProducts
+            <View style={{ marginTop: -60, position: 'relative' }}>
+              <ClickForMoreButton
+                onPress={() => {
+                  const id = activeFlashSaleBanner?.targetId || activeFlashSaleBanner?.linkValue || activeFlashSaleBanner?.id || activeFlashSaleBanner?.catId;
+                  if (id) {
+                    navigation.navigate('ProductCategoryDetail', {
+                      catId: id.toString(),
+                      title: "Category"
                     });
-                  }} 
-                  title="Click for more" 
-                />
-              </View>
+                  }
+                }}
+                title="View all Flash Deals"
+              />
             </View>
-          }
 
-        </ScrollView>
-        <FloatingCartButton />
-      </View>
-      );
+          </View>
+        )}
+
+        {/* EXPLORE */}
+        {
+          activeSecondProducts.length > 0 &&
+          <View style={styles.sectionContainer}>
+            <Text style={[styles.sectionTitle, localStyle.sectionTitleAlignment]}>{parsedSecondBlock?.title}</Text>
+            <FlatList
+              data={activeSecondProducts}
+              renderItem={renderExploreItem}
+              keyExtractor={(item, index) => item.productId?.toString() || item.id?.toString() || index.toString()}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.horizontalScrollPadding}
+            />
+            <View style={{ marginTop: 16 }}>
+              <ClickForMoreButton
+                onPress={() => {
+                  const id = parsedSecondBlock?.catId || parsedSecondBlock?.id || parsedSecondBlock?.categoryId || parsedSecondBlock?.CategoryId;
+                  navigation.navigate('ProductCategoryDetail', {
+                    catId: id?.toString(),
+                    title: "Category",
+                    products: activeSecondProducts
+                  });
+                }}
+                title="Click for more"
+              />
+            </View>
+          </View>
+        }
+
+      </ScrollView>
+      <FloatingCartButton />
+    </View>
+  );
 };
 
-      export default HomeScreen;
+export default HomeScreen;
 
-      const localStyle = StyleSheet.create({
-        sectionTitleAlignment: {
-        textAlign: 'center',
-      marginBottom: 20,
+const localStyle = StyleSheet.create({
+  sectionTitleAlignment: {
+    textAlign: 'center',
+    marginBottom: 20,
   },
-      bestSellingCard: {
-        marginHorizontal: 16,
-      backgroundColor: '#8ED2C9',
-      borderRadius: 24,
-      height: 390,
-      justifyContent: 'flex-end',
-      padding: 16,
-      overflow: 'hidden',
-      position: 'relative',
+  bestSellingCard: {
+    marginHorizontal: 16,
+    backgroundColor: '#8ED2C9',
+    borderRadius: 24,
+    height: 390,
+    justifyContent: 'flex-end',
+    padding: 16,
+    overflow: 'hidden',
+    position: 'relative',
   },
-      // Center (active) image — large, in the middle
-      centerImage: {
-        position: 'absolute',
-      alignSelf: 'center',
-      width: '65%',
-      height: '75%',
-      top: 20,
-      zIndex: 2,
+  // Center (active) image — large, in the middle
+  centerImage: {
+    position: 'absolute',
+    alignSelf: 'center',
+    width: '65%',
+    height: '75%',
+    top: 20,
+    zIndex: 2,
   },
-      // Adjacent item images peeking from left/right at 50% opacity
-      sideImage: {
-        position: 'absolute',
-      width: '42%',
-      height: '62%',
-      top: 46,
-      opacity: 0.5,
-      zIndex: 1,
+  // Adjacent item images peeking from left/right at 50% opacity
+  sideImage: {
+    position: 'absolute',
+    width: '42%',
+    height: '62%',
+    top: 46,
+    opacity: 0.5,
+    zIndex: 1,
   },
-      sideImageLeft: {
-        left: -30,
+  sideImageLeft: {
+    left: -30,
   },
-      sideImageRight: {
-        right: -30,
+  sideImageRight: {
+    right: -30,
   },
-      arrowOverlay: {
-        position: 'absolute',
-      top: '42%',
-      zIndex: 4,
-      elevation: 4,
-      shadowColor: '#000',
-      shadowOffset: {width: 0, height: 2 },
-      shadowOpacity: 0.15,
-      shadowRadius: 4,
+  arrowOverlay: {
+    position: 'absolute',
+    top: '42%',
+    zIndex: 4,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
   },
-      brandGradient: {
-        flex: 1,
-      width: '100%',
-      alignItems: 'center',
-      paddingTop: 14,
-      overflow: 'hidden',
-      position: 'relative',
-      borderRadius: 20
+  brandGradient: {
+    flex: 1,
+    width: '100%',
+    alignItems: 'center',
+    paddingTop: 14,
+    overflow: 'hidden',
+    position: 'relative',
+    borderRadius: 20
   },
-      // Watermark background: pinned to top, 70% height, full width
-      brandImageArea: {
-        position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      width: '100%',
-      height: '70%',
+  // Watermark background: pinned to top, 70% height, full width
+  brandImageArea: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    width: '100%',
+    height: '70%',
   },
-      // Product image: pinned to bottom, 70% height
-      brandProductImage: {
-        position: 'absolute',
-      bottom: 0,
-      left: 0,
-      right: 0,
-      width: '100%',
-      height: '80%',
-      zIndex: 1,
+  // Product image: pinned to bottom, 70% height
+  brandProductImage: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    width: '100%',
+    height: '80%',
+    zIndex: 1,
   },
-      brandGradientLogo: {
-        marginBottom: 6,
+  brandGradientLogo: {
+    marginBottom: 6,
   },
-      superSaleCard: {
-        width: width - 20,
-      height: 200,
-      marginHorizontal: 10,
-      borderRadius: 20,
-      padding: 20,
-      justifyContent: 'flex-end',
+  superSaleCard: {
+    width: width - 20,
+    height: 200,
+    marginHorizontal: 10,
+    borderRadius: 20,
+    padding: 20,
+    justifyContent: 'flex-end',
   },
-      superSaleBadge: {
-        alignSelf: 'flex-start',
-      backgroundColor: 'rgba(255,255,255,0.3)',
-      borderRadius: 20,
-      paddingHorizontal: 12,
-      paddingVertical: 4,
-      marginBottom: 10,
+  superSaleBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    marginBottom: 10,
   },
-      superSaleBadgeText: {
-        color: '#fff',
-      fontSize: 12,
-      fontFamily: 'Gilroy-Bold',
-      fontWeight: '700',
+  superSaleBadgeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontFamily: 'Gilroy-Bold',
+    fontWeight: '700',
   },
-      superSaleTitle: {
-        color: '#fff',
-      fontSize: 28,
-      fontFamily: 'Gilroy-ExtraBold',
-      fontWeight: '800',
-      letterSpacing: 1,
+  superSaleTitle: {
+    color: '#fff',
+    fontSize: 28,
+    fontFamily: 'Gilroy-ExtraBold',
+    fontWeight: '800',
+    letterSpacing: 1,
   },
-      superSaleSubtitle: {
-        color: 'rgba(255,255,255,0.85)',
-      fontSize: 13,
-      fontFamily: 'Gilroy-Medium',
-      marginTop: 4,
+  superSaleSubtitle: {
+    color: 'rgba(255,255,255,0.85)',
+    fontSize: 13,
+    fontFamily: 'Gilroy-Medium',
+    marginTop: 4,
   },
 })

@@ -1,10 +1,11 @@
-import { useMemo, useCallback, useRef, useEffect } from 'react';
+import { useMemo, useCallback, useRef, useEffect, useContext } from 'react';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useCart } from '../context/CartContext';
 import { useOffers } from './useOffers';
 import { useDeliverySlot } from './useDeliverySlot';
 import { useAddresses } from './useAddresses';
 import { useUser } from '../context/UserContext';
+import { LoaderContext } from '../context/loaderContext';
 
 export const useCartScreen = () => {
     const navigation = useNavigation<any>();
@@ -12,9 +13,10 @@ export const useCartScreen = () => {
 
     // ─── Composed hooks ───
     const { profile } = useUser();
+    const { showLoader } = useContext(LoaderContext);
     const deliveryHook = useDeliverySlot();
     const addressHook = useAddresses();
-    const offersHook = useOffers(deliveryHook, addressHook, cartSummary, getCartSummary, profile, loadCart);
+    const offersHook = useOffers(deliveryHook, addressHook, cartSummary, getCartSummary, profile, loadCart, showLoader);
 
     // ─── Bill calculations ───
     const frontendBillCalculations = useMemo(() => {
@@ -47,18 +49,33 @@ export const useCartScreen = () => {
 
     const billCalculations = useMemo(() => {
         if (cartSummary) {
+            // Helper to get value with multiple possible keys
+            const getVal = (primary: string, ...fallbacks: string[]) => {
+                if (cartSummary[primary] !== undefined) return cartSummary[primary];
+                for (const f of fallbacks) {
+                    if (cartSummary[f] !== undefined) return cartSummary[f];
+                }
+                return undefined;
+            };
+
+            const subTotal = getVal('subTotal', 'subtotal', 'itemTotal', 'item_total') ?? frontendBillCalculations.itemTotal;
+            const productDiscount = getVal('discountTotal', 'productDiscount', 'product_discount', 'discountAmount', 'savings') ?? 0;
+            const deliveryCharge = getVal('deliveryCharge', 'deliveryAmount', 'delivery_amount', 'shippingFee') ?? 0;
+            const totalTax = getVal('taxTotal', 'totalTax', 'taxAmount', 'tax_total') ?? 0;
+            const grandTotal = getVal('grandTotal', 'totalAmount', 'grand_total', 'toPay') ?? frontendBillCalculations.toPay;
+
             return {
-                mrpTotal: (cartSummary.subTotal || 0) + (cartSummary.productDiscount || 0),
-                itemTotal: cartSummary.subTotal ?? frontendBillCalculations.itemTotal,
-                savings: cartSummary.productDiscount ?? 0,
-                deliveryCharge: cartSummary.deliveryAmount ?? 0,
-                couponDiscount: cartSummary.couponAmount ?? 0,
-                giftCardAmount: cartSummary.giftCardAmount ?? 0,
-                bcoinsAppliedValue: cartSummary.bcoinsAppliedValue ?? 0,
-                totalTax: cartSummary.totalTax ?? 0,
-                totalBtokens: cartSummary.totalBtokens ?? 0,
-                totalSavings: cartSummary.totalDiscount ?? 0,
-                toPay: cartSummary.grandTotal ?? frontendBillCalculations.toPay
+                mrpTotal: (subTotal || 0) + (productDiscount || 0),
+                itemTotal: subTotal,
+                savings: productDiscount,
+                deliveryCharge: deliveryCharge,
+                couponDiscount: getVal('couponDiscount', 'couponAmount', 'appliedCouponAmount', 'discountCoupon', 'couponAppliedValue') ?? 0,
+                giftCardAmount: getVal('giftCardAmount', 'giftcardValue', 'appliedGiftCardAmount') ?? 0,
+                bcoinsAppliedValue: getVal('bCoinAppliedValue', 'bcoinsAppliedValue', 'appliedBcoins', 'bcoinValue', 'bcoinDiscount', 'bCoinAmount', 'bCoinDiscount') ?? 0,
+                totalTax: totalTax,
+                totalBtokens: getVal('totalBtokens', 'totalBtoken', 'bTokenTotal') ?? 0,
+                totalSavings: getVal('discountTotal', 'totalDiscount', 'totalSavings') ?? productDiscount,
+                toPay: grandTotal
             };
         }
         return frontendBillCalculations;
@@ -104,10 +121,22 @@ export const useCartScreen = () => {
     useEffect(() => {
         if (isInitialMount.current || !selectedAddress) return;
 
-        console.log('🔄 [HOOK] Refreshing summary on change:', selectedAddress?.id);
-        // Added null as 4th arg for couponCode to correctly pass pincodeAreaId as 5th
-        getCartSummary(deliveryHook.deliveryMode, deliveryHook.selectedSlot, null, null, selectedAddress?.pincodeAreaId);
-        deliveryHook.fetchSlots(selectedAddress?.pincodeAreaId);
+        console.log('🔄 [HOOK] Refreshing cart and summary on change:', {
+            reason: selectedAddress?.id,
+            version: cartSummary?.cartVersion
+        });
+
+        const refreshCartData = async () => {
+            // First get the fresh cart list to ensure we have the latest version
+            const loadResult = await loadCart();
+            const latestVersion = loadResult?.cartVersion || loadResult?.cart?.cartVersion;
+            
+            // Then get the summary using that latest version
+            await getCartSummary(deliveryHook.deliveryMode, deliveryHook.selectedSlot, latestVersion, null, selectedAddress?.pincodeAreaId);
+            await deliveryHook.fetchSlots(selectedAddress?.pincodeAreaId);
+        };
+
+        refreshCartData();
     }, [deliveryHook.selectedDeliveryType, deliveryHook.selectedSlot, selectedAddress?.id]);
 
     return {

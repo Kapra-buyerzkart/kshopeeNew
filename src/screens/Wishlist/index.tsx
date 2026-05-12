@@ -106,15 +106,20 @@ const WishlistScreen: React.FC = () => {
                     <FlatList
                         data={wishlistItems}
                         renderItem={({ item }) => (
-                            <ProductCard
-                                item={item}
-                                isWishlisted={true}
-                                isInCart={cartItems.some(c => c.productId === (item.productId || item.id))}
-                                onAddToCart={() => handleCartToggle(item)}
-                                onWishlistPress={() => setItemToRemove(item)}
-                            />
+                            <TouchableOpacity
+                                activeOpacity={0.9}
+                                onPress={() => navigation.navigate('ProductDetailsScreen', { productId: item.productId || item.id, product: item })}
+                            >
+                                <ProductCard
+                                    item={item}
+                                    isWishlisted={true}
+                                    isInCart={cartItems.some(c => c.productId === (item.productId || item.id))}
+                                    onAddToCart={() => navigation.navigate('ProductDetailsScreen', { productId: item.productId || item.id, product: item })}
+                                    onWishlistPress={() => setItemToRemove(item)}
+                                />
+                            </TouchableOpacity>
                         )}
-                        keyExtractor={(item) => (item.productId || item.id).toString()}
+                        keyExtractor={(item, index) => (item.productId || item.id || index).toString()}
                         numColumns={2}
                         contentContainerStyle={styles.listContent}
                         ListFooterComponent={renderFooter}

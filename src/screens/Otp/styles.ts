@@ -15,9 +15,10 @@ export const styles = StyleSheet.create({
     kapraLogo: { width: wp('47%'), height: hp('10%'), resizeMode: 'cover' },
     tagLine: { width: wp('50.7%'), height: hp('16.95%'), resizeMode: 'cover' },
     bottomContainer: {
-        height: hp('38%'),
+        minHeight: hp('38%'),
         paddingHorizontal: wp('5.8%'),
         paddingTop: hp('3.5%'),
+        paddingBottom: hp('3%'),
         borderTopLeftRadius: wp('9.3%'),
         borderTopRightRadius: wp('9.3%'),
         backgroundColor: colors.white,

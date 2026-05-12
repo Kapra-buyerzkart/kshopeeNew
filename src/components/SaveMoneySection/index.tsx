@@ -162,9 +162,28 @@ const SaveMoneySection: React.FC<SaveMoneySectionProps> = ({
                     </View>
                     <View style={styles.offerDetails}>
                         <Text style={styles.offerName}>B-coin</Text>
-                        <Text style={[styles.offerSub, { marginTop: 0 }]}>
-                            Available B-coins : {availableBCoins}
-                        </Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
+                            {bcoinsAppliedValue > 0 ? (
+                                <>
+                                    <View style={styles.appliedCouponTag}>
+                                        <Text style={styles.appliedCouponText}>
+                                            ₹{bcoinsAppliedValue}
+                                        </Text>
+                                    </View>
+                                    <MaterialCommunityIcons
+                                        name="check-circle"
+                                        size={14}
+                                        color={colors.green}
+                                        style={styles.checkIcon}
+                                    />
+                                    <Text style={styles.appliedBadgeText}>Applied</Text>
+                                </>
+                            ) : (
+                                <Text style={[styles.offerSub, { marginTop: 0 }]}>
+                                    Available B-coins : {availableBCoins}
+                                </Text>
+                            )}
+                        </View>
                     </View>
                     <TouchableOpacity
                         style={styles.applyBtn}

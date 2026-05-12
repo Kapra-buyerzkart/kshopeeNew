@@ -5,7 +5,7 @@ const CONFIG = {
   image_base_url: `https://kshadmin.kapradaily.com/`,
   // image_base_url: `https://backend.kapradaily.com/`,
   phone_length: 10,
-  referalUrl: `https://onboarding.kapradaily.com/`
+  referalUrl: `https://kshonboarding.kapradaily.com/`
 };
 
 

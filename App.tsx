@@ -30,7 +30,7 @@ function App() {
           <WishlistProvider>
             <AlertProvider>
               <NavigationContainer ref={navigationRef}>
-                {isConnected && <NetworkBanner />}
+                {!isConnected && <NetworkBanner />}
                 <RootStack />
               </NavigationContainer>
             </AlertProvider>

@@ -4,6 +4,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { AppIcons } from '../../assets/icons';
 import { colors } from '../../assets/theme/colours';
 import { cartItemCardStyles as styles } from './styles';
+import FallbackImage from '../FallbackImage';
 
 export interface CartItem {
     id: string;
@@ -34,7 +35,11 @@ const CartItemCard: React.FC<CartItemCardProps> = ({
         <View style={styles.itemCard}>
             {/* Top: Image + Details */}
             <View style={styles.itemTopRow}>
-                <Image source={{ uri: item.image }} style={styles.itemImage} resizeMode='cover' />
+                <FallbackImage 
+                    source={item.image ? { uri: item.image } : require('../../assets/images/logos/noimage.png')} 
+                    style={styles.itemImage} 
+                    resizeMode='cover' 
+                />
                 <View style={styles.itemDetails}>
                     <View style={styles.itemTitleRow}>
                         <Text style={styles.itemTitle} numberOfLines={2}>

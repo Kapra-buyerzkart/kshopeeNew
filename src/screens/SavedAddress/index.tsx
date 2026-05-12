@@ -139,7 +139,7 @@ const SavedAddressScreen: React.FC = () => {
 
             <FlatList
                 data={addresses}
-                keyExtractor={(item) => item.id.toString()}
+                keyExtractor={(item, index) => (item.id || index).toString()}
                 renderItem={renderAddressCard}
                 showsVerticalScrollIndicator={false}
                 refreshControl={

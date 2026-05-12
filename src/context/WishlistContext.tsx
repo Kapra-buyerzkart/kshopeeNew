@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useCallback, useMemo, useRef } from 'react';
+import React, { createContext, useState, useContext, useCallback, useMemo, useRef, useEffect } from 'react';
 import { addToWishlistApi, removeFromWishlistApi, getWishlistApi } from '../api/services/wishlistService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -106,6 +106,10 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             addToWishlist(item);
         }
     }, [isInWishlist, addToWishlist, removeFromWishlist]);
+
+    useEffect(() => {
+        loadWishlist();
+    }, [loadWishlist]);
 
     const value = useMemo(() => ({
         wishlistItems,

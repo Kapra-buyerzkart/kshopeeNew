@@ -49,6 +49,11 @@ const BillSection: React.FC<BillSectionProps> = ({ billCalculations }) => {
         toPay = 0,
     } = billCalculations;
 
+    const absSavings = Math.abs(savings);
+    const absCouponDiscount = Math.abs(couponDiscount);
+    const absGiftCardAmount = Math.abs(giftCardAmount);
+    const absBcoinsAppliedValue = Math.abs(bcoinsAppliedValue);
+
     return (
         <ImageBackground
             style={styles.billImageBackground}
@@ -62,12 +67,12 @@ const BillSection: React.FC<BillSectionProps> = ({ billCalculations }) => {
                 <Text style={styles.billHeaderText}>View Your Bill</Text>
             </View>
             <View>
-                {/* Item Total */}
-                <BillRow label="Item Total" value={`₹${itemTotal.toFixed(2)}`} />
+                {/* Item Total (MRP) */}
+                <BillRow label="Item Total" value={`₹${(billCalculations.mrpTotal || (itemTotal + savings)).toFixed(2)}`} />
 
                 {/* Discount */}
-                {savings > 0 && (
-                    <BillRow label="Discount" value={`- ₹${savings.toFixed(2)}`} isGreen />
+                {absSavings > 0 && (
+                    <BillRow label="Discount" value={`- ₹${absSavings.toFixed(2)}`} isGreen />
                 )}
 
                 {/* Delivery */}
@@ -83,18 +88,18 @@ const BillSection: React.FC<BillSectionProps> = ({ billCalculations }) => {
                 )}
 
                 {/* Coupon */}
-                {couponDiscount > 0 && (
-                    <BillRow label="Coupon Discount" value={`- ₹${couponDiscount.toFixed(2)}`} isGreen />
+                {absCouponDiscount > 0 && (
+                    <BillRow label="Coupon Discount" value={`- ₹${absCouponDiscount.toFixed(2)}`} isGreen />
                 )}
 
                 {/* Gift Card */}
-                {giftCardAmount > 0 && (
-                    <BillRow label="GiftCard Applied" value={`- ₹${giftCardAmount.toFixed(2)}`} isGreen />
+                {absGiftCardAmount > 0 && (
+                    <BillRow label="GiftCard Applied" value={`- ₹${absGiftCardAmount.toFixed(2)}`} isGreen />
                 )}
 
                 {/* B-Coins */}
-                {bcoinsAppliedValue > 0 && (
-                    <BillRow label="Bcoins Applied" value={`- ₹${bcoinsAppliedValue.toFixed(2)}`} isGreen />
+                {absBcoinsAppliedValue > 0 && (
+                    <BillRow label="Bcoins Applied" value={`- ₹${absBcoinsAppliedValue.toFixed(2)}`} isGreen />
                 )}
 
                 <View style={styles.billDivider} />

@@ -12,7 +12,6 @@ export const styles = StyleSheet.create({
         borderColor: colors.lightGrey,
         borderBottomLeftRadius: wp('8%'),
         borderBottomRightRadius: wp('8%'),
-        bottom: hp('1.9%')
     },
     areaCardAttached: {
         borderTopWidth: 0,
@@ -29,7 +28,6 @@ export const styles = StyleSheet.create({
         borderColor: colors.lightGrey,
         borderBottomLeftRadius: wp('8%'),
         borderBottomRightRadius: wp('8%'),
-        bottom: hp('1.9%'),
     },
     collapsedCardExpanded: {
         borderBottomLeftRadius: 0,

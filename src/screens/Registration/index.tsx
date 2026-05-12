@@ -25,6 +25,8 @@ import { getAreasByPincode, registerUser } from '../../api/services';
 import AreaSelectionCard from '../../components/AreaSelectionCard';
 import { mergeCustomerIdIntoProfile } from '../../utils/profileUtils';
 
+import { useUser } from '../../context/UserContext';
+
 // Using the same typo matching rootnavigation.js if they haven't fixed it
 type RootStackParamList = {
     RegistraionScreen: { phone: string; registerToken?: string };
@@ -39,6 +41,7 @@ const RegistrationScreen: React.FC = () => {
     const navigation = useNavigation<RegistrationScreenNavigationProp>();
     const route = useRoute<RegistrationScreenRouteProp>();
     const { showAlert } = useCustomAlert();
+    const { loadProfile } = useUser();
 
     const phone = route.params?.phone || '9988776655'; // Fallback for testing
 
@@ -85,12 +88,9 @@ const RegistrationScreen: React.FC = () => {
             isValid = false;
         }
 
-        if (!email.trim()) {
-            newErrors.email = 'Email is required';
+        if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            newErrors.email = 'Enter a valid email address';
             isValid = false;
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-             newErrors.email = 'Enter a valid email address';
-             isValid = false;
         }
 
         if (!password) {
@@ -132,7 +132,8 @@ const RegistrationScreen: React.FC = () => {
                 password,
                 whatsAppNo: '',
                 referCode: '',
-                pincodeAreaId: selectedArea.pincodeAreaId
+                pincodeAreaId: selectedArea.pincodeAreaId,
+                pincodeAreaName: selectedArea.areaName
             };
 
             const registerResponse = await registerUser(payload);
@@ -149,6 +150,7 @@ const RegistrationScreen: React.FC = () => {
                             if (custId) {
                                 await mergeCustomerIdIntoProfile(custId);
                             }
+                            await loadProfile();
                             navigation.reset({
                                 index: 0,
                                 routes: [{ name: 'MainTabs' }],
@@ -159,9 +161,12 @@ const RegistrationScreen: React.FC = () => {
             } else {
                 showAlert('Error', registerResponse?.message || 'Registration failed');
             }
-        } catch (error) {
+        } catch (error: any) {
             console.log('Register error:', error);
-            showAlert('Error', 'Something went wrong. Please try again.');
+            const errorMessage = typeof error === 'string' 
+                ? error 
+                : (error?.message || error?.Message || 'Something went wrong. Please try again.');
+            showAlert('Error', errorMessage);
         } finally {
             setLoading(false);
         }
@@ -247,7 +252,7 @@ const RegistrationScreen: React.FC = () => {
                                 />
                             </View>
 
-                            <View style={{}}>
+                            <View style={styles.inputSpacing}>
                                 <CustomInput
                                     label="Pin code"
                                     placeholder="00 00 00"

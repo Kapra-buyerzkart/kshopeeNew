@@ -70,7 +70,8 @@ const LoginScreen: React.FC = () => {
             }
         } catch (error: any) {
             console.error('Check Phone Error:', error);
-            showAlert('Error', error?.message || 'Something went wrong');
+            const errorMessage = typeof error === 'string' ? error : (error?.message || error?.Message || 'Something went wrong');
+            showAlert('Error', errorMessage);
         } finally {
             setLoading(false);
         }
@@ -99,7 +100,8 @@ const LoginScreen: React.FC = () => {
             }
         } catch (error: any) {
             console.error('Reset OTP Error:', error);
-            showAlert('Error', error?.message || 'Failed to send OTP');
+            const errorMessage = typeof error === 'string' ? error : (error?.message || error?.response?.data?.message || error?.Message || 'Failed to send OTP');
+            showAlert('Error', errorMessage);
         } finally {
             setLoading(false);
         }

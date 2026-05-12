@@ -1,4 +1,4 @@
-import { get, post, patch } from '../networkUtils';
+import { get, post, patch, deleteRequest } from '../networkUtils';
 
 export const getDashboardDataApi = async (): Promise<any> => {
     return get('me/dashboard');
@@ -25,19 +25,19 @@ export const changePasswordApi = async (payload: any): Promise<any> => {
 };
 
 export const requestEmailOtpApi = async (payload: { email: string }): Promise<any> => {
-    return post('me/updateemail/requestotp', payload);
+    return post('me/updateemail/requestotp', { newEmail: payload.email });
 };
 
 export const verifyEmailOtpApi = async (payload: { email: string; otp: string }): Promise<any> => {
-    return post('me/updateemail/verifyotp', payload);
+    return post('me/updateemail/verifyotp', { newEmail: payload.email, otp: payload.otp });
 };
 
 export const requestPhoneOtpApi = async (payload: { phone: string }): Promise<any> => {
-    return post('me/updatephone/requestotp', payload);
+    return post('me/updatephone/requestotp', { newPhone: payload.phone });
 };
 
 export const verifyPhoneOtpApi = async (payload: { phone: string; otp: string }): Promise<any> => {
-    return post('me/updatephone/verifyotp', payload);
+    return post('me/updatephone/verifyotp', { newPhone: payload.phone, otp: payload.otp });
 };
 
 export const getReferralHistoryApi = async (page: number = 1, pageSize: number = 20): Promise<any> => {
@@ -54,4 +54,8 @@ export const requestProductApi = async (payload: any): Promise<any> => {
 
 export const getBCoinValueChangesApi = async (): Promise<any> => {
     return get('general/bcoinvaluechanges');
+};
+
+export const deleteAccountApi = async (): Promise<any> => {
+    return deleteRequest('me');
 };

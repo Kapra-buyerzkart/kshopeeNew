@@ -25,6 +25,9 @@ import AddLocationScreen from '../screens/AddLocation';
 import OrderSuccessScreen from '../screens/Order/OrderSuccessScreen';
 import OrderFailedScreen from '../screens/Order/OrderFailedScreen';
 import OrderPendingScreen from '../screens/Order/OrderPendingScreen';
+import SearchScreen from '../screens/SearchScreen/SearchScreen';
+import UpdateContactScreen from '../screens/Profile/UpdateContactScreen';
+import UpdateContactOtpScreen from '../screens/Profile/UpdateContactOtpScreen';
 
 // import ChangePwdScreen from '../screens/ChangePwdScreen';
 // import LoginPwdScreen from '../screens/LoginPwdScreen';
@@ -73,6 +76,7 @@ export default function RootStack() {
         <Stack.Screen name="OtpScreen" component={OtpScreen} options={{ headerShown: false }} />
         <Stack.Screen name="RegistraionScreen" component={RegistrationScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Cart" component={CartScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="SearchScreen" component={SearchScreen} options={{ headerShown: false }} />
 
         <Stack.Screen name="ProductDetailsScreen" component={ProductDetails} options={{ headerShown: false }} />
         <Stack.Screen name="ProductCategoryDetail" component={ProductCategoryDetail} options={{ headerShown: false }} />
@@ -81,6 +85,8 @@ export default function RootStack() {
         <Stack.Screen name="Referral" component={ReferralScreen} options={{ headerShown: false }} />
         <Stack.Screen name="BCoin" component={BCoinScreen} options={{ headerShown: false }} />
         <Stack.Screen name="EditProfile" component={EditProfile} options={{ headerShown: false }} />
+        <Stack.Screen name="UpdateContactScreen" component={UpdateContactScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="UpdateContactOtpScreen" component={UpdateContactOtpScreen} options={{ headerShown: false }} />
         <Stack.Screen name="SavedAddressScreen" component={SavedAddressScreen} options={{ headerShown: false }} />
         <Stack.Screen name="AddLocationScreen" component={AddLocationScreen} options={{ headerShown: false }} />
         <Stack.Screen name="OrderSuccessScreen" component={OrderSuccessScreen} options={{ headerShown: false }} />

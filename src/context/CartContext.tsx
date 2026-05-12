@@ -1,5 +1,8 @@
 import React, { createContext, useContext, useState, useMemo, ReactNode, useCallback, useEffect } from 'react';
 import { getCartApi, getCartSummaryApi, clearCartApi } from '../api/services/cartService';
+import { getAddressListApi, deleteAddressApi } from '../api/services/addressService';
+import { Alert } from 'react-native';
+import Toast from 'react-native-simple-toast';
 import CONFIG from '../globals/config';
 
 export interface CartItem {
@@ -26,6 +29,13 @@ interface CartContextType {
     clearCart: () => Promise<void>;
     addresses: any[];
     fetchAddresses: () => Promise<void>;
+    isLoadingAddresses: boolean;
+    onSelectAddress: (id: string | number, showConfirmation: boolean) => void;
+    onThreeDotsClicked: (id: string | number) => void;
+    onCloseThreeDots: () => void;
+    onDeleteClicked: (id: string | number) => void;
+    addressConfirmationData: any;
+    setAddressConfirmationData: (data: any) => void;
     // ... add other necessary fields for CartScreen
     [key: string]: any;
 }
@@ -37,11 +47,16 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [cartSummary, setCartSummary] = useState<any | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [addresses, setAddresses] = useState<any[]>([]);
+    const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
+    const [addressConfirmationData, setAddressConfirmationData] = useState<any>(null);
     const cartSummaryRef = React.useRef<any>(null);
 
     const loadCart = useCallback(async () => {
         try {
             const response = await getCartApi();
+            console.log('🛒 [CartContext] loadCart response keys:', response?.data ? Object.keys(response.data) : 'no data');
+            console.log('🛒 [CartContext] loadCart cart object:', JSON.stringify(response?.data?.cart, null, 2));
+            
             if (response && response.success && response.data) {
                 const items = response.data.items || [];
                 const mappedItems = items.map((item: any) => ({
@@ -52,17 +67,24 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 }));
                 setCartItems(mappedItems);
 
-                // Keep cart version in summary state if available
-                if (response.data.cart) {
-                    setCartSummary((prev: any) => {
-                        const newSummary = {
-                            ...(prev || {}),
-                            cartVersion: response.data.cart.cartVersion,
-                            cartId: response.data.cart.cartId
-                        };
-                        cartSummaryRef.current = newSummary;
-                        return newSummary;
-                    });
+                // Extract cartId and cartVersion from all possible locations
+                const cartId = response.data.cartId ?? response.data.cart?.cartId ?? response.data.id ?? response.data.cart?.id;
+                const cartVersion = response.data.cartVersion ?? response.data.cart?.cartVersion ?? response.data.version ?? response.data.cart?.version;
+                
+                console.log('🛒 [CartContext] Raw Response Data:', JSON.stringify(response.data, null, 2));
+                console.log('🛒 [CartContext] Resolved cartId:', cartId, 'cartVersion:', cartVersion);
+                
+                if (cartId !== undefined && cartId !== null || cartVersion) {
+                    cartSummaryRef.current = {
+                        ...(cartSummaryRef.current || {}),
+                        ...(cartVersion && { cartVersion }),
+                        ...((cartId !== undefined && cartId !== null) && { cartId }),
+                    };
+                    setCartSummary((prev: any) => ({
+                        ...(prev || {}),
+                        ...(cartVersion && { cartVersion }),
+                        ...((cartId !== undefined && cartId !== null) && { cartId }),
+                    }));
                 }
                 return response.data;
             }
@@ -77,12 +99,14 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const cartIdToUse = cartSummaryRef.current?.cartId;
         try {
             const response = await getCartSummaryApi(deliveryMode, deliverySlotId, versionToUse, cartIdToUse, pincodeAreaId);
+            console.log('📊 [CartContext] Summary Response:', JSON.stringify(response, null, 2));
             if (response && response.success) {
                 setCartSummary(response.data);
                 cartSummaryRef.current = response.data;
                 return response;
             } else {
                 setError(response?.message || 'Failed to get cart summary');
+                return response;
             }
         } catch (err: any) {
             setError(err.message || 'Error occurred while fetching summary');
@@ -102,8 +126,99 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, []);
 
     const fetchAddresses = useCallback(async () => {
-        // This will be handled by useAddresses hook mostly, but keeping it here for compat
+        try {
+            setIsLoadingAddresses(true);
+            const response = await getAddressListApi();
+            if (response && response.success && Array.isArray(response.data)) {
+                const formatted = response.data.map((addr: any, index: number) => {
+                    const actualId = addr.custAddressId ?? addr.addressId ?? addr.id ?? index;
+                    return {
+                        id: actualId,
+                        type: addr.addressType === 'HOME' ? 'Home'
+                            : addr.addressType === 'OFFICE' ? 'Office'
+                                : addr.addressType || 'Other',
+                        address: [addr.addLine1, addr.addLine2, addr.landmark, addr.pincodeAreaName || addr.areaName].filter(Boolean).join(', '),
+                        phone: addr.phone || '',
+                        pin: addr.pincode || '',
+                        selected: addr.isDefaultShippingAddress || false,
+                        threeDotsClicked: false,
+                        pincodeAreaId: addr.pincodeAreaId,
+                        raw: addr,
+                    };
+                });
+                setAddresses(formatted);
+            }
+        } catch (error) {
+            console.error('Error refreshing addresses:', error);
+        } finally {
+            setIsLoadingAddresses(false);
+        }
     }, []);
+
+    const onSelectAddress = useCallback((id: string | number, showConfirmation: boolean) => {
+        setAddresses(prev =>
+            prev.map(addr => ({
+                ...addr,
+                selected: addr.id === id,
+                threeDotsClicked: false,
+            }))
+        );
+        const selectedAddr = addresses.find(a => a.id === id);
+        if (selectedAddr && showConfirmation) {
+            setAddressConfirmationData({
+                pincode: selectedAddr.pin,
+                areaName: selectedAddr.raw?.pincodeAreaName || '',
+                isServiceable: true,
+                isPlacingOrder: false,
+            });
+        }
+    }, [addresses]);
+
+    const onThreeDotsClicked = useCallback((id: string | number) => {
+        setAddresses(prev =>
+            prev.map(addr => ({
+                ...addr,
+                threeDotsClicked: addr.id === id,
+            }))
+        );
+    }, []);
+
+    const onCloseThreeDots = useCallback(() => {
+        setAddresses(prev =>
+            prev.map(addr => ({
+                ...addr,
+                threeDotsClicked: false,
+            }))
+        );
+    }, []);
+
+    const onDeleteClicked = useCallback((id: string | number) => {
+        Alert.alert(
+            'Delete Address',
+            'Are you sure you want to delete this address?',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            const response = await deleteAddressApi(id);
+                            if (response && response.success !== false) {
+                                Toast.show('Address deleted', Toast.SHORT);
+                                await fetchAddresses();
+                            } else {
+                                Toast.show(response?.message || 'Failed to delete', Toast.SHORT);
+                            }
+                        } catch (error) {
+                            console.error('Error deleting address:', error);
+                            Toast.show('Error deleting address', Toast.SHORT);
+                        }
+                    },
+                },
+            ]
+        );
+    }, [fetchAddresses]);
 
     useEffect(() => {
         loadCart();
@@ -124,6 +239,13 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             clearCart,
             addresses,
             fetchAddresses,
+            isLoadingAddresses,
+            onSelectAddress,
+            onThreeDotsClicked,
+            onCloseThreeDots,
+            onDeleteClicked,
+            addressConfirmationData,
+            setAddressConfirmationData,
             refreshCart: loadCart,
         }}>
             {children}

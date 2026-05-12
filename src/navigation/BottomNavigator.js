@@ -7,9 +7,10 @@ import ShopWithUsScreen from '../screens/ShopWithUs/ShopWithUs';
 import CategoryScreen from '../screens/Category/Category';
 import DetailScreen from '../screens/Details';
 import WishlistScreen from '../screens/Wishlist';
+import KshopeScreen from '../screens/Kshope/KshopeScreen';
 
 import { colors } from '../assets/theme/colours';
-import { Image, View, Text, StyleSheet, Linking } from 'react-native';
+import { Image, View, Text, StyleSheet, Linking, Platform } from 'react-native';
 
 
 const Tab = createBottomTabNavigator();
@@ -41,7 +42,7 @@ const BottomTabNavigator = () => {
                         iconSource = focused ? require('../assets/images/bottomtab/wishlist_fill.png') : require('../assets/images/bottomtab/wishlist.png');
                         //label = 'Wish List';
                     } else if (route.name === 'KebraScreen') {
-                        iconSource = require('../assets/images/bottomtab/kabra.png');
+                        iconSource = require('../assets/images/bottomtab/udendeallogo.png');
                         isKebra = true;
                     }
 
@@ -74,7 +75,10 @@ const BottomTabNavigator = () => {
                 listeners={{
                     tabPress: (e) => {
                         e.preventDefault();
-                        Linking.openURL('https://play.google.com/store/apps/details?id=com.buyerskart.customer');
+                        const url = Platform.OS === 'ios'
+                            ? 'https://apps.apple.com/in/app/uden-deal/id6448085736' // Please provide the actual App Store link
+                            : 'https://play.google.com/store/apps/details?id=com.buyerskart.customer';
+                        Linking.openURL(url);
                     },
                 }}
             />
@@ -128,7 +132,7 @@ const styles = StyleSheet.create({
     kebraIcon: {
         width: 100,
         height: 50,
-        marginTop: 20,
+        //marginTop: 20,
     }
 });
 

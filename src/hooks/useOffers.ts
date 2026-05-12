@@ -1,13 +1,15 @@
 import { useState, useCallback, useEffect } from 'react';
+import { Alert } from 'react-native';
 import {
     applyBCoinApi, removeBCoinApi,
     applyCouponApi, removeCouponApi,
     applyGiftCardApi, removeGiftCardApi,
     getAvailableCouponsApi, getAvailableGiftCardsApi
 } from '../api/services/cartService';
+import Toast from 'react-native-simple-toast';
 
 
-export const useOffers = (deliveryHook: any, addressHook: any, cartSummary: any, getCartSummary: any, profile: any, refreshCart: any) => {
+export const useOffers = (deliveryHook: any, addressHook: any, cartSummary: any, getCartSummary: any, profile: any, refreshCart: any, showLoader?: (show: boolean) => void) => {
     const [showCouponModal, setShowCouponModal] = useState(false);
     const [couponCode, setCouponCode] = useState('');
     const [isGiftCard, setIsGiftCard] = useState(false);
@@ -36,63 +38,168 @@ export const useOffers = (deliveryHook: any, addressHook: any, cartSummary: any,
         fetchOfferData();
     }, [fetchOfferData]);
 
-    const onApplyOffer = useCallback(async (offerType: string) => {
-        // offerType: '2' for Coupon, '3' for BCoin, '4' for Smart Point
-        if (offerType === '2') {
+    useEffect(() => {
+        if (cartSummary) {
+            setAppliedCouponCode(cartSummary.couponCode || cartSummary.coupon || cartSummary.appliedCoupon || cartSummary.appliedCouponCode || null);
+            setAppliedGiftCardCode(cartSummary.giftCardCode || cartSummary.giftCard || cartSummary.appliedGiftCard || null);
+        }
+    }, [cartSummary]);
+
+    const handleApplyOffer = async (code: string, isGiftCard: boolean) => {
+        if (!code) return;
+        const pincodeAreaId = selectedAddress?.pincodeAreaId;
+        const deliveryMode = deliveryHook?.deliveryMode || 'express';
+        const slotId = deliveryHook?.selectedSlot;
+
+        if (!cartSummary?.cartVersion) {
+            console.log('Cannot apply offer: cartVersion missing', cartSummary);
+            Toast.show('Cart session expired, please refresh', Toast.SHORT);
+            return;
+        }
+
+        try {
+            if (showLoader) showLoader(true);
+            let res;
+            const version = cartSummary.cartVersion;
+            const cartId = cartSummary.cartId;
+            
+            console.log(`Applying ${isGiftCard ? 'GiftCard' : 'Coupon'}:`, { 
+                code, 
+                version, 
+                cartId, 
+                pincodeAreaId 
+            });
+
+            if (isGiftCard) {
+                res = await applyGiftCardApi(code, version, pincodeAreaId, cartId);
+            } else {
+                res = await applyCouponApi(code, version, pincodeAreaId, cartId);
+            }
+            console.log('Apply Offer Response:', res);
+
+            if (res?.success) {
+                if (isGiftCard) setAppliedGiftCardCode(code);
+                else setAppliedCouponCode(code);
+                
+                const newVersion = res?.data?.cartVersion || res?.data?.version || res?.cartVersion || res?.data?.cart?.cartVersion || res?.data?.cart?.version || null;
+                await getCartSummary(deliveryMode, slotId, newVersion, null, pincodeAreaId);
+                Toast.show(`${isGiftCard ? 'Gift Card' : 'Coupon'} applied successfully`, Toast.SHORT);
+            } else {
+                Toast.show(res?.message || `Failed to apply ${isGiftCard ? 'gift card' : 'coupon'}`, Toast.SHORT);
+            }
+        } catch (error) {
+            console.error('Error applying offer:', error);
+            Toast.show('An error occurred while applying the offer', Toast.SHORT);
+        } finally {
+            if (showLoader) showLoader(false);
+        }
+    };
+
+    const handleApplyCoupon = useCallback((code: string) => {
+        handleApplyOffer(code, isGiftCard);
+        setShowCouponModal(false);
+    }, [handleApplyOffer, isGiftCard]);
+
+    const onApplyOffer = async (offerId: string) => {
+        const pincodeAreaId = selectedAddress?.pincodeAreaId;
+        const deliveryMode = deliveryHook?.deliveryMode || 'express';
+        const slotId = deliveryHook?.selectedSlot;
+
+        console.log('onApplyOffer triggered:', offerId, { profile, cartSummary });
+        
+        if (offerId === '2') {
+            // Coupon
             setIsGiftCard(false);
             setShowCouponModal(true);
-        } else if (offerType === '3') {
-            // Apply all available B-coins from profile
-            try {
-                const bcoinsToApply = profile?.totalBCoins || profile?.bCoins || 0;
-                if (bcoinsToApply > 0) {
-                    await applyBCoinApi(bcoinsToApply, cartSummary?.cartVersion);
-                    await refreshCart();
-                    await getCartSummary();
-                }
-            } catch (err) {
-                console.error('Error applying BCoin:', err);
-            }
-        } else if (offerType === '4') {
+        } else if (offerId === '4') {
+            // Gift Card
             setIsGiftCard(true);
             setShowCouponModal(true);
+        } else if (offerId === '3') {
+            // B-coin
+            try {
+                const bcoinsToApply = profile?.totalBCoins || profile?.bCoins || profile?.walletBalance || 0;
+                console.log('BCoins to apply:', bcoinsToApply);
+
+                if (bcoinsToApply <= 0) {
+                    Toast.show('No B-coins available to apply', Toast.SHORT);
+                    return;
+                }
+                
+                if (!cartSummary?.cartVersion) {
+                    Toast.show('Cart session expired, please refresh', Toast.SHORT);
+                    return;
+                }
+
+                if (showLoader) showLoader(true);
+                const version = cartSummary.cartVersion;
+                const cartId = cartSummary.cartId;
+                
+                console.log('Applying BCoin:', { bcoinsToApply, version, cartId });
+                const res = await applyBCoinApi(bcoinsToApply, version, cartId);
+                console.log('BCoin Response:', res);
+                
+                if (res?.success) {
+                    const newVersion = res?.data?.cartVersion || res?.data?.version || res?.cartVersion || res?.data?.cart?.cartVersion || res?.data?.cart?.version || null;
+                    await getCartSummary(deliveryMode, slotId, newVersion, null, pincodeAreaId);
+                    Toast.show('B-coins applied successfully', Toast.SHORT);
+                } else {
+                    Toast.show(res?.message || 'Failed to apply B-coins', Toast.SHORT);
+                }
+            } catch (error) {
+                console.error('Error applying BCoin:', error);
+                Toast.show('An error occurred', Toast.SHORT);
+            } finally {
+                if (showLoader) showLoader(false);
+            }
         }
-    }, [cartSummary, getCartSummary]);
+    };
 
     const onRejectOffer = useCallback(async (offerType: string) => {
-        try {
-            if (offerType === '2') {
-                await removeCouponApi(cartSummary?.cartVersion);
-                setAppliedCouponCode(null);
-            } else if (offerType === '3') {
-                await removeBCoinApi(cartSummary?.cartVersion);
-            } else if (offerType === '4') {
-                await removeGiftCardApi(cartSummary?.cartVersion);
-                setAppliedGiftCardCode(null);
-            }
-            await refreshCart();
-            await getCartSummary();
-        } catch (err) {
-            console.error('Error removing offer:', err);
-        }
-    }, [cartSummary, getCartSummary]);
+        const pincodeAreaId = selectedAddress?.pincodeAreaId;
+        const deliveryMode = deliveryHook?.deliveryMode || 'express';
+        const slotId = deliveryHook?.selectedSlot;
 
-    const handleApplyCoupon = useCallback(async (code: string) => {
         try {
-            if (isGiftCard) {
-                await applyGiftCardApi(code, cartSummary?.cartVersion, selectedAddress?.pincodeAreaId);
-                setAppliedGiftCardCode(code);
-            } else {
-                await applyCouponApi(code, cartSummary?.cartVersion, selectedAddress?.pincodeAreaId);
-                setAppliedCouponCode(code);
+            if (showLoader) showLoader(true);
+            let res;
+            const version = cartSummary?.cartVersion;
+            const cartId = cartSummary?.cartId;
+
+            if (offerType === '2') {
+                res = await removeCouponApi(version, cartId);
+                if (res?.success) {
+                    setAppliedCouponCode(null);
+                    Toast.show('Coupon removed', Toast.SHORT);
+                }
+            } else if (offerType === '3') {
+                res = await removeBCoinApi(version, cartId);
+                if (res?.success) {
+                    Toast.show('B-coins removed', Toast.SHORT);
+                }
+            } else if (offerType === '4') {
+                res = await removeGiftCardApi(version, cartId);
+                if (res?.success) {
+                    setAppliedGiftCardCode(null);
+                    Toast.show('Gift card removed', Toast.SHORT);
+                }
             }
-            await refreshCart();
-            await getCartSummary();
-            setShowCouponModal(false);
-        } catch (err) {
-            console.error('Error applying coupon/giftcard:', err);
+
+            if (res?.success) {
+                const newVersion = res?.data?.cartVersion || res?.data?.version || res?.cartVersion || res?.data?.cart?.cartVersion || res?.data?.cart?.version || null;
+                await getCartSummary(deliveryMode, slotId, newVersion, null, pincodeAreaId);
+            } else {
+                Toast.show(res?.message || 'Failed to remove offer', Toast.SHORT);
+            }
+        } catch (err: any) {
+            console.error('Error removing offer:', err);
+            Toast.show('Failed to remove offer', Toast.SHORT);
+        } finally {
+            if (showLoader) showLoader(false);
         }
-    }, [isGiftCard, cartSummary, getCartSummary, selectedAddress]);
+    }, [cartSummary, getCartSummary, selectedAddress, deliveryHook, refreshCart]);
+
+
 
     const handleCouponClick = useCallback((coupon: any) => {
         handleApplyCoupon(coupon.code || coupon.couponCode);

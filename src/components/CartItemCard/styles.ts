@@ -20,8 +20,8 @@ export const cartItemCardStyles = StyleSheet.create({
         width: 110,
         height: 100,
         borderRadius: 21,
-        //resizeMode: 'contain',
-        //  backgroundColor: 'red',
+        borderWidth: 1,
+        borderColor: '#F0F0F0',
     },
     itemDetails: {
         flex: 1,

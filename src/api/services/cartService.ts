@@ -88,7 +88,7 @@ export const getCartApi = async (pincodeAreaId?: number | null): Promise<any> =>
 export const getCartSummaryApi = async (deliveryMode: string = 'express', deliverySlotId: string | number | null = null, cartVersion: string | number | null = null, cartId: string | number | null = null, pincodeAreaIdOverride: number | null = null): Promise<any> => {
     const userId = await getUserId();
     const pincodeAreaId = pincodeAreaIdOverride || await getPincodeAreaId();
-    const idToUse = cartId || userId;
+    const idToUse = (cartId !== undefined && cartId !== null) ? cartId : userId;
     const payload = {
         pincodeAreaId,
         deliveryMode,
@@ -105,14 +105,15 @@ export const clearCartApi = async (cartVersion?: string | number | null, cartId?
 
 export const applyBCoinApi = async (bcoins: number, cartVersion: string | number, cartId?: string | number | null): Promise<any> => {
     const userId = await getUserId();
-    const idToUse = cartId || userId;
+    const idToUse = (cartId !== undefined && cartId !== null) ? cartId : userId;
+    console.log('🪙 [API] applyBCoin:', { bcoins, cartVersion, cartId, userId, idToUse });
     const payload = { bcoins, ifMatchCartVersion: cartVersion };
     return post(`cart/${idToUse}/applybcoin`, payload);
 };
 
 export const removeBCoinApi = async (cartVersion: string | number, cartId?: string | number | null): Promise<any> => {
     const userId = await getUserId();
-    const idToUse = cartId || userId;
+    const idToUse = (cartId !== undefined && cartId !== null) ? cartId : userId;
     const payload = { ifMatchCartVersion: cartVersion };
     return post(`cart/${idToUse}/removebcoin`, payload);
 };
@@ -120,14 +121,15 @@ export const removeBCoinApi = async (cartVersion: string | number, cartId?: stri
 export const applyCouponApi = async (couponCode: string, cartVersion: string | number, pincodeAreaId?: number | null, cartId?: string | number | null): Promise<any> => {
     const userId = await getUserId();
     const areaId = pincodeAreaId || await getPincodeAreaId();
-    const idToUse = cartId || userId;
+    const idToUse = (cartId !== undefined && cartId !== null) ? cartId : userId;
+    console.log('🎫 [API] applyCoupon:', { couponCode, cartVersion, cartId, userId, idToUse, areaId });
     const payload = { couponCode, pincodeAreaId: areaId, ifMatchCartVersion: cartVersion };
     return post(`cart/${idToUse}/applycoupon`, payload);
 };
 
 export const removeCouponApi = async (cartVersion: string | number, cartId?: string | number | null): Promise<any> => {
     const userId = await getUserId();
-    const idToUse = cartId || userId;
+    const idToUse = (cartId !== undefined && cartId !== null) ? cartId : userId;
     const payload = { ifMatchCartVersion: cartVersion };
     return post(`cart/${idToUse}/removecoupon`, payload);
 };
@@ -139,15 +141,16 @@ export const getAvailableCouponsApi = async (pincodeAreaId?: number | null): Pro
 
 export const applyGiftCardApi = async (giftCode: string, cartVersion: string | number, pincodeAreaId?: number | null, cartId?: string | number | null): Promise<any> => {
     const userId = await getUserId();
-    const idToUse = cartId || userId;
+    const idToUse = (cartId !== undefined && cartId !== null) ? cartId : userId;
     const areaId = pincodeAreaId || await getPincodeAreaId();
+    console.log('🎁 [API] applyGiftCard:', { giftCode, cartVersion, cartId, userId, idToUse, areaId });
     const payload = { giftCode, pincodeAreaId: areaId, ifMatchCartVersion: cartVersion };
     return post(`cart/${idToUse}/applygiftcard`, payload);
 };
 
 export const removeGiftCardApi = async (cartVersion: string | number, cartId?: string | number | null): Promise<any> => {
     const userId = await getUserId();
-    const idToUse = cartId || userId;
+    const idToUse = (cartId !== undefined && cartId !== null) ? cartId : userId;
     const payload = { ifMatchCartVersion: cartVersion };
     return post(`cart/${idToUse}/removegiftcard`, payload);
 };

@@ -1,6 +1,19 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
-import { View, Text, ScrollView, Image, TouchableOpacity, StatusBar, Dimensions, FlatList } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import {
+  View,
+  Text,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  StatusBar,
+  Dimensions,
+  FlatList,
+} from 'react-native';
+import {
+  useRoute,
+  useNavigation,
+  useFocusEffect,
+} from '@react-navigation/native';
 import { styles } from './styles';
 import { useCommonStyles } from '../../assets/styles';
 import { AppIcons } from '../../assets/icons';
@@ -12,603 +25,900 @@ import { Rating } from 'react-native-ratings';
 import LinearGradient from 'react-native-linear-gradient';
 import ClickForMoreButton from '../../components/ClickForMoreButton/ClickForMoreButton';
 import { LoaderContext } from '../../context/loaderContext';
-import { getProductDetails, getRelatedProductsApi } from '../../api/services/productService';
+import {
+  getProductDetails,
+  getRelatedProductsApi,
+} from '../../api/services/productService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CONFIG from '../../globals/config';
 import { addToCartApi } from '../../api/services';
 
-
-import { removeFromCartApi, updateCartItemApi } from '../../api/services/cartService';
+import {
+  removeFromCartApi,
+  updateCartItemApi,
+} from '../../api/services/cartService';
 import { useCart } from '../../context/CartContext';
 import FloatingCartButton from '../../components/FloatingCartButton/FloatingCartButton';
-import { addToWishlistApi, removeFromWishlistApi } from '../../api/services/wishlistService';
+import {
+  addToWishlistApi,
+  removeFromWishlistApi,
+} from '../../api/services/wishlistService';
 import { useWishlist } from '../../context/WishlistContext';
+import FallbackImage from '../../components/FallbackImage';
 
 const ProductDetails = () => {
-    const route = useRoute();
-    const navigation = useNavigation<any>();
-    const homeStyles = useCommonStyles();
+  const route = useRoute();
+  const navigation = useNavigation<any>();
+  const homeStyles = useCommonStyles();
 
-    const { cartItems, cartSummary, loadCart } = useCart();
-    const { showLoader } = useContext(LoaderContext) || { showLoader: () => { } };
-    const { isInWishlist, toggleWishlist } = useWishlist();
+  const { cartItems, cartSummary, loadCart } = useCart();
+  const { showLoader } = useContext(LoaderContext) || { showLoader: () => {} };
+  const { isInWishlist, toggleWishlist } = useWishlist();
 
-    // Retrieve item from params or provide fallback
+  // Retrieve item from params or provide fallback
 
+  // Get product correctly
+  const { product, productId } = (route.params as any) || {};
 
-    // Get product correctly
-    const { product, productId } = (route.params as any) || {};
+  // fallback if needed
+  const item = product || {};
 
-    // fallback if needed
-    const item = product || {};
+  const product_id = item?.productId || productId;
 
-    const product_id = item?.productId || productId;
+  const [selectedColor, setSelectedColor] = useState(0);
+  const [selectedSize, setSelectedSize] = useState('M');
+  const [detailsExpanded, setDetailsExpanded] = useState(false);
+  const [selectedReviewFilter, setSelectedReviewFilter] = useState('All');
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [productDetails, setProductDetails] = useState<any>(null);
+  const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
+  const [pincodeAreaId, setPincodeAreaId] = useState<number | null>(null);
 
-    const [selectedColor, setSelectedColor] = useState(0);
-    const [selectedSize, setSelectedSize] = useState('M');
-    const [detailsExpanded, setDetailsExpanded] = useState(false);
-    const [selectedReviewFilter, setSelectedReviewFilter] = useState('All');
-    const [activeImageIndex, setActiveImageIndex] = useState(0);
-    const [productDetails, setProductDetails] = useState<any>(null);
-    const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
-    const [pincodeAreaId, setPincodeAreaId] = useState<number | null>(null);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const windowWidth = Dimensions.get('window').width;
+  const imageWidth = windowWidth - 24; // 12 margin applied to imageContainer from both sides
 
-    const scrollViewRef = useRef<ScrollView>(null);
-    const windowWidth = Dimensions.get('window').width;
-    const imageWidth = windowWidth - 24; // 12 margin applied to imageContainer from both sides
-
-    const getImageUrl = (imagePath: any) => {
-        if (!imagePath) return require("../../assets/images/category/nike.png");
-        if (typeof imagePath !== 'string') return imagePath;
-        if (imagePath.startsWith('http')) return { uri: imagePath };
-        return { uri: `${CONFIG.image_base_url}/${imagePath}`.replace(/([^:]\/)\/+/g, "$1") };
+  const getImageUrl = (imagePath: any) => {
+    if (!imagePath) return require('../../assets/images/logos/noimage.png');
+    if (typeof imagePath !== 'string') return imagePath;
+    if (imagePath.startsWith('http')) return { uri: imagePath };
+    return {
+      uri: `${CONFIG.image_base_url}/${imagePath}`.replace(
+        /([^:]\/)\/+/g,
+        '$1',
+      ),
     };
+  };
 
-    const currentImages = productDetails && productDetails.images && productDetails.images.length > 0
-        ? productDetails.images
-        : (item?.imageUrl || item?.image || item?.featuredImage
-            ? [{ imageUrl: item.imageUrl || item.image || item.featuredImage }]
-            : [{ imageUrl: require('../../assets/images/category/nike.png') }]
+  const currentImages =
+    productDetails && productDetails.images && productDetails.images.length > 0
+      ? productDetails.images
+      : item?.imageUrl || item?.image || item?.featuredImage
+      ? [{ imageUrl: item.imageUrl || item.image || item.featuredImage }]
+      : [];
+
+  const sizes = ['S', 'M', 'L', 'XL'];
+  const dummyReviews = [
+    {
+      id: '1',
+      name: 'Kopilu YladRo',
+      rating: 3,
+      text: 'Saddle slightly firm finding light hiking rough light lifestyle fitting...  Saddle slightly firm finding light hiking rough light lifestyle...',
+      time: '1 min ago',
+    },
+    {
+      id: '2',
+      name: 'Kopilu YladRo',
+      rating: 3,
+      text: 'Saddle slightly firm finding light hiking rough light lifestyle fitting...  Saddle slightly firm finding light hiking rough light lifestyle...',
+      time: '1 min ago',
+    },
+  ];
+
+  const productInfoDetails = [
+    {
+      label: 'Disclaimer',
+      value:
+        'All images are for representative purposes only. It is advised that you read the labels and manufacturing details for more information. Health and nutritional claims...',
+    },
+    {
+      label: 'Customer Care details',
+      value:
+        'For queries, please contact us at care@kshopee.com or support@kshopee.com',
+    },
+  ];
+
+  // Mock similar products
+  const similarProducts = [
+    {
+      id: '1',
+      title: 'Lorem Ipsum is simply dummy textLorem Ipsum is simply dummy',
+      image: require('../../assets/images/home/explore.png'),
+      originalPrice: 'MRP ₹394.00',
+      currentPrice: '₹324.00',
+      discountBadge: '-17%',
+      rating: 1,
+    },
+    {
+      id: '2',
+      title: 'Lorem Ipsum is simply dummy textLorem Ipsum is simply dummy',
+      image: require('../../assets/images/home/explore.png'),
+      originalPrice: 'MRP ₹394.00',
+      currentPrice: '₹324.00',
+      discountBadge: '-17%',
+      rating: 1,
+    },
+    {
+      id: '3',
+      title: 'Lorem Ipsum is simply dummy textLorem Ipsum is simply dummy',
+      image: require('../../assets/images/home/explore.png'),
+      originalPrice: 'MRP ₹394.00',
+      currentPrice: '₹324.00',
+      discountBadge: '-17%',
+      rating: 1,
+    },
+  ];
+
+  const ProductTitle =
+    productDetails?.product?.prName ||
+    item?.prName ||
+    item?.title ||
+    'Loading...';
+  const ProductDesc = productDetails?.product?.description
+    ? productDetails.product.description.replace(/<\/?[^>]+(>|$)/g, '').trim()
+    : productDetails?.product?.shortDescription ||
+      item?.shortDescription ||
+      'No description available.';
+
+  const fetchProductDetails = async (pincodeAreaId: number | null) => {
+    try {
+      showLoader(true);
+      const [response, relatedResponse] = await Promise.all([
+        getProductDetails(product_id, pincodeAreaId),
+        getRelatedProductsApi(product_id, pincodeAreaId),
+      ]);
+
+      console.log(
+        'product details response---->',
+        JSON.stringify(response, null, 2),
+      );
+      if (response && response.success && response.data) {
+        console.log(
+          'product details response data---->',
+          JSON.stringify(response.data, null, 2),
         );
-
-    const sizes = ['S', 'M', 'L', 'XL'];
-    const dummyReviews = [
-        { id: '1', name: 'Kopilu YladRo', rating: 3, text: "Saddle slightly firm finding light hiking rough light lifestyle fitting...  Saddle slightly firm finding light hiking rough light lifestyle...", time: '1 min ago' },
-        { id: '2', name: 'Kopilu YladRo', rating: 3, text: "Saddle slightly firm finding light hiking rough light lifestyle fitting...  Saddle slightly firm finding light hiking rough light lifestyle...", time: '1 min ago' },
-    ];
-
-    const productInfoDetails = [
-        {
-            label: 'Disclaimer',
-            value: 'All images are for representative purposes only. It is advised that you read the labels and manufacturing details for more information. Health and nutritional claims...',
-        },
-        {
-            label: 'Customer Care details',
-            value: 'For queries, please contact us at care@kshopee.com or support@kshopee.com',
-        },
-    ];
-
-    // Mock similar products
-    const similarProducts = [
-        {
-            id: '1',
-            title: 'Lorem Ipsum is simply dummy textLorem Ipsum is simply dummy',
-            image: require('../../assets/images/home/explore.png'),
-            originalPrice: 'MRP ₹394.00',
-            currentPrice: '₹324.00',
-            discountBadge: '-17%',
-            rating: 1
-        },
-        {
-            id: '2',
-            title: 'Lorem Ipsum is simply dummy textLorem Ipsum is simply dummy',
-            image: require('../../assets/images/home/explore.png'),
-            originalPrice: 'MRP ₹394.00',
-            currentPrice: '₹324.00',
-            discountBadge: '-17%',
-            rating: 1
-        },
-        {
-            id: '3',
-            title: 'Lorem Ipsum is simply dummy textLorem Ipsum is simply dummy',
-            image: require('../../assets/images/home/explore.png'),
-            originalPrice: 'MRP ₹394.00',
-            currentPrice: '₹324.00',
-            discountBadge: '-17%',
-            rating: 1
-        },
-    ];
-
-    const ProductTitle = productDetails?.product?.prName || item?.prName || item?.title || "Loading...";
-    const ProductDesc = productDetails?.product?.description
-        ? productDetails.product.description.replace(/<\/?[^>]+(>|$)/g, "").trim()
-        : (productDetails?.product?.shortDescription || item?.shortDescription || "No description available.");
-
-    const fetchProductDetails = async (pincodeAreaId: number | null) => {
-        try {
-            showLoader(true);
-            console.log('Product id---->', product_id)
-            console.log('Pincode area id---->', pincodeAreaId)
-            const [response, relatedResponse] = await Promise.all([getProductDetails(product_id, pincodeAreaId), getRelatedProductsApi(product_id, pincodeAreaId)]);
-
-            console.log("product details response---->", JSON.stringify(response, null, 2))
-            if (response && response.success && response.data) {
-                console.log("product details response data---->", JSON.stringify(response.data, null, 2))
-                setProductDetails(response.data);
-            } else {
-                setProductDetails(null);
-            }
-            if (relatedResponse && relatedResponse.success && relatedResponse.data) {
-                console.log("related products response data---->", JSON.stringify(relatedResponse.data, null, 2))
-                setRelatedProducts(relatedResponse.data?.items || []);
-
-            } else {
-                setRelatedProducts([]);
-            }
-        } catch (error) {
-            console.error('Error fetching product details:', error);
-            setProductDetails(null);
-        } finally {
-            showLoader(false);
-        }
-    };
-
-
-
-
-    useEffect(() => {
-        const initializeLocationAndSettings = async () => {
-            try {
-                const storedPincodeAreaId = await AsyncStorage.getItem('pincodeAreaId');
-                const pincodeAreaId = storedPincodeAreaId ? parseInt(storedPincodeAreaId) : null;
-                setPincodeAreaId(pincodeAreaId);
-                fetchProductDetails(pincodeAreaId);
-            } catch (error) {
-                console.error("Error in initializeLocationAndSettings:", error);
-            }
-        };
-
-        initializeLocationAndSettings();
-
-    }, []);
-
-
-
-    const addToCartFunction = async (productId: string) => {
-        try {
-            showLoader(true);
-            const existingItem = cartItems.find((item: any) => String(item.productId) === String(productId));
-
-            let response;
-            if (existingItem) {
-                console.log('Updating existing item in cart...');
-                response = await updateCartItemApi(
-                    existingItem.cartItemId,
-                    existingItem.quantity + 1,
-                    cartSummary?.cartVersion,
-                    productId,
-                    pincodeAreaId
-                );
-            } else {
-                console.log('Adding new item to cart...');
-                response = await addToCartApi(productId, 1, pincodeAreaId);
-            }
-
-            console.log("cart operation response---->", JSON.stringify(response, null, 2));
-
-            if (response && response.success) {
-                console.log("cart operation successful, reloading cart...");
-                await loadCart();
-                setProductDetails((prev: any) => ({
-                    ...prev,
-                    customerspecific: {
-                        ...prev?.customerspecific,
-                        cartQty: (prev?.customerspecific?.cartQty || 0) + 1,
-                    }
-                }));
-            } else {
-                console.log('cart operation failed');
-            }
-        } catch (error) {
-            console.error('Error modifying cart:', error);
-        } finally {
-            showLoader(false);
-        }
-    };
-
-    const updateCartFunction = async (productId: string, quantity: number) => {
-        try {
-            showLoader(true);
-            const existingItem = cartItems.find((item: any) => String(item.productId) === String(productId));
-
-            let response;
-            if (existingItem) {
-                console.log('Updating existing item in cart...');
-                response = await updateCartItemApi(
-                    existingItem.cartItemId,
-                    quantity,
-                    cartSummary?.cartVersion,
-                    productId,
-                    pincodeAreaId
-                );
-            } else {
-                console.log('Adding new item to cart...');
-                response = await addToCartApi(productId, 1, pincodeAreaId);
-            }
-
-            console.log("cart operation response---->", JSON.stringify(response, null, 2));
-
-            if (response && response.success) {
-                console.log("cart operation successful, reloading cart...");
-                await loadCart();
-                setProductDetails((prev: any) => ({
-                    ...prev,
-                    customerspecific: {
-                        ...prev?.customerspecific,
-                        cartQty: quantity,
-                    }
-                }));
-            } else {
-                console.log('cart operation failed');
-            }
-        } catch (error) {
-            console.error('Error modifying cart:', error);
-        } finally {
-            showLoader(false);
-        }
-    };
-
-    const romoveFromCart = async (productId: string) => {
-        try {
-            showLoader(true);
-            const response = await removeFromCartApi(productId, cartSummary?.cartVersion, productId, pincodeAreaId);
-            console.log("removeFromCart response---->", JSON.stringify(response, null, 2))
-
-            if (response && response.success) {
-                await loadCart();
-                setProductDetails((prev: any) => ({
-                    ...prev,
-                    customerspecific: {
-                        ...prev?.customerspecific,
-                        cartQty: 0,
-                    }
-                }));
-            }
-
-        } catch (error) {
-            console.error('Error removing from cart:', error);
-        } finally {
-            showLoader(false);
-        }
+        setProductDetails(response.data);
+      } else {
+        setProductDetails(null);
+      }
+      if (relatedResponse && relatedResponse.success && relatedResponse.data) {
+        console.log(
+          'related products response data---->',
+          JSON.stringify(relatedResponse.data, null, 2),
+        );
+        setRelatedProducts(relatedResponse.data?.items || []);
+      } else {
+        setRelatedProducts([]);
+      }
+    } catch (error) {
+      console.error('Error fetching product details:', error);
+      setProductDetails(null);
+    } finally {
+      showLoader(false);
     }
+  };
 
-    const addToWishlist = async (productId: string) => {
-        try {
-            setRelatedProducts(prev => prev.map(p => (p.productId || p.id) === productId ? { ...p, isWishlist: true, isWishlisted: true } : p));
-            showLoader(true);
-            const response = await addToWishlistApi(productId);
-            console.log("addToWishlist response---->", JSON.stringify(response, null, 2))
-
-        } catch (error) {
-            console.error('Error adding to wishlist:', error);
-            setRelatedProducts(prev => prev.map(p => (p.productId || p.id) === productId ? { ...p, isWishlist: false, isWishlisted: false } : p));
-        } finally {
-            showLoader(false);
-        }
+  useEffect(() => {
+    const initializeLocationAndSettings = async () => {
+      try {
+        const storedPincodeAreaId = await AsyncStorage.getItem('pincodeAreaId');
+        const pincodeAreaId = storedPincodeAreaId
+          ? parseInt(storedPincodeAreaId)
+          : null;
+        setPincodeAreaId(pincodeAreaId);
+      } catch (error) {
+        console.error('Error in initializeLocationAndSettings:', error);
+      }
     };
 
-    const removeFromWishlist = async (productId: string) => {
-        try {
-            setRelatedProducts(prev => prev.map(p => (p.productId || p.id) === productId ? { ...p, isWishlist: false, isWishlisted: false } : p));
-            showLoader(true);
-            const response = await removeFromWishlistApi(productId);
-            console.log("removeFromWishlist response---->", JSON.stringify(response, null, 2))
+    initializeLocationAndSettings();
+  }, []);
 
-        } catch (error) {
-            console.error('Error removing from wishlist:', error);
-            setRelatedProducts(prev => prev.map(p => (p.productId || p.id) === productId ? { ...p, isWishlist: true, isWishlisted: true } : p));
-        } finally {
-            showLoader(false);
-        }
-    };
+  useFocusEffect(
+    React.useCallback(() => {
+      if (pincodeAreaId !== null || pincodeAreaId === null) {
+        // Trigger even if null initially
+        fetchProductDetails(pincodeAreaId);
+        loadCart();
+      }
+    }, [pincodeAreaId, product_id]),
+  );
 
+  const addToCartFunction = async (productId: string) => {
+    try {
+      showLoader(true);
+      const existingItem = cartItems.find(
+        (item: any) => String(item.productId) === String(productId),
+      );
 
+      let response;
+      if (existingItem) {
+        console.log('Updating existing item in cart...');
+        response = await updateCartItemApi(
+          existingItem.cartItemId,
+          existingItem.quantity + 1,
+          cartSummary?.cartVersion,
+          productId,
+          pincodeAreaId,
+        );
+      } else {
+        console.log('Adding new item to cart...');
+        response = await addToCartApi(productId, 1, pincodeAreaId);
+      }
 
-    const renderHeader = () => (
-        <View style={styles.headerContainer}>
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerIconBg}>
-                <AppIcons.ArrowLeft size={26} color={colors.themeBlack} />
-            </TouchableOpacity>
-            <View style={styles.headerRightIcons}>
-                <TouchableOpacity
-                    style={styles.headerIconBg}
-                    onPress={() => toggleWishlist(productDetails?.product || item)}
-                >
-                    {isInWishlist(product_id) ? (
-                        <Ionicons name="heart" size={24} color={colors.red || 'red'} />
-                    ) : (
-                        <AppIcons.HeartOutline size={24} color={colors.themeBlack} />
-                    )}
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.headerIconBg}>
-                    <Ionicons name="share-social-outline" size={24} color={colors.themeBlack} />
-                </TouchableOpacity>
-            </View>
+      console.log(
+        'cart operation response---->',
+        JSON.stringify(response, null, 2),
+      );
+
+      if (response && response.success) {
+        console.log('cart operation successful, reloading cart...');
+        await loadCart();
+        setProductDetails((prev: any) => ({
+          ...prev,
+          customerspecific: {
+            ...prev?.customerspecific,
+            cartQty: (prev?.customerspecific?.cartQty || 0) + 1,
+          },
+        }));
+      } else {
+        console.log('cart operation failed');
+      }
+    } catch (error) {
+      console.error('Error modifying cart:', error);
+    } finally {
+      showLoader(false);
+    }
+  };
+
+  const updateCartFunction = async (productId: string, quantity: number) => {
+    try {
+      showLoader(true);
+      const existingItem = cartItems.find(
+        (item: any) => String(item.productId) === String(productId),
+      );
+
+      let response;
+      if (existingItem) {
+        console.log('Updating existing item in cart...');
+        response = await updateCartItemApi(
+          existingItem.cartItemId,
+          quantity,
+          cartSummary?.cartVersion,
+          productId,
+          pincodeAreaId,
+        );
+      } else {
+        console.log('Adding new item to cart...');
+        response = await addToCartApi(productId, 1, pincodeAreaId);
+      }
+
+      console.log(
+        'cart operation response---->',
+        JSON.stringify(response, null, 2),
+      );
+
+      if (response && response.success) {
+        console.log('cart operation successful, reloading cart...');
+        await loadCart();
+        setProductDetails((prev: any) => ({
+          ...prev,
+          customerspecific: {
+            ...prev?.customerspecific,
+            cartQty: quantity,
+          },
+        }));
+      } else {
+        console.log('cart operation failed');
+      }
+    } catch (error) {
+      console.error('Error modifying cart:', error);
+    } finally {
+      showLoader(false);
+    }
+  };
+
+  const romoveFromCart = async (productId: string) => {
+    try {
+      showLoader(true);
+      const response = await removeFromCartApi(
+        productId,
+        cartSummary?.cartVersion,
+        productId,
+        pincodeAreaId,
+      );
+      console.log(
+        'removeFromCart response---->',
+        JSON.stringify(response, null, 2),
+      );
+
+      if (response && response.success) {
+        await loadCart();
+        setProductDetails((prev: any) => ({
+          ...prev,
+          customerspecific: {
+            ...prev?.customerspecific,
+            cartQty: 0,
+          },
+        }));
+      }
+    } catch (error) {
+      console.error('Error removing from cart:', error);
+    } finally {
+      showLoader(false);
+    }
+  };
+
+  const addToWishlist = async (productId: string) => {
+    try {
+      setRelatedProducts(prev =>
+        prev.map(p =>
+          (p.productId || p.id) === productId
+            ? { ...p, isWishlist: true, isWishlisted: true }
+            : p,
+        ),
+      );
+      showLoader(true);
+      const response = await addToWishlistApi(productId);
+      console.log(
+        'addToWishlist response---->',
+        JSON.stringify(response, null, 2),
+      );
+    } catch (error) {
+      console.error('Error adding to wishlist:', error);
+      setRelatedProducts(prev =>
+        prev.map(p =>
+          (p.productId || p.id) === productId
+            ? { ...p, isWishlist: false, isWishlisted: false }
+            : p,
+        ),
+      );
+    } finally {
+      showLoader(false);
+    }
+  };
+
+  const removeFromWishlist = async (productId: string) => {
+    try {
+      setRelatedProducts(prev =>
+        prev.map(p =>
+          (p.productId || p.id) === productId
+            ? { ...p, isWishlist: false, isWishlisted: false }
+            : p,
+        ),
+      );
+      showLoader(true);
+      const response = await removeFromWishlistApi(productId);
+      console.log(
+        'removeFromWishlist response---->',
+        JSON.stringify(response, null, 2),
+      );
+    } catch (error) {
+      console.error('Error removing from wishlist:', error);
+      setRelatedProducts(prev =>
+        prev.map(p =>
+          (p.productId || p.id) === productId
+            ? { ...p, isWishlist: true, isWishlisted: true }
+            : p,
+        ),
+      );
+    } finally {
+      showLoader(false);
+    }
+  };
+
+  const renderHeader = () => (
+    <View style={styles.headerContainer}>
+      <TouchableOpacity
+        onPress={() => navigation.goBack()}
+        style={styles.headerIconBg}
+      >
+        <AppIcons.ArrowLeft size={26} color={colors.themeBlack} />
+      </TouchableOpacity>
+      <View style={styles.headerRightIcons}>
+        <TouchableOpacity
+          style={styles.headerIconBg}
+          onPress={() => toggleWishlist(productDetails?.product || item)}
+        >
+          {isInWishlist(product_id) ? (
+            <AppIcons.BookmarkFilled color={colors.tealIconFont} size={24} />
+          ) : (
+            <AppIcons.BookmarkOutline color={colors.tealIconFont} size={24} />
+          )}
+        </TouchableOpacity>
+        {/* <TouchableOpacity style={styles.headerIconBg}>
+          <Ionicons
+            name="share-social-outline"
+            size={24}
+            color={colors.themeBlack}
+          />
+        </TouchableOpacity> */}
+      </View>
+    </View>
+  );
+
+  const renderImageSection = () => {
+    {
+      /* Image Section */
+    }
+    return (
+      <View style={styles.imageContainer}>
+        <ScrollView
+          ref={scrollViewRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onScroll={e => {
+            const slideSize = e.nativeEvent.layoutMeasurement.width;
+            const index = Math.round(e.nativeEvent.contentOffset.x / slideSize);
+            if (
+              index !== activeImageIndex &&
+              index >= 0 &&
+              index < currentImages.length
+            ) {
+              setActiveImageIndex(index);
+            }
+          }}
+          scrollEventThrottle={16}
+        >
+          {currentImages.map((img: any, idx: number) => (
+            <FallbackImage
+              key={idx}
+              source={getImageUrl(img.imageUrl || img)}
+              style={[styles.productImage, { width: imageWidth }]}
+              resizeMode="contain"
+            />
+          ))}
+        </ScrollView>
+        <View style={styles.paginationContainer}>
+          {currentImages.map((_: any, idx: number) => (
+            <View
+              key={idx}
+              style={
+                idx === activeImageIndex
+                  ? styles.paginationDotActive
+                  : styles.paginationDotInactive
+              }
+            />
+          ))}
         </View>
+      </View>
     );
+  };
 
-    const renderImageSection = () => {
-        {/* Image Section */ }
-        return (
-            <View style={styles.imageContainer}>
-                <ScrollView
-                    ref={scrollViewRef}
-                    horizontal
-                    pagingEnabled
-                    showsHorizontalScrollIndicator={false}
-                    onScroll={(e) => {
-                        const slideSize = e.nativeEvent.layoutMeasurement.width;
-                        const index = Math.round(e.nativeEvent.contentOffset.x / slideSize);
-                        if (index !== activeImageIndex && index >= 0 && index < currentImages.length) {
-                            setActiveImageIndex(index);
-                        }
-                    }}
-                    scrollEventThrottle={16}
+  const deliveryAndService = () => {
+    return (
+      <View>
+        <Text
+          style={[styles.sectionTitle, { marginHorizontal: 16, marginTop: 8 }]}
+        >
+          Delivery and Service
+        </Text>
+
+        <View style={styles.deliveryFeaturesRow}>
+          <View style={styles.deliveryFeatureItem}>
+            <View style={styles.deliveryFeatureIcon}>
+              <AppIcons.Cash size={20} color={colors.themeTeal} />
+            </View>
+            <Text style={styles.deliveryFeatureText}>
+              Cash On{'\n'}Delivery
+            </Text>
+          </View>
+          <View style={styles.deliveryFeatureItem}>
+            <View style={styles.deliveryFeatureIcon}>
+              <AppIcons.Reload size={20} color={colors.themeTeal} />
+            </View>
+            <Text style={styles.deliveryFeatureText}>
+              7 Days{'\n'}Returnable
+            </Text>
+          </View>
+          <View style={styles.deliveryFeatureItem}>
+            <View style={styles.deliveryFeatureIcon}>
+              <AppIcons.Lock size={20} color={colors.themeTeal} />
+            </View>
+            <Text style={styles.deliveryFeatureText}>
+              Secure{'\n'}Transaction
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.locationCard}>
+          <View style={styles.locationHeader}>
+            <View style={styles.locationLeftRow}>
+              <AppIcons.Location size={20} color={colors.black} />
+              <Text style={styles.locationTitleText}>Delivering to : Home</Text>
+            </View>
+            <Text style={styles.locationChangeText}>Change</Text>
+          </View>
+          <Text style={styles.addressText}>
+            Nishamanzil(h),Vennala Chakkaraparambu Road ,ernakulam district
+            654443
+          </Text>
+        </View>
+
+        <View style={styles.deliveryDateRow}>
+          <View style={styles.calendarIconBg}>
+            <Ionicons
+              name="calendar-outline"
+              size={20}
+              color={colors.themeTeal}
+            />
+          </View>
+          <Text style={styles.deliveryDatePrefix}>Delivery by :</Text>
+          <Text style={styles.deliveryDateValue}>26 Jan 2026</Text>
+        </View>
+      </View>
+    );
+  };
+
+  const renderSimilarProduct = ({ item: simItem }: any) => {
+    // Fallback image in case the require fails or is missing
+    const simImg =
+      simItem.image || require('../../assets/images/logos/noimage.png');
+
+    return (
+      <TouchableOpacity style={styles.similarProductCard}>
+        <View style={styles.similarDiscountBadge}>
+          <Text style={styles.similarDiscountText}>{simItem.discount}</Text>
+        </View>
+        <TouchableOpacity style={styles.similarBookmarkBtn}>
+          <AppIcons.BookmarkOutline size={16} color={colors.themeTeal} />
+        </TouchableOpacity>
+        <FallbackImage source={simImg} style={styles.similarProductImage} />
+        <Text style={styles.similarTitle} numberOfLines={2}>
+          {simItem.title}
+        </Text>
+
+        {/* <Rating
+          type="custom"
+          readonly
+          startingValue={4}
+          ratingCount={5}
+          imageSize={10}
+          ratingColor={colors.starYellow}
+          ratingBackgroundColor={colors.themeLightGray}
+          tintColor={colors.themeWhite}
+          style={{ alignSelf: 'flex-start', marginVertical: 4 }}
+        /> */}
+
+        <View style={styles.similarPriceRow}>
+          <Text style={styles.similarPrice}>{simItem.price}</Text>
+          <Text style={styles.similarOldPrice}>{simItem.oldPrice}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
+  const renderExploreItem = ({ item }: { item: any }) => (
+    <TouchableOpacity
+      style={homeStyles.exploreItemCard}
+      onPress={() => {
+        navigation.push('ProductDetailsScreen', {
+          productId: item?.productId,
+          product: item,
+        });
+      }}
+    >
+      <View style={homeStyles.exploreTopBadgesRow}>
+        <View
+          style={[
+            homeStyles.discountCircle,
+            {
+              opacity: item?.discountPercentage || item?.discountBadge ? 1 : 0,
+            },
+          ]}
+        >
+          <Text style={[homeStyles.discountCircleText]}>
+            {item?.discountPercentage
+              ? `${Math.round(item.discountPercentage)}%`
+              : item?.discountBadge}
+          </Text>
+        </View>
+      </View>
+
+      <FallbackImage
+        source={getImageUrl(
+          item?.featuredImage || item?.imageUrl || item?.image,
+        )}
+        style={homeStyles.exploreItemImage}
+        resizeMode="contain"
+      />
+
+      <View style={{ padding: 10, flex: 1, justifyContent: 'space-between' }}>
+        <View>
+          <Text style={[homeStyles.caption]} numberOfLines={3}>
+            {item?.prName || item?.title}
+          </Text>
+        </View>
+
+        <View>
+          {/* <Rating
+            type="custom"
+            readonly
+            startingValue={item?.rating || 1}
+            ratingCount={5}
+            imageSize={12}
+            ratingColor={colors.starYellow}
+            ratingBackgroundColor={colors.lightGrey}
+            tintColor={colors.white}
+            style={{ alignSelf: 'flex-start', marginVertical: 6 }}
+          /> */}
+
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginTop: 4,
+              gap: 2,
+            }}
+          >
+            <View style={homeStyles.pricePill}>
+              <Text style={homeStyles.pricePillText}>
+                {item?.specialPrice || item?.unitPrice
+                  ? `₹${(item?.specialPrice || item?.unitPrice).toFixed(2)}`
+                  : item?.currentPrice || ''}
+              </Text>
+            </View>
+            {item?.unitPrice &&
+            item?.specialPrice &&
+            item.unitPrice > item.specialPrice ? (
+              <Text style={homeStyles.originalPriceText}>
+                MRP ₹{item.unitPrice.toFixed(2)}
+              </Text>
+            ) : item?.originalPrice ? (
+              <Text style={homeStyles.originalPriceText}>
+                {item.originalPrice}
+              </Text>
+            ) : null}
+          </View>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+
+  return (
+    <>
+      <View style={styles.container}>
+        <StatusBar
+          translucent
+          backgroundColor="transparent"
+          barStyle="dark-content"
+        />
+
+        {renderHeader()}
+
+        <ScrollView
+          style={styles.contentScroll}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Image Section */}
+          {renderImageSection()}
+
+          {/* Main Content Info */}
+          <View style={styles.contentPadding}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+              }}
+            >
+              <View style={{ flex: 1, marginRight: 10 }}>
+                <Text style={styles.title}>{ProductTitle}</Text>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginTop: 4,
+                  }}
                 >
-                    {currentImages.map((img: any, idx: number) => (
-                        <Image
-                            key={idx}
-                            source={getImageUrl(img.imageUrl || img)}
-                            style={[styles.productImage, { width: imageWidth }]}
-                            resizeMode="contain"
-                        />
-                    ))}
-                </ScrollView>
-                <View style={styles.paginationContainer}>
-                    {currentImages.map((_: any, idx: number) => (
-                        <View
-                            key={idx}
-                            style={idx === activeImageIndex ? styles.paginationDotActive : styles.paginationDotInactive}
-                        />
-                    ))}
-                </View>
-            </View>
-        )
-    }
-
-    const deliveryAndService = () => {
-        return (
-            <View>
-                <Text style={[styles.sectionTitle, { marginHorizontal: 16, marginTop: 8 }]}>Delivery and Service</Text>
-
-                <View style={styles.deliveryFeaturesRow}>
-                    <View style={styles.deliveryFeatureItem}>
-                        <View style={styles.deliveryFeatureIcon}>
-                            <AppIcons.Cash size={20} color={colors.themeTeal} />
-                        </View>
-                        <Text style={styles.deliveryFeatureText}>Cash On{'\n'}Delivery</Text>
-                    </View>
-                    <View style={styles.deliveryFeatureItem}>
-                        <View style={styles.deliveryFeatureIcon}>
-                            <AppIcons.Reload size={20} color={colors.themeTeal} />
-                        </View>
-                        <Text style={styles.deliveryFeatureText}>7 Days{'\n'}Returnable</Text>
-                    </View>
-                    <View style={styles.deliveryFeatureItem}>
-                        <View style={styles.deliveryFeatureIcon}>
-                            <AppIcons.Lock size={20} color={colors.themeTeal} />
-                        </View>
-                        <Text style={styles.deliveryFeatureText}>Secure{'\n'}Transaction</Text>
-                    </View>
-                </View>
-
-                <View style={styles.locationCard}>
-                    <View style={styles.locationHeader}>
-                        <View style={styles.locationLeftRow}>
-                            <AppIcons.Location size={20} color={colors.black} />
-                            <Text style={styles.locationTitleText}>Delivering to : Home</Text>
-                        </View>
-                        <Text style={styles.locationChangeText}>Change</Text>
-                    </View>
-                    <Text style={styles.addressText}>
-                        Nishamanzil(h),Vennala Chakkaraparambu Road ,ernakulam district 654443
-                    </Text>
-                </View>
-
-                <View style={styles.deliveryDateRow}>
-                    <View style={styles.calendarIconBg}>
-                        <Ionicons name="calendar-outline" size={20} color={colors.themeTeal} />
-                    </View>
-                    <Text style={styles.deliveryDatePrefix}>Delivery by :</Text>
-                    <Text style={styles.deliveryDateValue}>26 Jan 2026</Text>
-                </View>
-            </View>
-        )
-    }
-
-    const renderSimilarProduct = ({ item: simItem }: any) => {
-        // Fallback image in case the require fails or is missing
-        const simImg = simItem.image || require('../../assets/images/home/dress.png');
-
-        return (
-            <TouchableOpacity style={styles.similarProductCard}>
-                <View style={styles.similarDiscountBadge}>
-                    <Text style={styles.similarDiscountText}>{simItem.discount}</Text>
-                </View>
-                <TouchableOpacity style={styles.similarBookmarkBtn}>
-                    <AppIcons.BookmarkOutline size={16} color={colors.themeTeal} />
-                </TouchableOpacity>
-                <Image source={simImg} style={styles.similarProductImage} />
-                <Text style={styles.similarTitle} numberOfLines={2}>{simItem.title}</Text>
-
-                <Rating
-                    type='custom'
-                    readonly
-                    startingValue={4}
-                    ratingCount={5}
-                    imageSize={10}
-                    ratingColor={colors.starYellow}
-                    ratingBackgroundColor={colors.themeLightGray}
-                    tintColor={colors.themeWhite}
-                    style={{ alignSelf: 'flex-start', marginVertical: 4 }}
-                />
-
-                <View style={styles.similarPriceRow}>
-                    <Text style={styles.similarPrice}>{simItem.price}</Text>
-                    <Text style={styles.similarOldPrice}>{simItem.oldPrice}</Text>
-                </View>
-            </TouchableOpacity>
-        );
-    };
-
-    const renderExploreItem = ({ item }: { item: any }) => (
-        <TouchableOpacity style={homeStyles.exploreItemCard} onPress={() => { navigation.push('ProductDetailsScreen', { productId: item?.productId, product: item }) }}>
-            <View style={homeStyles.exploreTopBadgesRow}>
-                <View style={[homeStyles.discountCircle, { opacity: item?.discountPercentage || item?.discountBadge ? 1 : 0 }]}>
-                    <Text style={[homeStyles.discountCircleText]}>
-                        {item?.discountPercentage ? `${Math.round(item.discountPercentage)}%` : item?.discountBadge}
-                    </Text>
-                </View>
-                {/* <AppIcons.BookmarkOutline color={colors.tealIconFont} size={24} /> */}
-                {(item.isWishlist || item.isWishlisted) ? (
-                    <TouchableOpacity onPress={() => removeFromWishlist(item.productId || item.id)}>
-                        <AppIcons.BookmarkFilled color={colors.tealIconFont} size={24} />
-                    </TouchableOpacity>
-                ) : (
-                    <TouchableOpacity onPress={() => addToWishlist(item.productId || item.id)}>
-                        <AppIcons.BookmarkOutline color={colors.tealIconFont} size={24} />
-                    </TouchableOpacity>
-                )}
-            </View>
-
-            <Image source={getImageUrl(item?.featuredImage || item?.imageUrl || item?.image)} style={homeStyles.exploreItemImage} resizeMode="contain" />
-
-            <View style={{ padding: 10, flex: 1, justifyContent: 'space-between' }}>
-                <View>
-                    <Text style={[homeStyles.caption]} numberOfLines={3}>{item?.prName || item?.title}</Text>
-                </View>
-
-                <View>
-                    <Rating
-                        type='custom'
+                  {(productDetails?.ratingSummary?.reviewCount || 0) > 0 && (
+                    <>
+                      <Rating
+                        type="custom"
                         readonly
-                        startingValue={item?.rating || 1}
+                        startingValue={
+                          productDetails?.ratingSummary?.avgRating || 0
+                        }
                         ratingCount={5}
-                        imageSize={12}
+                        imageSize={16}
                         ratingColor={colors.starYellow}
                         ratingBackgroundColor={colors.lightGrey}
                         tintColor={colors.white}
-                        style={{ alignSelf: 'flex-start', marginVertical: 6 }}
-                    />
-
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, gap: 2 }}>
-                        <View style={homeStyles.pricePill}>
-                            <Text style={homeStyles.pricePillText}>
-                                {item?.specialPrice || item?.unitPrice ? `₹${(item?.specialPrice || item?.unitPrice).toFixed(2)}` : (item?.currentPrice || '')}
-                            </Text>
-                        </View>
-                        {(item?.unitPrice && item?.specialPrice && item.unitPrice > item.specialPrice) ? (
-                            <Text style={homeStyles.originalPriceText}>MRP ₹{item.unitPrice.toFixed(2)}</Text>
-                        ) : (
-                            item?.originalPrice ? <Text style={homeStyles.originalPriceText}>{item.originalPrice}</Text> : null
-                        )}
-                    </View>
+                      />
+                      <Text
+                        style={{
+                          marginLeft: 6,
+                          fontSize: 12,
+                          color: colors.grey,
+                          fontFamily: 'Gilroy-Medium',
+                        }}
+                      >
+                        ({productDetails?.ratingSummary?.reviewCount} Reviews)
+                      </Text>
+                    </>
+                  )}
                 </View>
+              </View>
+              {productDetails?.product?.discountPercentage ? (
+                <View
+                  style={[
+                    homeStyles.discountCircle,
+                    {
+                      opacity: 1,
+                      paddingHorizontal: 6,
+                      position: 'relative',
+                      alignSelf: 'flex-start',
+                      marginTop: 4,
+                    },
+                  ]}
+                >
+                  <Text style={homeStyles.discountCircleText}>
+                    {Math.round(productDetails?.product?.discountPercentage)}%
+                    OFF
+                  </Text>
+                </View>
+              ) : null}
             </View>
-        </TouchableOpacity>
-    );
 
-    return (
-        <>
-            <View style={styles.container}>
-                <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
+            {productDetails?.product && (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  marginTop: 6,
+                  marginBottom: 4,
+                  gap: 8,
+                }}
+              >
+                <View
+                  style={[
+                    homeStyles.pricePill,
+                    { minHeight: 35, minWidth: 70 },
+                  ]}
+                >
+                  <Text style={homeStyles.pricePillText}>
+                    ₹
+                    {productDetails?.product?.specialPrice?.toFixed(2) ||
+                      productDetails?.product?.unitPrice?.toFixed(2)}
+                  </Text>
+                </View>
+                {productDetails?.product?.unitPrice &&
+                productDetails?.product?.specialPrice &&
+                productDetails?.product?.unitPrice >
+                  productDetails?.product?.specialPrice ? (
+                  <Text style={homeStyles.originalPriceText}>
+                    MRP ₹{productDetails?.product?.unitPrice?.toFixed(2)}
+                  </Text>
+                ) : null}
+              </View>
+            )}
 
-                {renderHeader()}
+            {productDetails?.product?.stockQty <= 0 ||
+            productDetails?.product?.stockAvailability === 'Out Of Stock' ? (
+              <View
+                style={[
+                  homeStyles.reviewFilterPillActiveGradient,
+                  {
+                    borderRadius: 50,
+                    alignSelf: 'flex-end',
+                    top: 4,
+                    marginBottom: 10,
+                    backgroundColor: '#E0E0E0',
+                    paddingHorizontal: 20,
+                    paddingVertical: 10,
+                  },
+                ]}
+              >
+                <Text style={[homeStyles.reviewFilterText, { color: '#888' }]}>
+                  Out of Stock
+                </Text>
+              </View>
+            ) : productDetails?.customerspecific?.cartQty > 0 ? (
+              <LinearGradient
+                colors={[colors.themeTeal, colors.themeDarkTeal]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={[
+                  homeStyles.reviewFilterPillActiveGradient,
+                  {
+                    borderRadius: 50,
+                    alignSelf: 'flex-end',
+                    top: 4,
+                    marginBottom: 10,
+                  },
+                ]}
+              >
+                <View style={{ padding: 10, flexDirection: 'row' }}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      productDetails?.customerspecific?.cartQty > 0
+                        ? updateCartFunction(
+                            productId,
+                            productDetails?.customerspecific?.cartQty - 1,
+                          )
+                        : romoveFromCart(productId);
+                    }}
+                  >
+                    <View style={styles.iconRoundBackground}>
+                      <AppIcons.Remove size={20} color={colors.themeWhite} />
+                    </View>
+                  </TouchableOpacity>
+                  <Text
+                    style={[
+                      homeStyles.reviewFilterText,
+                      homeStyles.reviewFilterTextActive,
+                      { marginHorizontal: 5 },
+                    ]}
+                  >
+                    {productDetails?.customerspecific?.cartQty}
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => {
+                      updateCartFunction(
+                        productId,
+                        productDetails?.customerspecific?.cartQty + 1,
+                      );
+                    }}
+                  >
+                    <View style={styles.iconRoundBackground}>
+                      <AppIcons.Add size={20} color={colors.themeWhite} />
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              </LinearGradient>
+            ) : (
+              <LinearGradient
+                colors={[colors.themeTeal, colors.themeDarkTeal]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={[
+                  homeStyles.reviewFilterPillActiveGradient,
+                  {
+                    borderRadius: 50,
+                    alignSelf: 'flex-end',
+                    top: 4,
+                    marginBottom: 10,
+                  },
+                ]}
+              >
+                <TouchableOpacity
+                  onPress={() => {
+                    addToCartFunction(productId);
+                  }}
+                  style={{ padding: 10, flexDirection: 'row' }}
+                >
+                  <View style={styles.iconRoundBackground}>
+                    <AppIcons.Add size={20} color={colors.themeWhite} />
+                  </View>
+                  <Text
+                    style={[
+                      homeStyles.reviewFilterText,
+                      homeStyles.reviewFilterTextActive,
+                      { marginHorizontal: 5 },
+                    ]}
+                  >
+                    Add
+                  </Text>
+                </TouchableOpacity>
+              </LinearGradient>
+            )}
+            <Text style={[styles.description, { marginTop: 4 }]}>
+              {ProductDesc}
+            </Text>
 
-                <ScrollView style={styles.contentScroll} showsVerticalScrollIndicator={false}>
-
-                    {/* Image Section */}
-                    {renderImageSection()}
-
-                    {/* Main Content Info */}
-                    <View style={styles.contentPadding}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                            <Text style={[styles.title, { flex: 1, marginRight: 10 }]}>{ProductTitle}</Text>
-                            {productDetails?.product?.discountPercentage ? (
-                                <View style={[homeStyles.discountCircle, { opacity: 1, paddingHorizontal: 6, position: 'relative', alignSelf: 'flex-start', marginTop: 4 }]}>
-                                    <Text style={homeStyles.discountCircleText}>
-                                        {Math.round(productDetails?.product?.discountPercentage)}% OFF
-                                    </Text>
-                                </View>
-                            ) : null}
-                        </View>
-
-                        {productDetails?.product && (
-                            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6, marginBottom: 4, gap: 8 }}>
-                                <View style={[homeStyles.pricePill, { minHeight: 35, minWidth: 70 }]}>
-                                    <Text style={homeStyles.pricePillText}>
-                                        ₹{productDetails?.product?.specialPrice?.toFixed(2) || productDetails?.product?.unitPrice?.toFixed(2)}
-                                    </Text>
-                                </View>
-                                {productDetails?.product?.unitPrice && productDetails?.product?.specialPrice && productDetails?.product?.unitPrice > productDetails?.product?.specialPrice ? (
-                                    <Text style={homeStyles.originalPriceText}>
-                                        MRP ₹{productDetails?.product?.unitPrice?.toFixed(2)}
-                                    </Text>
-                                ) : null}
-
-                            </View>
-                        )}
-
-                        {
-                            (productDetails?.product?.stockQty <= 0 || productDetails?.product?.stockAvailability === 'Out Of Stock') ?
-                                <View 
-                                    style={[homeStyles.reviewFilterPillActiveGradient, { borderRadius: 50, alignSelf: 'flex-end', top: 4, marginBottom: 10, backgroundColor: '#E0E0E0', paddingHorizontal: 20, paddingVertical: 10 }]}
-                                >
-                                    <Text style={[homeStyles.reviewFilterText, { color: '#888' }]}>Out of Stock</Text>
-                                </View> :
-                            productDetails?.customerspecific?.cartQty > 0 ?
-                                <LinearGradient
-                                    colors={[colors.themeTeal, colors.themeDarkTeal]}
-                                    start={{ x: 0, y: 0 }}
-                                    end={{ x: 1, y: 0 }}
-                                    style={[homeStyles.reviewFilterPillActiveGradient, { borderRadius: 50, alignSelf: 'flex-end', top: 4, marginBottom: 10 }]}
-                                >
-                                    <View style={{ padding: 10, flexDirection: 'row' }}>
-                                        <TouchableOpacity onPress={() => { productDetails?.customerspecific?.cartQty > 0 ? updateCartFunction(productId, productDetails?.customerspecific?.cartQty - 1) : romoveFromCart(productId) }} >
-                                            <View style={styles.iconRoundBackground} >
-                                                <AppIcons.Remove size={20} color={colors.themeWhite} />
-                                            </View>
-                                        </TouchableOpacity>
-                                        <Text style={[homeStyles.reviewFilterText, homeStyles.reviewFilterTextActive, { marginHorizontal: 5 }]}>{productDetails?.customerspecific?.cartQty}</Text>
-                                        <TouchableOpacity onPress={() => { updateCartFunction(productId, productDetails?.customerspecific?.cartQty + 1) }} >
-                                            <View style={styles.iconRoundBackground} >
-                                                <AppIcons.Add size={20} color={colors.themeWhite} />
-                                            </View>
-                                        </TouchableOpacity>
-                                    </View>
-
-
-                                </LinearGradient> :
-                                <LinearGradient
-                                    colors={[colors.themeTeal, colors.themeDarkTeal]}
-                                    start={{ x: 0, y: 0 }}
-                                    end={{ x: 1, y: 0 }}
-                                    style={[homeStyles.reviewFilterPillActiveGradient, { borderRadius: 50, alignSelf: 'flex-end', top: 4, marginBottom: 10 }]}
-                                >
-                                    <TouchableOpacity onPress={() => { addToCartFunction(productId) }} style={{ padding: 10, flexDirection: 'row' }} >
-                                        <View style={styles.iconRoundBackground} >
-                                            <AppIcons.Add size={20} color={colors.themeWhite} />
-                                        </View>
-                                        <Text style={[homeStyles.reviewFilterText, homeStyles.reviewFilterTextActive, { marginHorizontal: 5 }]}>Add</Text>
-                                    </TouchableOpacity>
-                                </LinearGradient>
-                        }
-                        <Text style={[styles.description, { marginTop: 4 }]}>{ProductDesc}</Text>
-
-
-
-
-                        {/* <Text style={styles.sectionTitle}>Select Color</Text>
+            {/* <Text style={styles.sectionTitle}>Select Color</Text>
                     <View style={styles.colorRow}>
                         {[0, 1, 2].map((index) => (
                             <TouchableOpacity
@@ -637,151 +947,126 @@ const ProductDetails = () => {
                                 <Text style={[styles.sizeText, selectedSize === s && styles.sizeTextActive]}>{s}</Text>
                             </TouchableOpacity>
                         ))}
-                    </View>
-
-
-                    <TouchableOpacity
-                        style={styles.accordionHeader}
-                        onPress={() => setDetailsExpanded(!detailsExpanded)}
-                    >
-                        <Text style={styles.accordionTitle}>Product Details</Text>
-                        <Ionicons
-                            name={detailsExpanded ? "chevron-up" : "chevron-down"}
-                            size={20}
-                            color={colors.themeDarkGray}
-                        />
-                    </TouchableOpacity>
-
-                    <View style={{ overflow: 'hidden' }}>
-                        {productInfoDetails.map((info, idx) => (
-                            <View key={idx} style={[styles.detailsRow, idx > 0 && { marginTop: 12 }]}>
-                                <View style={{ width: windowWidth / 2.9 }}>
-                                    <Text style={styles.detailsLabel}>{info.label}</Text>
-                                </View>
-                                {typeof info.value === 'string' ? (
-                                    <Text style={styles.detailsValue}>{info.value}</Text>
-                                ) : (
-                                    info.value
-                                )}
-                            </View>
-                        ))}
-
-                        {!detailsExpanded && (
-                            <LinearGradient
-                                colors={['rgba(255,255,255,0)', 'rgba(255, 255, 255, 0.5)', colors.themeTeal]}
-                                style={styles.viewMoreOverlay}
-                            >
-                                <TouchableOpacity style={styles.viewMoreButton} onPress={() => setDetailsExpanded(true)}>
-                                    <Ionicons name="arrow-down-circle" size={18} color={colors.black} />
-                                    <Text style={styles.viewMoreText}>View more</Text>
-                                </TouchableOpacity>
-                            </LinearGradient>
-                        )}
                     </View> */}
+
+            <View style={{ marginHorizontal: 16 }}>
+              <Text style={styles.sectionTitle}>Product Details</Text>
+              {(productDetails?.attributes || []).length > 0 ? (
+                productDetails.attributes.map((attr: any, idx: number) => (
+                  <View
+                    key={attr.productAttrId || idx}
+                    style={[styles.detailsRow, idx > 0 && { marginTop: 12 }]}
+                  >
+                    <View style={{ width: windowWidth / 2.9 }}>
+                      <Text style={styles.detailsLabel}>{attr.attrName}</Text>
                     </View>
+                    <Text style={styles.detailsValue}>{attr.attrValue}</Text>
+                  </View>
+                ))
+              ) : (
+                <Text style={styles.detailsValue}>
+                  No specifications available.
+                </Text>
+              )}
+            </View>
+          </View>
+          {/* End of contentPadding */}
 
-                    {/* Delivery and Service */}
-                    {/* {deliveryAndService()} */}
+          {/* Ratings & Reviews Section */}
+          {(productDetails?.ratingSummary?.reviewCount || 0) > 0 && (
+            <>
+              <View style={styles.accordionHeader}>
+                <Text style={[styles.accordionTitle, { marginHorizontal: 16 }]}>
+                  Rating & Reviews :
+                </Text>
+              </View>
 
+              <View style={styles.ratingOverviewRow}>
+                <View style={styles.bigRatingBadge}>
+                  <Text style={styles.bigRatingText}>
+                    {productDetails?.ratingSummary?.avgRating || 0}
+                  </Text>
+                  <AppIcons.Star size={18} color={colors.starYellow} />
+                </View>
 
-                    {/* <TouchableOpacity style={[styles.accordionHeader, { paddingHorizontal: 16, marginTop: 24 }]}>
-                    <Text style={styles.accordionTitle}>Rating & Reviews :</Text>
-                    <Ionicons name="chevron-down" size={20} color={colors.themeDarkGray} />
-                </TouchableOpacity>
+                <View style={styles.ratingOverviewStats}>
+                  <Text style={styles.ratingStatsText}>
+                    {productDetails?.ratingSummary?.reviewCount || 0} Rating
+                  </Text>
+                  <View style={styles.ratingStatsDivider} />
+                  <Text style={styles.ratingStatsText}>
+                    {productDetails?.ratingSummary?.reviewCount || 0} Reviews
+                  </Text>
+                </View>
+              </View>
 
-                <View style={styles.ratingOverviewRow}>
-                    <View style={styles.bigRatingBadge}>
-                        <Text style={styles.bigRatingText}>2.5</Text>
-                        <AppIcons.Star size={18} color={colors.starYellow} />
-                    </View>
-
-                    <View style={styles.ratingOverviewStats}>
-                        <Text style={styles.ratingStatsText}>25 Rating</Text>
-                        <View style={styles.ratingStatsDivider} />
-                        <Text style={styles.ratingStatsText}>25 Reviews</Text>
-                    </View>
-                </View> */}
-
-                    {/* Filters */}
-                    {/* <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.reviewFiltersScroll}>
-                    {['All', 'Latest', 'Positive', 'Negative Rating'].map((filter, index) => {
-                        const isActive = selectedReviewFilter === filter;
-                        if (isActive) {
-                            return (
-
-                                <LinearGradient
-                                    colors={[colors.themeTeal, colors.themeDarkTeal]}
-                                    start={{ x: 0, y: 0 }}
-                                    end={{ x: 1, y: 0 }}
-                                    style={styles.reviewFilterPillActiveGradient}
-                                >
-                                    <TouchableOpacity key={index} onPress={() => setSelectedReviewFilter(filter)}>
-                                        <Text style={[styles.reviewFilterText, styles.reviewFilterTextActive]}>{filter}</Text>
-                                    </TouchableOpacity>
-                                </LinearGradient>
-
-                            );
-                        }
-                        return (
-                            <TouchableOpacity
-                                key={index}
-                                style={styles.reviewFilterPill}
-                                onPress={() => setSelectedReviewFilter(filter)}
-                            >
-                                <Text style={styles.reviewFilterText}>{filter}</Text>
-                            </TouchableOpacity>
-                        );
-                    })}
-                </ScrollView> */}
-
-                    {/* Review List */}
-                    {/* {dummyReviews.map((review, index) => (
-                    <View key={index} style={styles.reviewItem}>
-                        <View style={styles.reviewerHeader}>
-                            <Text style={styles.reviewerName}>{review.name}</Text>
-                            <Rating
-                                type='custom'
-                                readonly
-                                startingValue={review.rating}
-                                ratingCount={5}
-                                imageSize={12}
-                                ratingColor={colors.starYellow}
-                                ratingBackgroundColor={colors.themeLightGray}
-                                tintColor={colors.themeWhite}
-                            />
-                        </View>
-                        <Text style={styles.reviewText}>{review.text}</Text>
-                        <Text style={styles.reviewTime}>{review.time}</Text>
-                    </View>
-                ))} */}
-
-                    {/* <TouchableOpacity style={styles.viewAllReviewsButton}>
-                    <Text style={styles.viewAllReviewsText}>View all</Text>
-                </TouchableOpacity> */}
-
-                    {/* Similar Products */}
-                    <View style={styles.similarProductsContainer}>
-                        <Text style={[styles.accordionTitle, { marginBottom: 4 }]}>Similar Products</Text>
-
-                        <FlatList
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={styles.similarProductsScroll}
-                            data={relatedProducts?.length > 0 ? relatedProducts : similarProducts}
-                            keyExtractor={(item, index) => item?.productId ? item?.productId.toString() : index.toString()}
-                            renderItem={renderExploreItem}
+              {/* Review List */}
+              <View style={{ marginBottom: 24 }}>
+                {(productDetails?.reviews || []).map(
+                  (review: any, index: number) => (
+                    <View
+                      key={review.reviewId || index}
+                      style={styles.reviewItem}
+                    >
+                      <View style={styles.reviewerHeader}>
+                        <Text style={styles.reviewerName}>
+                          {review.custName || review.customerName || 'Customer'}
+                        </Text>
+                        <Rating
+                          type="custom"
+                          readonly
+                          startingValue={review.rating || 0}
+                          ratingCount={5}
+                          imageSize={12}
+                          ratingColor={colors.starYellow}
+                          ratingBackgroundColor={colors.lightGrey}
+                          tintColor={colors.white}
                         />
+                      </View>
+                      <Text style={styles.reviewText}>
+                        {review.reviewText || review.reviewComment}
+                      </Text>
+                      <Text style={styles.reviewTime}>
+                        {review.createdAt || review.reviewedAt
+                          ? new Date(
+                              review.createdAt || review.reviewedAt,
+                            ).toLocaleDateString()
+                          : ''}
+                      </Text>
+                    </View>
+                  ),
+                )}
+              </View>
+            </>
+          )}
 
-                        {/* <View style={{ marginVertical: 10 }}>
+          {/* Similar Products */}
+          <View style={styles.similarProductsContainer}>
+            <Text style={[styles.accordionTitle, { marginBottom: 4 }]}>
+              Similar Products
+            </Text>
+
+            <FlatList
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.similarProductsScroll}
+              data={
+                relatedProducts?.length > 0 ? relatedProducts : similarProducts
+              }
+              keyExtractor={(item, index) =>
+                item?.productId ? item?.productId.toString() : index.toString()
+              }
+              renderItem={renderExploreItem}
+            />
+
+            {/* <View style={{ marginVertical: 10 }}>
                         <ClickForMoreButton onPress={() => { }} title='Click for more' />
                     </View> */}
+          </View>
+        </ScrollView>
 
-                    </View>
-
-                </ScrollView>
-
-                {/* Sticky Footer */}
-                {/* <View style={styles.stickyFooter}>
+        {/* Sticky Footer */}
+        {/* <View style={styles.stickyFooter}>
                 <View style={styles.footerPriceCol}>
                     <Text style={styles.footerPriceText}>{item?.price}</Text>
                     <Text style={styles.footerOldPriceText}>{item?.oldPrice}</Text>
@@ -804,11 +1089,10 @@ const ProductDetails = () => {
                     </LinearGradient>
                 </View>
             </View> */}
-
-            </View >
-            <FloatingCartButton />
-        </>
-    );
+      </View>
+      <FloatingCartButton />
+    </>
+  );
 };
 
 export default ProductDetails;

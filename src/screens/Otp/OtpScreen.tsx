@@ -134,7 +134,8 @@ const OtpScreen: React.FC = () => {
                 }
             } catch (error: any) {
                 console.log('Send OTP Error:', error);
-                showAlert('Error', error?.message || 'Failed to send OTP');
+                const errorMessage = typeof error === 'string' ? error : (error?.message || error?.Message || 'Failed to send OTP');
+                showAlert('Error', errorMessage);
             } finally {
                 setLoading(false);
             }
@@ -224,12 +225,17 @@ const OtpScreen: React.FC = () => {
                     routes: [{ name: 'MainTabs' as any }],
                 });
 
+            } else if (response?.status === 'OTP_MISMATCH') {
+                showAlert('Incorrect OTP', response?.message || 'The OTP you entered is incorrect. Please try again.');
+                setOtp(['', '', '', '', '']);
+                inputRefs[0].current?.focus();
             } else {
                 showAlert('Error', response?.message || 'OTP verification failed');
             }
         } catch (error: any) {
             console.log('Verify OTP Error:', error);
-            showAlert('Error', error?.message || 'Failed to verify OTP');
+            const errorMessage = typeof error === 'string' ? error : (error?.message || error?.Message || 'Failed to verify OTP');
+            showAlert('Error', errorMessage);
         } finally {
             setLoading(false);
         }
@@ -252,12 +258,17 @@ const OtpScreen: React.FC = () => {
                     registerToken,
                     phone
                 });
+            } else if (response?.status === 'OTP_MISMATCH') {
+                showAlert('Incorrect OTP', response?.message || 'The OTP you entered is incorrect. Please try again.');
+                setOtp(['', '', '', '', '']);
+                inputRefs[0].current?.focus();
             } else {
                 showAlert('Error', response?.message || 'OTP verification failed');
             }
         } catch (error: any) {
             console.log('Verify OTP Error:', error);
-            showAlert('Error', error?.message || 'Failed to verify OTP');
+            const errorMessage = typeof error === 'string' ? error : (error?.message || error?.Message || 'Failed to verify OTP');
+            showAlert('Error', errorMessage);
         } finally {
             setLoading(false);
         }
@@ -282,12 +293,17 @@ const OtpScreen: React.FC = () => {
                         params: { resetToken: response?.data?.resetToken, phone }
                     }],
                 });
+            } else if (response?.status === 'OTP_MISMATCH') {
+                showAlert('Incorrect OTP', response?.message || 'The OTP you entered is incorrect. Please try again.');
+                setOtp(['', '', '', '', '']);
+                inputRefs[0].current?.focus();
             } else {
                 showAlert('Error', response?.message || 'OTP verification failed');
             }
         } catch (error: any) {
             console.log('Verify OTP Error:', error);
-            showAlert('Error', error?.message || 'Failed to verify OTP');
+            const errorMessage = typeof error === 'string' ? error : (error?.message || error?.Message || 'Failed to verify OTP');
+            showAlert('Error', errorMessage);
         } finally {
             setLoading(false);
         }
@@ -314,7 +330,8 @@ const OtpScreen: React.FC = () => {
             }
         } catch (error: any) {
             console.log('Resend OTP Error:', error);
-            showAlert('Error', error?.message || 'Failed to resend OTP');
+            const errorMessage = typeof error === 'string' ? error : (error?.message || error?.Message || 'Failed to resend OTP');
+            showAlert('Error', errorMessage);
         } finally {
             setLoading(false);
         }

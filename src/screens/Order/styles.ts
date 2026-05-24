@@ -557,4 +557,20 @@ export const styles = StyleSheet.create({
         textAlign: 'center',
         lineHeight: 22,
     },
+    productQtyText: {
+        fontFamily: Fonts.medium,
+        fontSize: 14,
+        color: '#666',
+    },
+    productPriceText: {
+        fontFamily: Fonts.bold,
+        fontSize: 16,
+        color: colors.themeTeal,
+    },
+    productInfoRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginTop: 4,
+    },
 });

@@ -25,6 +25,7 @@ import { colors } from '../../assets/theme/colours';
 import { AppIcons } from '../../assets/icons';
 import CONFIG from '../../globals/config';
 import { styles } from './styles';
+import LinearGradient from 'react-native-linear-gradient';
 
 interface ReferralItem {
   referrerCustId: number;
@@ -147,52 +148,51 @@ const ReferralScreen: React.FC = () => {
             <View style={styles.solidHeaderRow}>
               <Image
                 style={styles.solidSpeakerIcon}
-                source={require('../../assets/icons/profile/refer.png')}
+                source={require('../../assets/images/referbell.png')}
               />
-              <View style={styles.solidTitleCol}>
-                <Text style={styles.solidReferTitle}>Refer & Earn</Text>
-                <Text style={styles.solidSubTitle}>
-                  Get rewarded for every friend who shops using your invite.
-                </Text>
-              </View>
-            </View>
-
-            <View style={[styles.solidRewardBox, { marginTop: hp('1.5%') }]}>
-              <Text style={styles.solidRewardLabel}>
-                Referral Points Earned
-              </Text>
-              <View style={styles.referralCodeRow}>
-                <View
-                  style={[
-                    styles.codeContainer,
-                    {
-                      width: '100%',
-                      alignItems: 'center',
-                      backgroundColor: '#E0F7FA',
-                      paddingVertical: hp('1%'),
-                    },
-                  ]}
-                >
-                  <Text style={styles.referralCodeText}>
-                    {referrals.reduce(
-                      (sum, item) => sum + Number(item.totalTokensEarned || 0),
-                      0,
-                    )}
-                  </Text>
-                </View>
-              </View>
             </View>
 
             <TouchableOpacity style={styles.solidInviteBtn} onPress={onShare}>
-              <MaterialCommunityIcons
-                name="share-variant"
-                size={wp('5%')}
-                color="#FFFFFF"
-              />
-              <Text style={styles.solidBtnText}>Invite Friends</Text>
+              <LinearGradient
+                colors={['#F25000', '#FF8A50']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.gradientOverlay}
+              >
+                <MaterialCommunityIcons
+                  name="share-variant"
+                  size={wp('5%')}
+                  color="#FFFFFF"
+                />
+                <Text style={styles.solidBtnText}>Invite Friends</Text>
+              </LinearGradient>
             </TouchableOpacity>
           </View>
-
+          <View style={[styles.solidRewardBox, { marginTop: hp('1.5%') }]}>
+            <View style={styles.referralCodeRow}>
+              <View
+                style={[
+                  styles.codeContainer,
+                  {
+                    width: '100%',
+                    alignItems: 'center',
+                    backgroundColor: colors.figmaTeal,
+                    paddingVertical: hp('1%'),
+                  },
+                ]}
+              >
+                <Text style={styles.solidRewardLabel}>
+                  Referral Reward you Earned
+                </Text>
+                <Text style={styles.referralCodeText}>
+                  {referrals.reduce(
+                    (sum, item) => sum + Number(item.totalTokensEarned || 0),
+                    0,
+                  )}
+                </Text>
+              </View>
+            </View>
+          </View>
           <Text
             style={[
               styles.referEarnText,

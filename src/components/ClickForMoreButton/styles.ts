@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import { Fonts } from '../../assets/theme/fonts';
 import { colors } from '../../assets/theme/colours';
 
-const figmaTeal = '#00B4D8';
+const figmaTeal = '#F25000';
 
 export default StyleSheet.create({
   buttonContainer: {

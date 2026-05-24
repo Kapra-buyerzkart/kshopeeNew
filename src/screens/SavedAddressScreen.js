@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         paddingHorizontal: wp('4%'),
         paddingVertical: wp('2.5%'),
-        borderWidth: 1,
+        borderWidth: 0.5,
         borderColor: '#DADADA',
         borderRadius: wp('2.3%'),
         alignItems: "center",

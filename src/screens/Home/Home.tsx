@@ -1045,7 +1045,7 @@
 //   },
 //   bestSellingCard: {
 //     marginHorizontal: 16,
-//     backgroundColor: '#8ED2C9',
+//     backgroundColor: '#F25000',
 //     borderRadius: 24,
 //     height: 390,
 //     justifyContent: 'flex-end',
@@ -1176,6 +1176,7 @@ import {
   FlatList,
   Dimensions,
   RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -1195,13 +1196,14 @@ import CONFIG from '../../globals/config';
 import ProductCard from '../../components/ProductCard';
 import ExploreItem from '../../components/ExploreItem/ExploreItem';
 import ClickForMoreButton from '../../components/ClickForMoreButton/ClickForMoreButton';
-import * as DummyData from './dummyData';
+// import * as DummyData from './dummyData'; // Removed - load from API only
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Fonts } from '../../assets/theme/fonts';
 import { colors } from '../../assets/theme/colours';
 import HomeSearchBar from '../../components/HomeSearchBar/HomeSearchBar';
 import FloatingCartButton from '../../components/FloatingCartButton/FloatingCartButton';
+import CoinCountSVG from '../../components/CoinCountSVG';
 
 const { width, height } = Dimensions.get('window');
 
@@ -1211,6 +1213,7 @@ const HomeScreen: React.FC = () => {
   const { toggleWishlist, isInWishlist } = useWishlist();
 
   const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [homeData, setHomeData] = useState<any>(null);
   const [bannerIndex, setBannerIndex] = useState(0);
   const [midBannerIndex, setMidBannerIndex] = useState(0);
@@ -1219,12 +1222,15 @@ const HomeScreen: React.FC = () => {
     null,
   );
   const bannerRef = useRef<FlatList>(null);
+  const featuredBannerRef = useRef<FlatList>(null);
+  const accessorizeSubListRef = useRef<FlatList>(null);
 
   const userName =
     profile?.custName || profile?.name || profile?.firstName || 'Guest';
 
-  const fetchData = async () => {
+  const fetchData = async (isRefresh = false) => {
     try {
+      if (!isRefresh) setLoading(true);
       const storedPincodeAreaId = await AsyncStorage.getItem('pincodeAreaId');
       const areaId = storedPincodeAreaId
         ? parseInt(storedPincodeAreaId)
@@ -1234,6 +1240,8 @@ const HomeScreen: React.FC = () => {
       setHomeData(data?.data || data);
     } catch (e) {
       console.error('Error fetching home data for K-shope', e);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -1243,39 +1251,55 @@ const HomeScreen: React.FC = () => {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await fetchData();
+    await fetchData(true);
     setRefreshing(false);
   }, []);
 
   const topBanner =
-    (
-      homeData?.banners?.filter(
-        (b: any) =>
-          b.placementKey === 'app_home_top_banner' ||
-          b.PlacementKey === 'app_home_top_banner',
-      ) || []
-    ).length > 0
-      ? homeData.banners.filter(
-          (b: any) =>
-            b.placementKey === 'app_home_top_banner' ||
-            b.PlacementKey === 'app_home_top_banner',
-        )
-      : DummyData.sliderImages;
+    homeData?.banners?.filter(
+      (b: any) =>
+        b.placementKey === 'app_home_top_banner' ||
+        b.PlacementKey === 'app_home_top_banner',
+    ) || [];
+
+  const topSectionBanner = homeData?.banners?.find(
+    (b: any) =>
+      b.placementKey === 'app_home_top_banner_top_section' ||
+      b.PlacementKey === 'app_home_top_banner_top_section',
+  );
+
+  const firstProductBlockBanners =
+    homeData?.banners?.filter(
+      (b: any) =>
+        b.placementKey === 'app_home_top_banner' ||
+        b.PlacementKey === 'app_home_top_banner',
+    ) || [];
+
+  const [featuredIndex, setFeaturedIndex] = useState(0);
+
+  // Auto-scroll for featured banners
+  useEffect(() => {
+    if (!firstProductBlockBanners || firstProductBlockBanners.length <= 1)
+      return;
+    const timer = setInterval(() => {
+      setFeaturedIndex(prev => {
+        const next = (prev + 1) % firstProductBlockBanners.length;
+        featuredBannerRef.current?.scrollToIndex({
+          index: next,
+          animated: true,
+        });
+        return next;
+      });
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [firstProductBlockBanners]);
 
   const midBanner =
-    (
-      homeData?.banners?.filter(
-        (b: any) =>
-          b.placementKey === 'app_home_mid_banner' ||
-          b.PlacementKey === 'app_home_mid_banner',
-      ) || []
-    ).length > 0
-      ? homeData.banners.filter(
-          (b: any) =>
-            b.placementKey === 'app_home_mid_banner' ||
-            b.PlacementKey === 'app_home_mid_banner',
-        )
-      : DummyData.superSaleBanners;
+    homeData?.banners?.filter(
+      (b: any) =>
+        b.placementKey === 'app_home_mid_banner' ||
+        b.PlacementKey === 'app_home_mid_banner',
+    ) || [];
 
   const bottomBanner =
     homeData?.banners?.filter(
@@ -1289,19 +1313,11 @@ const HomeScreen: React.FC = () => {
       ? homeData.brands
       : homeData?.topBrands && homeData.topBrands.length > 0
       ? homeData.topBrands
-      : (
-          homeData?.banners?.filter(
-            (b: any) =>
-              b.placementKey === 'app_top_brands' ||
-              b.PlacementKey === 'app_top_brands',
-          ) || []
-        ).length > 0
-      ? homeData.banners.filter(
+      : homeData?.banners?.filter(
           (b: any) =>
             b.placementKey === 'app_top_brands' ||
             b.PlacementKey === 'app_top_brands',
-        )
-      : DummyData.topBrands;
+        ) || [];
 
   const gShockMainBanner = homeData?.banners?.find(
     (b: any) =>
@@ -1315,10 +1331,7 @@ const HomeScreen: React.FC = () => {
         b.PlacementKey === 'app_home_bottom_showcase_product_image',
     ) || [];
 
-  const bestSelling =
-    (homeData?.showcaseSlider || []).length > 0
-      ? homeData.showcaseSlider
-      : DummyData.bestSellingItems;
+  const bestSelling = homeData?.showcaseSlider || [];
 
   const categories =
     homeData?.featuredCategories || homeData?.FeaturedCategories || [];
@@ -1376,15 +1389,9 @@ const HomeScreen: React.FC = () => {
   );
 
   const activeGoatDeals =
-    (
-      homeData?.banners?.filter(
-        (b: any) => b.placementKey === 'app_home_cat_top_sidebyside_four',
-      ) || []
-    ).length > 0
-      ? homeData.banners.filter(
-          (b: any) => b.placementKey === 'app_home_cat_top_sidebyside_four',
-        )
-      : DummyData.goatDeals;
+    homeData?.banners?.filter(
+      (b: any) => b.placementKey === 'app_home_cat_top_sidebyside_four',
+    ) || [];
 
   const activeFirstProducts = getItems(parsedFirstBlock).filter(
     (i: any) => i && (i.productId || i.id),
@@ -1503,6 +1510,19 @@ const HomeScreen: React.FC = () => {
     }
   }, [accessorizeCategories]);
 
+  useEffect(() => {
+    if (accessorizeSubListRef.current) {
+      try {
+        accessorizeSubListRef.current.scrollToOffset({
+          offset: 0,
+          animated: false,
+        });
+      } catch (err) {
+        console.warn('Failed to scroll accessorize sublist:', err);
+      }
+    }
+  }, [selectedAccessorize]);
+
   const renderBannerItem = ({ item }: { item: any }) => (
     <TouchableOpacity
       activeOpacity={0.9}
@@ -1528,7 +1548,7 @@ const HomeScreen: React.FC = () => {
         onPress={() => handleCategoryPress(item)}
       >
         <LinearGradient
-          colors={['#00A7B3', '#FFFFFF']}
+          colors={['#FFF7CA', '#FFF3DA']}
           start={{ x: 0, y: 0 }}
           end={{ x: 0, y: 1 }}
           style={styles.categoryCircle}
@@ -1589,10 +1609,11 @@ const HomeScreen: React.FC = () => {
             resizeMode="cover"
           />
         </View>
+        <View style={{ height: 10, backgroundColor: '#FFE9AE' }}></View>
         <Text
           style={[
             styles.accessorizeLabel,
-            isSelected && { color: colors.themeWhite },
+            isSelected && { color: colors.black },
           ]}
           numberOfLines={1}
         >
@@ -1671,8 +1692,96 @@ const HomeScreen: React.FC = () => {
     </TouchableOpacity>
   );
 
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: '#FFFFFF',
+          }}
+        >
+          <ActivityIndicator size="large" color="#F25000" />
+          <Text
+            style={{
+              marginTop: 16,
+              fontFamily: Fonts.gilroyMedium,
+              fontSize: 14,
+              color: '#999',
+            }}
+          >
+            Loading...
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      {topSectionBanner && (
+        <TouchableOpacity
+          activeOpacity={0.9}
+          onPress={() => handleBannerPress(topSectionBanner)}
+          style={styles.topSectionContainer}
+        >
+          <ImageBackground
+            source={getImageSource(
+              topSectionBanner.imageUrl ||
+                topSectionBanner.ImageUrl ||
+                topSectionBanner.image,
+            )}
+            style={styles.topSectionImage}
+            resizeMode="cover"
+          >
+            <View style={styles.topBarRow}>
+              <HomeSearchBar placeholder="Search product" />
+
+              <TouchableOpacity
+                onPress={() => navigation.navigate('BCoin')}
+                style={styles.bcoinContainer}
+              >
+                <ImageBackground
+                  source={require('../../assets/images/profile/homebcoin.png')}
+                  style={styles.bcoinBackground}
+                  resizeMode="contain"
+                >
+                  <Text style={styles.tokenText}>
+                    {profile?.bTokens || profile?.totalBCoins || '0'} B
+                  </Text>
+                </ImageBackground>
+                {/* <CoinCountSVG
+                  width={wp('14%')}
+                  height={hp('5%')}
+                  style={styles.tokenSvg}
+                /> */}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => navigation.navigate('KebraScreen')}
+                style={styles.profileIconMainView}
+              >
+                {/* <View style={styles.profileIconView}>
+                    <LinearGradient
+                      colors={['#F25000', '#FF8C00']}
+                      style={styles.profileGradient}
+                    > */}
+                <CircleUserRound size={25} color="#222222" strokeWidth={1} />
+                {/* </LinearGradient>
+                  </View> */}
+                {/* {profile?.isPrivileged && (
+                    <Image
+                      source={require('../../assets/images/home/k_symbol.png')}
+                      style={styles.crownImage}
+                    />
+                  )} */}
+              </TouchableOpacity>
+            </View>
+          </ImageBackground>
+        </TouchableOpacity>
+      )}
       <ScrollView
         showsVerticalScrollIndicator={false}
         refreshControl={
@@ -1682,115 +1791,152 @@ const HomeScreen: React.FC = () => {
             tintColor="#00BCD4"
           />
         }
-        contentContainerStyle={{ paddingBottom: hp('12%') }}
+        contentContainerStyle={{ paddingBottom: 0 }}
       >
-        <View style={styles.headerSectionWrapper}>
-          {topBanner && topBanner.length > 0 && (
+        <View style={styles.headerSectionContainer}>
+          <View style={styles.topBar}>
+            {/* <TouchableOpacity
+              style={styles.profileArea}
+              onPress={() => navigation.navigate('KebraScreen')}
+            >
+              <CircleUserRound size={24} color="#000" strokeWidth={1.5} />
+              <Text style={styles.userName}>
+                {profile?.custName
+                  ? profile.custName.length > 15
+                    ? `${profile.custName.substring(0, 15)}...`
+                    : profile.custName
+                  : 'Guest User'}
+              </Text> */}
+            {/* </TouchableOpacity> */}
+            {/* <HomeSearchBar placeholder="Search Products" /> */}
+
+            {/* <View style={styles.topIconsRow}>
+              <TouchableOpacity
+                style={styles.iconButton}
+                onPress={() => navigation.navigate('Cart')}
+              >
+                <Image
+                  source={require('../../assets/images/home/carthome.png')}
+                  style={{ width: 20, height: 20 }}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.iconButton}>
+                <Image
+                  source={require('../../assets/images/logos/notify.png')}
+                  style={{ width: 20, height: 20 }}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
+            </View> */}
+          </View>
+
+          {/* <View style={{ paddingHorizontal: 16, marginBottom: 10 }}>
+            <HomeSearchBar placeholder="Search Products" />
+          </View> */}
+
+          {/* OUR CATEGORIES MOVED UP */}
+          {displayCategories.length > 0 && (
+            <View style={{ paddingBottom: 10 }}>
+              <FlatList
+                data={displayCategories}
+                renderItem={renderCategoryItem}
+                keyExtractor={(item, i) => (item.catId || i).toString()}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.categoriesGrid}
+              />
+            </View>
+          )}
+        </View>
+
+        {/* FEATURED BANNER SECTION */}
+        {firstProductBlockBanners.length > 0 && (
+          <View style={styles.featuredBannerContainer}>
             <FlatList
-              ref={bannerRef}
-              data={topBanner}
-              renderItem={renderBannerItem}
-              keyExtractor={(_, i) => i.toString()}
+              data={firstProductBlockBanners}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  activeOpacity={0.9}
+                  onPress={() => handleBannerPress(item)}
+                >
+                  <Image
+                    source={getImageSource(
+                      item.imageUrl || item.ImageUrl || item.image,
+                    )}
+                    style={styles.featuredBannerImage}
+                    resizeMode="cover"
+                  />
+                </TouchableOpacity>
+              )}
+              ref={featuredBannerRef}
+              keyExtractor={(_, i) => `feat_${i}`}
               horizontal
               pagingEnabled
               showsHorizontalScrollIndicator={false}
               onMomentumScrollEnd={e => {
                 const idx = Math.round(e.nativeEvent.contentOffset.x / width);
-                setBannerIndex(idx);
+                setFeaturedIndex(idx);
+              }}
+              onScrollToIndexFailed={info => {
+                // Fallback: scroll to offset if scrollToIndex fails
+                const offset = info.index * width;
+                featuredBannerRef.current?.scrollToOffset({
+                  offset,
+                  animated: true,
+                });
               }}
             />
-          )}
 
-          <View style={[StyleSheet.absoluteFillObject, { paddingTop: 15 }]}>
-            <View style={styles.topBar}>
-              <TouchableOpacity
-                style={styles.profileArea}
-                onPress={() => navigation.navigate('KebraScreen')}
-              >
-                <CircleUserRound size={24} color="#000" strokeWidth={1.5} />
-                <Text style={styles.userName}>
-                  {profile?.custName
-                    ? profile.custName.length > 15
-                      ? `${profile.custName.substring(0, 15)}...`
-                      : profile.custName
-                    : 'Guest User'}
-                </Text>
-              </TouchableOpacity>
-
-              <View style={styles.topIconsRow}>
-                <TouchableOpacity
-                  style={styles.iconButton}
-                  onPress={() => navigation.navigate('Cart')}
-                >
-                  <Image
-                    source={require('../../assets/images/home/carthome.png')}
-                    style={{ width: 20, height: 20 }}
-                    resizeMode="contain"
+            {/* Dynamic dots based on firstProductBlockBanners */}
+            {firstProductBlockBanners.length > 1 && (
+              <View style={styles.mockDotsContainer}>
+                {firstProductBlockBanners.map((_: any, index: number) => (
+                  <View
+                    key={index}
+                    style={[
+                      styles.mockDot,
+                      featuredIndex === index && styles.activeMockDot,
+                    ]}
                   />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.iconButton}>
-                  <Image
-                    source={require('../../assets/images/logos/notify.png')}
-                    style={{ width: 20, height: 20 }}
-                    resizeMode="contain"
-                  />
-                </TouchableOpacity>
+                ))}
               </View>
-            </View>
-
-            <View style={{ paddingHorizontal: 16 }}>
-              <HomeSearchBar placeholder="Search Products" />
-            </View>
-          </View>
-
-          {topBanner && topBanner.length > 1 && (
-            <View style={styles.headerDotsContainer}>
-              {topBanner.map((_: any, index: number) => (
-                <View
-                  key={index}
-                  style={[
-                    styles.headerDot,
-                    bannerIndex === index && {
-                      backgroundColor: colors.outlineTeal,
-                    },
-                  ]}
-                />
-              ))}
-            </View>
-          )}
-        </View>
-
-        {/* OUR CATEGORIES */}
-        {displayCategories.length > 0 && (
-          <View style={styles.section}>
-            {/* <Text style={styles.sectionTitle}>
-              {getSectionTitle('ourcategories', 'OUR CATEGORIES')}
-            </Text> */}
-            <FlatList
-              data={displayCategories}
-              renderItem={renderCategoryItem}
-              keyExtractor={(item, i) => (item.catId || i).toString()}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.categoriesGrid}
-            />
+            )}
           </View>
         )}
 
         {/* ACCESSORIZE */}
         {accessorizeCategories.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>
+          <View
+            style={[
+              styles.section,
+              { backgroundColor: '#FFF', marginTop: hp('0.5%') },
+            ]}
+          >
+            <Text
+              style={[
+                styles.sectionTitle,
+                { textTransform: 'uppercase', marginBottom: hp('2%') },
+              ]}
+            >
               {getSectionTitle('category_tabs_images', 'ACCESSORIZE')}
             </Text>
-            <FlatList
-              data={accessorizeCategories}
-              renderItem={renderAccessorizeItem}
-              keyExtractor={(item, i) => `acc_${item.catId || i}`}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: wp('4%') }}
-            />
+            <View
+              style={{
+                //backgroundColor: '#FFE9AE',
+                paddingTop: hp('0.5%'),
+                marginHorizontal: -wp('0%'),
+              }}
+            >
+              <FlatList
+                data={accessorizeCategories}
+                renderItem={renderAccessorizeItem}
+                keyExtractor={(item, i) => `acc_${item.catId || i}`}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: wp('4%') }}
+              />
+            </View>
             {/* Dynamic accessorize banner below the list */}
             {(() => {
               const activeTab = accessorizeCategories.find((t: any) => {
@@ -1803,12 +1949,14 @@ const HomeScreen: React.FC = () => {
 
               return (
                 <LinearGradient
-                  colors={['#00A7B3', '#FFFFFF']}
+                  // colors={['#00A7B3', '#FFFFFF']}
+                  colors={['#FFE9AE', '#FFF7CA', '#FFFFEF']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 0, y: 1 }}
                   style={styles.dummyAccessorizeContainer}
                 >
                   <FlatList
+                    ref={accessorizeSubListRef}
                     data={activeTabItems}
                     horizontal
                     showsHorizontalScrollIndicator={false}
@@ -1852,7 +2000,7 @@ const HomeScreen: React.FC = () => {
 
         {/* TOP BRANDS */}
         {topBrands && topBrands.length > 0 && (
-          <View style={[styles.section, { marginTop: -hp('1%') }]}>
+          <View style={[styles.section, { marginTop: hp('1%') }]}>
             <Text style={styles.sectionTitle}>
               {getSectionTitle('top_brands', 'TOP BRANDS')}
             </Text>
@@ -1881,7 +2029,7 @@ const HomeScreen: React.FC = () => {
                 style={{
                   paddingHorizontal: 16,
                   position: 'absolute',
-                  bottom: 40,
+                  bottom: 20,
                   left: 0,
                   right: 0,
                 }}
@@ -1912,7 +2060,7 @@ const HomeScreen: React.FC = () => {
               {getSectionTitle('image_slides', 'BEST SELLING')}
             </Text>
             <View style={styles.bestSellingCard}>
-              {/* Side peeking images */}
+              {/* Left peeking image */}
               {bestSellingIndex > 0 && (
                 <Image
                   source={getImageSource(
@@ -1923,6 +2071,7 @@ const HomeScreen: React.FC = () => {
                   resizeMode="contain"
                 />
               )}
+              {/* Right peeking image */}
               {bestSellingIndex < bestSelling.length - 1 && (
                 <Image
                   source={getImageSource(
@@ -1956,14 +2105,14 @@ const HomeScreen: React.FC = () => {
                 />
               </TouchableOpacity>
 
-              {/* Navigation Arrows */}
+              {/* Navigation Arrows — centered vertically on card */}
               <View style={styles.arrowRow}>
                 {bestSellingIndex > 0 ? (
                   <TouchableOpacity
                     style={styles.arrowButton}
                     onPress={() => setBestSellingIndex(prev => prev - 1)}
                   >
-                    <Ionicons name="chevron-back" size={24} color="#FFF" />
+                    <Ionicons name="chevron-back" size={22} color="#FFF" />
                   </TouchableOpacity>
                 ) : (
                   <View style={{ width: wp('10%') }} />
@@ -1974,49 +2123,36 @@ const HomeScreen: React.FC = () => {
                     style={styles.arrowButton}
                     onPress={() => setBestSellingIndex(prev => prev + 1)}
                   >
-                    <Ionicons name="chevron-forward" size={24} color="#FFF" />
+                    <Ionicons name="chevron-forward" size={22} color="#FFF" />
                   </TouchableOpacity>
                 ) : (
                   <View style={{ width: wp('10%') }} />
                 )}
               </View>
 
-              {/* Top Text Info */}
+              {/* Bottom Info Row: name left, MRP + price right */}
               <View style={styles.bestSellingTextOverlay}>
-                <Text style={styles.bestSellingTitleText}>
+                <Text style={styles.bestSellingTitleText} numberOfLines={2}>
                   {bestSelling[bestSellingIndex].brand ||
                     bestSelling[bestSellingIndex].prName ||
                     'Product'}
                 </Text>
                 <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={styles.bestSellingPriceText}>
-                    ₹
-                    {bestSelling[bestSellingIndex].specialPrice ||
-                      bestSelling[bestSellingIndex].price ||
-                      '0'}
-                  </Text>
                   <Text style={styles.bestSellingMrpText}>
                     MRP ₹
                     {bestSelling[bestSellingIndex].unitPrice ||
                       bestSelling[bestSellingIndex].originalPrice ||
                       '0'}
                   </Text>
+                  <Text style={styles.bestSellingPriceText}>
+                    ₹
+                    {bestSelling[bestSellingIndex].specialPrice ||
+                      bestSelling[bestSellingIndex].price ||
+                      '0'}
+                  </Text>
                 </View>
               </View>
             </View>
-
-            {/* Footer Button */}
-            {/* <View style={{ marginTop: 16 }}>
-              <ClickForMoreButton
-                onPress={() => {
-                  navigation.navigate('ProductCategoryDetail', {
-                    title: 'Best Selling',
-                    products: bestSelling,
-                  });
-                }}
-                title="Click for more offers"
-              />
-            </View> */}
           </View>
         )}
 
@@ -2028,6 +2164,7 @@ const HomeScreen: React.FC = () => {
                 parsedFirstBlock?.Title ||
                 'Top Deals'}
             </Text>
+
             <FlatList
               data={activeFirstProducts}
               renderItem={({ item }) => (
@@ -2116,7 +2253,7 @@ const HomeScreen: React.FC = () => {
                 item.id?.toString() ||
                 index.toString()
               }
-              numColumns={2}
+              numColumns={3}
               columnWrapperStyle={{ justifyContent: 'space-between' }}
               scrollEnabled={false}
             />
@@ -2189,16 +2326,33 @@ const HomeScreen: React.FC = () => {
             />
           </View>
         )}
+
         {/* FOOTER LOGO */}
-        <View style={styles.footerLogoContainer}>
+        <LinearGradient
+          colors={['#FFFFFF', '#F1F1F1']}
+          style={styles.footerBranding}
+        >
           <Image
-            source={require('../../assets/images/logos/homelogo.png')}
-            style={styles.footerLogo}
-            resizeMode="contain"
+            source={require('../../assets/images/bottomtab/48grey.png')}
+            style={{
+              width: wp('65%'),
+              height: hp('10%'),
+              resizeMode: 'contain',
+              marginLeft: wp('-10%'),
+            }}
           />
-        </View>
+          {/* <KapraSVG
+                            width={wp('85%')}
+                            height={hp('15%')}
+                            style={{
+                                alignSelf: 'flex-start',
+                                marginLeft: wp('-5%'),
+                            }}
+                        /> */}
+          <View style={{ height: hp('10%') }} />
+        </LinearGradient>
       </ScrollView>
-      <FloatingCartButton />
+      <FloatingCartButton bottom={20} />
     </SafeAreaView>
   );
 };
@@ -2212,10 +2366,138 @@ const styles = StyleSheet.create({
   header: {
     paddingTop: hp('1%'),
   },
-  headerSectionWrapper: {
-    height: hp('35%'),
+  topSectionContainer: {
     width: width,
-    position: 'relative',
+    height: hp('8%'),
+    backgroundColor: '#FFFFFF',
+  },
+  topSectionImage: {
+    width: '100%',
+    height: '100%',
+  },
+  headerSectionContainer: {
+    width: width,
+    backgroundColor: '#FFFFFF',
+    // paddingTop: 10,
+  },
+  featuredBannerContainer: {
+    width: width,
+    backgroundColor: '#FFFFFF',
+    paddingBottom: 20,
+  },
+  featuredBannerImage: {
+    width: width,
+    height: hp('37%'),
+  },
+  mockDotsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 15,
+  },
+  mockDot: {
+    width: 25,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#E0E0E0',
+    marginHorizontal: 4,
+  },
+  activeMockDot: {
+    backgroundColor: '#000000',
+  },
+  bestDealTitle: {
+    fontSize: 18,
+    fontFamily: Fonts.gilroyBold,
+    color: '#000000',
+    textAlign: 'center',
+    marginTop: 15,
+    textTransform: 'uppercase',
+  },
+  topBarRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    width: width,
+  },
+  topBarIcon: {
+    marginLeft: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bcoinContainer: {
+    //  backgroundColor: '#F9D130',
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 20,
+    paddingLeft: 2,
+    paddingRight: 10,
+    height: 32,
+    marginLeft: 8,
+    //  borderWidth: 1,
+    // borderColor: '#EBC110',
+  },
+  bcoinBackground: {
+    width: wp('12%'),
+    height: hp('6%'),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  bottomBrandingSection: {
+    alignItems: 'center',
+    marginTop: hp('3%'),
+    marginBottom: hp('1%'),
+    paddingVertical: hp('2%'),
+  },
+  kapraLogoBottom: {
+    width: wp('50%'),
+    height: hp('8%'),
+    resizeMode: 'contain',
+    marginBottom: hp('1%'),
+  },
+  footerBranding: {
+    alignItems: 'flex-start',
+    paddingVertical: hp('2%'),
+    marginBottom: 0,
+  },
+  tokenSvg: {
+    marginRight: -5,
+  },
+  tokenText: {
+    fontSize: 12,
+    fontFamily: Fonts.gilroyBold,
+    color: '#000000',
+    marginLeft: 0,
+    top: 5,
+  },
+  profileIconMainView: {
+    marginLeft: -8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: wp('10%'),
+    height: hp('6%'),
+  },
+  profileIconView: {
+    width: 35,
+    height: 35,
+    borderRadius: 17.5,
+    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  profileGradient: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  crownImage: {
+    width: 15,
+    height: 15,
+    position: 'absolute',
+    top: -5,
+    right: -2,
+    zIndex: 2,
   },
   headerDotsContainer: {
     flexDirection: 'row',
@@ -2271,9 +2553,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: wp('4%'),
+    height: 48,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 4,
   },
-  headerIcon: {
-    padding: wp('1%'),
+  searchBarContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.white,
+    borderRadius: 24,
+    paddingHorizontal: 12,
+    height: 45,
+    flex: 1,
   },
   searchBar: {
     flexDirection: 'row',
@@ -2340,14 +2634,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   categoryCircle: {
-    width: wp('18%'),
-    height: wp('18%'),
-    borderRadius: wp('6%'),
+    width: wp('16%'),
+    height: wp('16%'),
+    borderRadius: wp('5%'),
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#EEEEEE',
+    borderWidth: 0.2,
+    borderColor: '#4c2c00',
   },
   categoryImage: {
     width: wp('11%'),
@@ -2363,24 +2657,20 @@ const styles = StyleSheet.create({
     width: wp('18%'),
   },
   accessorizeCard: {
+    backgroundColor: '#ffff',
     width: wp('22%'),
-    // borderRadius: wp('4%'),
-    // backgroundColor: '#F8F8F8',
-
-    paddingVertical: hp('1.5%'),
     marginRight: wp('2%'),
     alignItems: 'center',
-    // marginRight: wp('1%'),
     paddingTop: hp('1%'),
-    paddingBottom: hp('1.5%'),
-    borderTopLeftRadius: wp('3%'),
-    borderTopRightRadius: wp('3%'),
+    borderTopLeftRadius: wp('5%'),
+    borderTopRightRadius: wp('5%'),
   },
   accessorizeCardActive: {
-    backgroundColor: '#00A7B3',
-    borderColor: '#00A7B3',
+    backgroundColor: '#FFE9AE',
+    borderColor: '#FFE9AE',
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
+    paddingHorizontal: hp('1%'),
   },
   accessorizeImageContainer: {
     width: wp('16%'),
@@ -2388,10 +2678,10 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: '#EEE',
     borderRadius: wp('3%'),
-    backgroundColor: '#FFF',
+    // backgroundColor: '#FFF',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: hp('0.5%'),
+    // marginBottom: hp('0.5%'),
     overflow: 'hidden',
     elevation: 2,
     shadowColor: '#000',
@@ -2405,7 +2695,7 @@ const styles = StyleSheet.create({
   },
   accessorizeLabel: {
     fontSize: wp('2.8%'),
-    color: '#8A8A8A', // Grey for inactive
+    color: 'grey', // Grey for inactive
     fontFamily: Fonts.gilroyBold,
     fontWeight: '600',
     textAlign: 'center',
@@ -2413,23 +2703,15 @@ const styles = StyleSheet.create({
     paddingBottom: hp('1%'),
   },
   dummyAccessorizeContainer: {
-    // paddingTop: hp('2%'),
-    // paddingBottom: hp('2%'),
     marginTop: -hp('0%'),
-    zIndex: -1,
   },
   accessorizeBannerCard: {
-    width: wp('42%'),
-    height: hp('32%'),
+    width: wp('39%'),
+    height: hp('27%'),
     marginRight: wp('4%'),
-    borderRadius: wp('5%'),
+    borderRadius: wp('8%'),
     overflow: 'hidden',
-    // backgroundColor: '#FFF',
-    // elevation: 3,
-    // shadowColor: '#000',
-    // shadowOffset: { width: 0, height: 2 },
-    // shadowOpacity: 0.1,
-    // shadowRadius: 4,
+    // backgroundColor: '#F5F5F5',
   },
   dummyAccessorizeImage: {
     width: '100%',
@@ -2437,15 +2719,16 @@ const styles = StyleSheet.create({
   },
   bannerTextOverlay: {
     position: 'absolute',
-    top: hp('2%'),
-    left: wp('4%'),
-    right: wp('4%'),
+    top: hp('3%'),
+    left: wp('5%'),
+    right: wp('5%'),
   },
   bannerTitleText: {
-    fontSize: wp('5%'),
+    fontSize: wp('7%'),
     fontFamily: Fonts.gilroyBold,
     color: '#000',
     fontWeight: '800',
+    lineHeight: wp('8%'),
   },
   midBannerCard: {
     width: wp('90%'),
@@ -2480,12 +2763,12 @@ const styles = StyleSheet.create({
   },
   gShockSectionWrapper: {
     width: '100%',
-    backgroundColor: 'red',
+    //backgroundColor: 'red',
     overflow: 'hidden',
   },
   gShockTopBanner: {
     width: width,
-    height: hp('60%'),
+    height: hp('50%'),
     alignSelf: 'center',
     overflow: 'hidden',
     justifyContent: 'flex-end',
@@ -2498,7 +2781,7 @@ const styles = StyleSheet.create({
     //backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 0,
   },
   gShockCardImage: {
     ...StyleSheet.absoluteFillObject,
@@ -2518,32 +2801,32 @@ const styles = StyleSheet.create({
     marginHorizontal: wp('1%'),
   },
   indicatorPillActive: {
-    backgroundColor: '#00A7B3',
+    backgroundColor: '#F25000',
     width: wp('10%'),
   },
   bestSellingCard: {
     marginHorizontal: wp('4%'),
-    backgroundColor: '#E0F7F9',
+    backgroundColor: '#FFF7CA',
     borderRadius: wp('8%'),
-    height: hp('38%'),
+    height: hp('30%'),
     overflow: 'hidden',
     position: 'relative',
     padding: wp('4%'),
-    borderWidth: 1,
-    borderColor: '#B2EBF2',
+    borderWidth: 0.4,
+    borderColor: '#4c2c00',
   },
   sideImage: {
     position: 'absolute',
-    width: wp('40%'),
-    height: hp('28%'),
-    top: hp('6%'),
-    opacity: 0.25,
+    width: wp('23%'),
+    height: hp('18%'),
+    top: hp('3%'),
+    opacity: 0.45,
   },
   sideImageLeft: {
-    left: -wp('18%'),
+    left: -wp('1%'),
   },
   sideImageRight: {
-    right: -wp('18%'),
+    right: -wp('1%'),
   },
   centerImageContainer: {
     width: '100%',
@@ -2553,67 +2836,72 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   centerImage: {
-    width: '75%',
-    height: '75%',
+    width: '100%',
+    height: '100%',
+    top: -2,
+    resizeMode: 'contain',
   },
   arrowRow: {
     position: 'absolute',
     left: wp('4%'),
     right: wp('4%'),
-    top: '55%',
+    top: '45%',
     flexDirection: 'row',
+    alignItems: 'center',
     zIndex: 10,
   },
   arrowButton: {
     width: wp('10%'),
     height: wp('10%'),
     borderRadius: wp('5%'),
-    backgroundColor: '#00A7B3',
+    backgroundColor: '#F25000',
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
   },
   bestSellingTextOverlay: {
     position: 'absolute',
-    top: wp('5%'),
-    left: wp('6%'),
-    right: wp('6%'),
+    bottom: wp('4%'),
+    left: wp('5%'),
+    right: wp('5%'),
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'flex-end',
     zIndex: 2,
   },
   bestSellingTitleText: {
     fontSize: wp('6%'),
     fontFamily: Fonts.gilroyBold,
-    color: '#263238',
+    color: '#1A1A1A',
     fontWeight: '800',
-    maxWidth: '50%',
+    maxWidth: '48%',
   },
   bestSellingPriceText: {
-    fontSize: wp('6%'),
+    fontSize: wp('6.5%'),
     fontFamily: Fonts.gilroyBold,
-    color: '#263238',
+    color: '#1A1A1A',
     fontWeight: '800',
   },
   bestSellingMrpText: {
-    fontSize: wp('3.5%'),
-    color: '#546E7A',
+    fontSize: wp('3.2%'),
+    color: '#7B8D9E',
     textDecorationLine: 'line-through',
     fontFamily: Fonts.gilroyMedium,
+    marginBottom: 2,
   },
   goatDealCard: {
-    width: (width - 32 - 32) / 2,
+    width: (width - 32 - 32) / 3,
     // backgroundColor: 'red',
     borderRadius: 26,
     marginBottom: 10,
 
     // borderWidth: 0.8,
     // borderColor: colors.themeTeal,
-    height: 140,
+    height: 170,
     overflow: 'hidden',
     // elevation: 3,
     // shadowColor: '#000',

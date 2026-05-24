@@ -68,8 +68,8 @@ export const gShockData = {
 };
 
 export const superSaleBanners = [
-  { id: '1', title: '11.11 SALE', subtitle: 'Biggest Sale of the Year!', badge: 'Up to 70% OFF', colors: ['#78BFB9', '#A4E8DF'], image: require('../../assets/images/home/super_sale.png') },
-  { id: '2', title: 'FLASH DEALS', subtitle: 'Limited time offers!', badge: 'Up to 50% OFF', colors: ['#5BA3B0', '#8ED2C9'], image: require('../../assets/images/home/super_sale.png') },
+  { id: '1', title: '11.11 SALE', subtitle: 'Biggest Sale of the Year!', badge: 'Up to 70% OFF', colors: ['#F25000', '#F25000'], image: require('../../assets/images/home/super_sale.png') },
+  { id: '2', title: 'FLASH DEALS', subtitle: 'Limited time offers!', badge: 'Up to 50% OFF', colors: ['#F25000', '#F25000'], image: require('../../assets/images/home/super_sale.png') },
   { id: '3', title: 'NEW ARRIVALS', subtitle: 'Fresh styles, hot prices', badge: 'Starting ₹299', colors: ['#4A9DA8', '#78C5BD'], image: require('../../assets/images/home/super_sale.png') },
   { id: '4', title: 'CLEARANCE', subtitle: 'Last chance to grab it!', badge: 'Min 60% OFF', colors: ['#3D8A96', '#6BB8B0'], image: require('../../assets/images/home/super_sale.png') },
   { id: '5', title: 'WEEKEND SALE', subtitle: 'Shop more, save more', badge: 'Extra 15% OFF', colors: ['#5BB0A8', '#80CFC6'], image: require('../../assets/images/home/super_sale.png') },

@@ -15,10 +15,15 @@ import useProductSearch from '../../hooks/useProductSearch';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUser } from '../../context/UserContext';
 import { useCart } from '../../context/CartContext';
-import ProductCard from '../../components/ProductCard';
+import ExploreItem from '../../components/ExploreItem/ExploreItem';
 import { AppIcons } from '../../assets/icons';
 import { colors } from '../../assets/theme/colours';
 import { Fonts } from '../../assets/theme/fonts';
+import { useWishlist } from '../../context/WishlistContext';
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
 
 const RECENT_SEARCH_KEY = 'recent_searches_list';
 const truncateText = (text: string, limit = 7) => {
@@ -34,6 +39,7 @@ const SearchScreen = () => {
 
   const { profile } = useUser();
   const { addresses, fetchAddresses } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
 
   const [currentPincodeId, setCurrentPincodeId] = useState<number | null>(null);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
@@ -92,25 +98,32 @@ const SearchScreen = () => {
 
   const renderItem = ({ item }: { item: any }) => {
     return (
-      <TouchableOpacity
-        style={styles.productWrapper}
+      <ExploreItem
+        item={item}
         onPress={() =>
           navigation.navigate('ProductDetailsScreen', {
             productId: item.productId || item.id,
             product: item,
           })
         }
-      >
-        <ProductCard
-          item={item}
-          onAddToCart={() =>
-            navigation.navigate('ProductDetailsScreen', {
-              productId: item.productId || item.id,
-              product: item,
-            })
-          }
-        />
-      </TouchableOpacity>
+        toggleWishlist={() => toggleWishlist(item)}
+        isInWishlist={() => isInWishlist(item.productId || item.id)}
+        style={{
+          width: wp('29%'),
+          marginBottom: hp('1.5%'),
+          //  contentContainer: { paddingVertical: 6, marginHorizontal: 2 },
+          image: { height: 80 }, // Shorter image for 3 columns
+          caption: { fontSize: 9, height: 28 }, // Slightly smaller font
+          pricePill: {
+            minWidth: 45,
+            height: 20,
+            borderRadius: 6,
+            paddingHorizontal: 4,
+          },
+          pricePillText: { fontSize: 10 },
+          originalPriceText: { fontSize: 7 },
+        }}
+      />
     );
   };
 
@@ -140,7 +153,7 @@ const SearchScreen = () => {
     if (!isLoadingMore) return null;
     return (
       <View style={{ paddingVertical: 20 }}>
-        <ActivityIndicator size="small" color={colors.themeTeal} />
+        <ActivityIndicator size="small" color="#F25000" />
       </View>
     );
   };
@@ -198,17 +211,23 @@ const SearchScreen = () => {
           (item.productId || item.id || index).toString()
         }
         renderItem={renderItem}
-        numColumns={2}
-        key={2}
+        numColumns={3}
+        key={3}
+        columnWrapperStyle={{ justifyContent: 'flex-start', gap: wp('0.1%') }}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={ListHeader}
         ListFooterComponent={ListFooter}
         onEndReached={loadMore}
         onEndReachedThreshold={0.5}
+        // contentContainerStyle={{
+        //   // paddingHorizontal: 4,
+        //   marginStart: 10,
+        //   //marginHorizontal: wp('1%'),
+        //   paddingTop: 10,
+        //   paddingBottom: 100,
+        // }}
         contentContainerStyle={{
-          paddingHorizontal: 10,
-          paddingTop: 10,
-          paddingBottom: 100,
+          padding: 8,
         }}
         ListEmptyComponent={
           !loading &&

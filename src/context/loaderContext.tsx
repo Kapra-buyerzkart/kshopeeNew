@@ -63,10 +63,13 @@ export const LoaderContextProvider = ({ children }: { children: React.ReactNode 
                                 width: windowWidth * (40 / 100),
                             }}
                             colorFilters={[
-                                {
-                                    keypath: "Stroke 1",
-                                    color: '#00A7B3',
-                                }
+                                { keypath: "cart 2.**", color: '#F25000' },
+                                { keypath: "right wheel 2.**", color: '#F25000' },
+                                { keypath: "left wheel 2.**", color: '#F25000' },
+                                { keypath: "cart.**", color: '#F25000' },
+                                { keypath: "right wheel.**", color: '#F25000' },
+                                { keypath: "left wheel.**", color: '#F25000' },
+                                { keypath: "**.Stroke 1", color: '#F25000' },
                             ]}
                             autoPlay
                             loop

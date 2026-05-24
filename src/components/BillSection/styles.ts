@@ -3,11 +3,14 @@ import { colors } from '../../assets/theme/colours';
 import { Fonts } from '../../assets/theme/fonts';
 
 export const billSectionStyles = StyleSheet.create({
+    container: {
+        marginHorizontal: 16,
+        marginTop: 2,
+    },
     billImageBackground: {
-        alignSelf: 'center',
-        width: '105%',
-        paddingVertical: 28,
-        paddingHorizontal: 40,
+        width: '100%',
+        paddingVertical: 20,
+        paddingHorizontal: 20,
         marginTop: 8,
     },
     billImageStyle: {
@@ -16,7 +19,7 @@ export const billSectionStyles = StyleSheet.create({
     billHeaderContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         marginBottom: 16,
     },
     billIcon: {
@@ -37,14 +40,21 @@ export const billSectionStyles = StyleSheet.create({
         marginTop: 10,
     },
     billContentText: {
-        fontFamily: Fonts.gilroyRegular,
-        fontSize: 14,
-        color: '#777777',
+        fontFamily: Fonts.gilroyMedium,
+        fontSize: 12,
+        color: '#999999',
     },
     priceText: {
         fontFamily: Fonts.gilroyMedium,
-        fontSize: 14,
+        fontSize: 12,
         color: '#000000',
+    },
+    strikethroughText: {
+        fontFamily: Fonts.gilroyMedium,
+        fontSize: 12,
+        color: '#999999',
+        textDecorationLine: 'line-through',
+        marginRight: 8,
     },
     billDivider: {
         borderWidth: 1,

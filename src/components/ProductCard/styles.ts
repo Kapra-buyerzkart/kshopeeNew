@@ -11,7 +11,7 @@ export const styles = StyleSheet.create({
     borderRadius: wp('4%'),
     margin: wp('2%'),
     borderWidth: 1,
-    borderColor: '#A1d3ce',
+    borderColor: '#F25000',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -41,11 +41,11 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#00A7B3',
+    borderColor: '#F25000',
   },
   discountText: {
     fontSize: wp('2.2%'),
-    color: '#00A7B3',
+    color: '#F25000',
     fontFamily: Fonts.gilroyBold,
   },
   wishlistIcon: {

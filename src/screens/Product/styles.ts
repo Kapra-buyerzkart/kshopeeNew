@@ -1,6 +1,7 @@
 import { StyleSheet, Dimensions } from 'react-native';
 import { colors } from '../../assets/theme/colours';
 import { Fonts } from '../../assets/theme/fonts';
+import { heightPercentageToDP } from 'react-native-responsive-screen';
 
 const { width } = Dimensions.get('window');
 
@@ -20,8 +21,9 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: 50, // Assuming safe area or notch spacing
-    paddingBottom: 2,
+    paddingTop: 40,
+    // backgroundColor: 'red', // Assuming safe area or notch spacing
+    //paddingBottom: 2,
   },
   headerIconBg: {
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
@@ -37,19 +39,22 @@ export const styles = StyleSheet.create({
   },
   // Image Carousel Area
   imageContainer: {
-    //width: width,
-    height: width * 0.7, // Aspect ratio
-    backgroundColor: colors.white,
+    height: heightPercentageToDP(40), // Majestic aspect ratio matching screenshot
+    // backgroundColor: colors.red,
     justifyContent: 'center',
     alignItems: 'center',
-    margin: 12,
-    borderRadius: 20,
+    // margin: 12,
+    //  borderRadius: 20,
+    overflow: 'hidden',
+    paddingBottom: 36, // prevent image being clipped by the overlapping contentPadding card (marginTop: -30)
   },
 
   productImage: {
     width: '100%',
     height: '100%',
-    resizeMode: 'cover',
+    overflow: 'hidden',
+    resizeMode: 'contain',
+    //  bottom: 40,
   },
   paginationContainer: {
     flexDirection: 'row',
@@ -62,17 +67,19 @@ export const styles = StyleSheet.create({
   },
   paginationDotActive: {
     width: 24,
-    height: 4,
-    backgroundColor: colors.themeTeal,
-    borderRadius: 2,
+    height: 6,
+    backgroundColor: '#F25000', // Vibrant brand orange dot
+    borderRadius: 3,
     marginHorizontal: 3,
+    top: -25,
   },
   paginationDotInactive: {
-    width: 4,
-    height: 4,
-    backgroundColor: '#C4C4C4',
-    borderRadius: 2,
+    width: 6,
+    height: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)', // White dot with opacity for perfect visibility
+    borderRadius: 3,
     marginHorizontal: 3,
+    top: -25,
   },
   // Main Content
   contentScroll: {
@@ -80,21 +87,36 @@ export const styles = StyleSheet.create({
     paddingBottom: 100, // Make room for sticky footer
   },
   contentPadding: {
-    padding: 16,
+    //padding: 24,
+    paddingVertical: 8,
+    backgroundColor: colors.white,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    borderTopColor: '#F25000', // Beautiful thick brand orange top border matching the image exactly
+    borderTopWidth: 6,
+    marginTop: -30, // Pull it up over the image
+    // shadowColor: '#000',
+    // shadowOffset: { width: 0, height: -8 },
+    // shadowOpacity: 0.06,
+    // shadowRadius: 12,
+    // elevation: 8,
   },
   title: {
     fontFamily: Fonts.gilroyBold,
-    fontSize: 20,
+    fontSize: 18,
     color: colors.themeBlack,
     marginBottom: 8,
-    fontWeight: '600',
+    textAlign: 'center', // Centered exactly like screenshot
+    fontWeight: '400',
   },
   description: {
-    fontFamily: Fonts.regular,
-    fontSize: 16,
-    color: colors.black,
-    lineHeight: 25,
+    fontFamily: Fonts.gilroyMedium,
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 22,
+    textAlign: 'center', // Centered description
     fontWeight: '300',
+    marginBottom: 16,
   },
   // Select Variants
   sectionTitle: {
@@ -221,11 +243,11 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.white,
     borderRadius: 20,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
+    // elevation: 3,
+    // shadowColor: '#000',
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.05,
+    // shadowRadius: 8,
     borderWidth: 0.6,
     borderColor: colors.themeLightGray,
     marginHorizontal: 16,
@@ -353,13 +375,13 @@ export const styles = StyleSheet.create({
     borderRadius: 25,
     paddingHorizontal: 12,
     paddingVertical: 6,
-    height: 46,
+    height: 36,
     width: 90,
     gap: 4,
   },
   bigRatingText: {
     fontFamily: Fonts.gilroyBold,
-    fontSize: 26,
+    fontSize: 18,
     color: colors.themeBlack,
     fontWeight: '400',
   },
@@ -370,7 +392,7 @@ export const styles = StyleSheet.create({
   },
   ratingStatsText: {
     fontFamily: Fonts.regular,
-    fontSize: 16,
+    fontSize: 14,
     color: colors.black,
     fontWeight: '300',
   },
@@ -538,18 +560,22 @@ export const styles = StyleSheet.create({
     textDecorationLine: 'line-through',
   },
   clickForMoreBtn: {
-    alignSelf: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#F0F0F0',
-    borderRadius: 20,
-    paddingVertical: 8,
-    paddingHorizontal: 24,
-    marginTop: 16,
+    borderColor: '#E0E0E0',
+    borderRadius: 25,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginTop: 20,
+    gap: 8,
+    backgroundColor: '#FFFFFF',
   },
   clickForMoreText: {
-    fontFamily: Fonts.gilroySemiBold,
-    fontSize: 13,
-    color: colors.themeDarkGray,
+    fontFamily: Fonts.gilroyBold,
+    fontSize: 14,
+    color: colors.black,
   },
   // Sticky Footer
   stickyFooter: {
@@ -566,19 +592,20 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingBottom: 24, // Safe area for bottom
+    zIndex: 99,
   },
   footerPriceCol: {
     flex: 1,
   },
   footerPriceText: {
     fontFamily: Fonts.bold,
-    fontSize: 18,
+    fontSize: 20,
     color: colors.black,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   footerOldPriceText: {
     fontFamily: Fonts.regular,
-    fontSize: 16,
+    fontSize: 13,
     color: colors.grey,
     textDecorationLine: 'line-through',
     fontWeight: '300',
@@ -589,26 +616,28 @@ export const styles = StyleSheet.create({
     gap: 12,
   },
   footerBagIcon: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
     borderRadius: 22,
     borderWidth: 1,
-    borderColor: colors.themeTeal,
+    borderColor: '#F25000',
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#FFF0E6',
   },
   footerBuyBtn: {
-    backgroundColor: colors.themeTeal,
-    paddingHorizontal: 24,
+    paddingHorizontal: 30,
     height: 44,
     borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
+    flexDirection: 'row',
   },
   footerBuyBtnText: {
     fontFamily: Fonts.gilroyBold,
-    fontSize: 14,
+    fontSize: 15,
     color: colors.themeWhite,
+    fontWeight: '700',
   },
   iconRoundBackground: {
     width: 25,

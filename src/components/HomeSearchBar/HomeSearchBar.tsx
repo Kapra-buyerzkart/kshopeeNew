@@ -22,20 +22,15 @@ const HomeSearchBar: React.FC<HomeSearchBarProps> = ({
       style={styles.searchBarContainer}
       onPress={onPress || (() => navigation.navigate('SearchScreen'))}
     >
-      {/* Figma exact match: The left icon is K in cyan */}
       <View style={styles.iconLeftContainer}>
-        <Image
-          source={require('../../assets/images/home/k_symbol.png')}
-          style={styles.kIcon}
-        />
+        <AppIcons.Search color={colors.black} size={22} />
       </View>
       <View style={[styles.input, { justifyContent: 'center' }]}>
-        <Text style={{ color: colors.black }}>{placeholder}</Text>
+        <Text style={{ color: '#666', fontSize: 16 }}>{placeholder}</Text>
       </View>
-      {/* Figma exact match: The right icon is a mic surrounded by an oval/circle */}
-      {/* <TouchableOpacity onPress={() => {}}>
-        <AppIcons.Microphone color={colors.black} size={20} />
-      </TouchableOpacity> */}
+      <View style={styles.micContainer}>
+        <AppIcons.Microphone color={colors.black} size={22} />
+      </View>
     </TouchableOpacity>
   );
 };

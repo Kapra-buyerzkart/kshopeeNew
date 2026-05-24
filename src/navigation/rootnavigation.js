@@ -30,7 +30,8 @@ import UpdateContactScreen from '../screens/Profile/UpdateContactScreen';
 import UpdateContactOtpScreen from '../screens/Profile/UpdateContactOtpScreen';
 
 // import ChangePwdScreen from '../screens/ChangePwdScreen';
-// import LoginPwdScreen from '../screens/LoginPwdScreen';
+import ChangePwdScreen from '../screens/Login/ChangePwdScreen';
+import LoginPwdScreen from '../screens/Login/LoginPwdScreen';
 import { CartProvider } from '../context/CartContext';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -93,7 +94,8 @@ export default function RootStack() {
         <Stack.Screen name="OrderFailedScreen" component={OrderFailedScreen} options={{ headerShown: false }} />
         <Stack.Screen name="OrderPendingScreen" component={OrderPendingScreen} options={{ headerShown: false }} />
         {/* <Stack.Screen name="ChangePwdScreen" component={ChangePwdScreen} options={{ headerShown: false }} /> */}
-        {/* <Stack.Screen name="LoginPwdScreen" component={LoginPwdScreen} options={{ headerShown: false }} /> */}
+        <Stack.Screen name="ChangePwdScreen" component={ChangePwdScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="LoginPwdScreen" component={LoginPwdScreen} options={{ headerShown: false }} />
 
         <Stack.Screen name="Details" component={DetailScreen} />
         <Stack.Screen name="CheckComponent" component={CheckApiScreen} options={{ headerShown: false }} />

@@ -14,6 +14,7 @@ import { styles } from './styles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import { colors } from '../../assets/theme/colours';
+import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { AppIcons } from '../../assets/icons';
 import { Rating } from 'react-native-ratings';
@@ -197,7 +198,12 @@ const CategoryScreen = () => {
       const response = await searchProductsApi(payload);
       console.log('Products Response --->:', JSON.stringify(response, null, 2));
 
-      if (response && response.success && response.data && response.data.items) {
+      if (
+        response &&
+        response.success &&
+        response.data &&
+        response.data.items
+      ) {
         const newItems = response.data.items;
         if (page === 1) {
           setProductsList(newItems);
@@ -267,11 +273,11 @@ const CategoryScreen = () => {
 
         {isInWishlist(item.productId || item.id) ? (
           <TouchableOpacity onPress={() => toggleWishlist(item)}>
-            <AppIcons.BookmarkFilled color={colors.tealIconFont} size={24} />
+            <AppIcons.BookmarkFilled color={colors.tealIconFont} size={22} />
           </TouchableOpacity>
         ) : (
           <TouchableOpacity onPress={() => toggleWishlist(item)}>
-            <AppIcons.BookmarkOutline color={colors.tealIconFont} size={24} />
+            <AppIcons.BookmarkOutline color={colors.greyborder} size={22} />
           </TouchableOpacity>
         )}
       </View>
@@ -386,9 +392,7 @@ const CategoryScreen = () => {
                 )
               }
               style={
-                isActive
-                  ? styles.subCatPillActive
-                  : styles.subCatPillInactive
+                isActive ? styles.subCatPillActive : styles.subCatPillInactive
               }
             >
               <FallbackImage
@@ -498,25 +502,30 @@ const CategoryScreen = () => {
                   style={styles.sidebarItem}
                   onPress={() => setSelectedCategoryId(cat.catId?.toString())}
                 >
-                  <View
-                    style={
-                      isActive
-                        ? styles.sidebarIconActiveBg
-                        : styles.sidebarIconInactiveBg
-                    }
-                  >
-                    <View
-                      style={[
-                        styles.sidebarIconWrapper,
-                        isActive && styles.sidebarIconWrapperActive,
-                      ]}
+                  {isActive ? (
+                    <LinearGradient
+                      colors={[colors.themeTeal, '#FFB28C', '#FFFFFF']}
+                      start={{ x: 0, y: 0.5 }}
+                      end={{ x: 1, y: 0.5 }}
+                      style={styles.sidebarIconActiveBg}
                     >
-                      <FallbackImage
-                        source={getImageUrl(cat.imageUrl)}
-                        style={styles.sidebarIconImage}
-                      />
+                      <View style={styles.sidebarIconWrapperActive}>
+                        <FallbackImage
+                          source={getImageUrl(cat.imageUrl)}
+                          style={styles.sidebarIconImage}
+                        />
+                      </View>
+                    </LinearGradient>
+                  ) : (
+                    <View style={styles.sidebarIconInactiveBg}>
+                      <View style={styles.sidebarIconWrapper}>
+                        <FallbackImage
+                          source={getImageUrl(cat.imageUrl)}
+                          style={styles.sidebarIconImage}
+                        />
+                      </View>
                     </View>
-                  </View>
+                  )}
                   <Text
                     style={[
                       styles.sidebarItemText,
@@ -550,7 +559,7 @@ const CategoryScreen = () => {
               isLoadingMore ? (
                 <ActivityIndicator
                   size="small"
-                  color={colors.themeTeal}
+                  color="#F25000"
                   style={{ marginVertical: 20 }}
                 />
               ) : null

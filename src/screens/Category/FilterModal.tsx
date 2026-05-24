@@ -14,7 +14,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { colors } from '../../assets/theme/colours';
 import { filterOptions } from './dummyData';
 import LinearGradient from 'react-native-linear-gradient';
-import { useCommonStyles } from '../../assets/styles';
 import { AppIcons } from '../../assets/icons';
 
 interface FilterModalProps {
@@ -37,8 +36,6 @@ const FilterModal: React.FC<FilterModalProps> = ({
   const [selectedFilters, setSelectedFilters] = useState<
     Record<string, string[]>
   >({});
-  const homeStyles = useCommonStyles();
-
   const toggleFilter = (category: string, option: string) => {
     setSelectedFilters(prev => {
       const currentSelected = prev[category] || [];
@@ -80,12 +77,26 @@ const FilterModal: React.FC<FilterModalProps> = ({
         onPress={() => toggleFilter(activeTab, item)}
         activeOpacity={0.7}
       >
-        <View style={[styles.checkbox, isSelected && styles.checkboxActive]}>
-          {isSelected && (
-            <Ionicons name="checkmark" size={16} color={colors.themeTeal} />
-          )}
-        </View>
-        <Text style={styles.checkboxLabel}>{item}</Text>
+        {isSelected ? (
+          <LinearGradient
+            colors={[colors.themeTeal, '#FF6A00']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.checkboxGradient}
+          >
+            <Ionicons name="checkmark" size={16} color={colors.themeWhite} />
+          </LinearGradient>
+        ) : (
+          <View style={styles.checkbox} />
+        )}
+        <Text
+          style={[
+            styles.checkboxLabel,
+            isSelected && styles.checkboxLabelActive,
+          ]}
+        >
+          {item}
+        </Text>
       </TouchableOpacity>
     );
   };
@@ -152,25 +163,31 @@ const FilterModal: React.FC<FilterModalProps> = ({
                     return (
                       <TouchableOpacity
                         key={tab}
-                        style={[
-                          styles.modalTab,
-                          isActive && styles.modalTabActive,
-                        ]}
+                        style={styles.modalTab}
                         onPress={() => setActiveTab(tab)}
                       >
-                        <Text
-                          style={[
-                            styles.modalTabText,
-                            isActive && styles.modalTabTextActive,
-                          ]}
-                        >
-                          {tab}
-                        </Text>
-                        {count > 0 && !isActive && (
-                          <View style={styles.modalTabBadge}>
-                            <Text style={styles.modalTabBadgeText}>
-                              {count}
-                            </Text>
+                        {isActive ? (
+                          <LinearGradient
+                            colors={[
+                              colors.themeTeal,
+                              '#FFB28C',
+                            ]}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                            style={styles.modalTabGradient}
+                          >
+                            <Text style={styles.modalTabTextActive}>{tab}</Text>
+                          </LinearGradient>
+                        ) : (
+                          <View style={styles.modalTabInner}>
+                            <Text style={styles.modalTabText}>{tab}</Text>
+                            {count > 0 && (
+                              <View style={styles.modalTabBadge}>
+                                <Text style={styles.modalTabBadgeText}>
+                                  {count}
+                                </Text>
+                              </View>
+                            )}
                           </View>
                         )}
                       </TouchableOpacity>
@@ -202,32 +219,21 @@ const FilterModal: React.FC<FilterModalProps> = ({
                   />
                   <Text style={styles.resetBtnText}>Reset</Text>
                 </TouchableOpacity>
-                {/* <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
-                                    <Ionicons name="arrow-up-outline" size={20} color={colors.themeWhite} />
-                                    <Text style={styles.saveBtnText}>Save</Text>
-                                </TouchableOpacity> */}
-
-                <LinearGradient
-                  colors={[colors.themeTeal, colors.themeDarkTeal]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={[
-                    homeStyles.reviewFilterPillActiveGradient,
-                    { borderRadius: 0, flexDirection: 'row' },
-                  ]}
+                <TouchableOpacity
+                  style={styles.saveBtnTouchable}
+                  onPress={handleSave}
+                  activeOpacity={0.8}
                 >
-                  <AppIcons.ArrowUpBold color={colors.white} size={20} />
-                  <TouchableOpacity onPress={handleSave} style={{ padding: 4 }}>
-                    <Text
-                      style={[
-                        homeStyles.reviewFilterText,
-                        homeStyles.reviewFilterTextActive,
-                      ]}
-                    >
-                      Filter
-                    </Text>
-                  </TouchableOpacity>
-                </LinearGradient>
+                  <LinearGradient
+                    colors={[colors.themeTeal, '#FF6A00']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles.saveBtnGradient}
+                  >
+                    <AppIcons.ArrowUpBold color={colors.white} size={20} />
+                    <Text style={styles.saveBtnText}>Save</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
               </View>
             </View>
           </TouchableWithoutFeedback>

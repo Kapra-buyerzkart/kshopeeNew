@@ -3,6 +3,7 @@ import { View, Text, Image, ImageBackground } from 'react-native';
 import { colors } from '../../assets/theme/colours';
 import { Fonts } from '../../assets/theme/fonts';
 import { billSectionStyles as styles } from './styles';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export interface BillCalculations {
     mrpTotal?: number;
@@ -21,14 +22,20 @@ interface BillRowProps {
     label: string;
     value: string;
     isGreen?: boolean;
+    strikethroughValue?: string;
 }
 
-const BillRow: React.FC<BillRowProps> = ({ label, value, isGreen }) => (
+const BillRow: React.FC<BillRowProps> = ({ label, value, isGreen, strikethroughValue }) => (
     <View style={styles.billContentContainer}>
-        <Text style={styles.billContentText}>{label}</Text>
-        <Text style={[styles.priceText, isGreen && { color: colors.green }]}>
-            {value}
-        </Text>
+        <Text style={[styles.billContentText, isGreen && { color: colors.green }]}>{label}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            {strikethroughValue && (
+                <Text style={styles.strikethroughText}>{strikethroughValue}</Text>
+            )}
+            <Text style={[styles.priceText, isGreen && { color: colors.green }]}>
+                {value}
+            </Text>
+        </View>
     </View>
 );
 
@@ -38,6 +45,7 @@ interface BillSectionProps {
 
 const BillSection: React.FC<BillSectionProps> = ({ billCalculations }) => {
     const {
+        mrpTotal = 0,
         itemTotal = 0,
         savings = 0,
         deliveryCharge = 0,
@@ -55,67 +63,67 @@ const BillSection: React.FC<BillSectionProps> = ({ billCalculations }) => {
     const absBcoinsAppliedValue = Math.abs(bcoinsAppliedValue);
 
     return (
-        <ImageBackground
-            style={styles.billImageBackground}
-            imageStyle={styles.billImageStyle}
-            source={require('../../assets/images/bill_background.png')}>
+        <View style={styles.container}>
             <View style={styles.billHeaderContainer}>
-                <Image
-                    style={styles.billIcon}
-                    source={require('../../assets/images/bill_icon.png')}
+                <MaterialCommunityIcons
+                    name="receipt"
+                    size={20}
+                    color="#000"
                 />
                 <Text style={styles.billHeaderText}>View Your Bill</Text>
             </View>
-            <View>
-                {/* Item Total (MRP) */}
-                <BillRow label="Item Total" value={`₹${(billCalculations.mrpTotal || (itemTotal + savings)).toFixed(2)}`} />
 
-                {/* Discount */}
-                {absSavings > 0 && (
-                    <BillRow label="Discount" value={`- ₹${absSavings.toFixed(2)}`} isGreen />
-                )}
+            <ImageBackground
+                style={styles.billImageBackground}
+                imageStyle={styles.billImageStyle}
+                source={require('../../assets/images/bill_background.png')}>
+                <View>
+                    {/* Item Total (MRP) */}
+                    <BillRow 
+                        label="Item total" 
+                        value={`₹${itemTotal.toFixed(2)}`} 
+                        strikethroughValue={`₹${(mrpTotal || (itemTotal + savings)).toFixed(2)}`}
+                    />
 
-                {/* Delivery */}
-                <BillRow
-                    label="Delivery Charge"
-                    value={deliveryCharge === 0 ? 'FREE' : `₹${deliveryCharge.toFixed(2)}`}
-                    isGreen={deliveryCharge === 0}
-                />
+                    {/* Delivery */}
+                    <BillRow
+                        label="Delivery charge"
+                        value={deliveryCharge === 0 ? 'FREE' : `₹${deliveryCharge.toFixed(2)}`}
+                    />
 
-                {/* Tax */}
-                {totalTax > 0 && (
-                    <BillRow label="Tax" value={`₹${totalTax.toFixed(2)}`} />
-                )}
+                    {/* Tax */}
+                    {totalTax > 0 && (
+                        <BillRow label="Tax" value={`₹${totalTax.toFixed(2)}`} />
+                    )}
 
-                {/* Coupon */}
-                {absCouponDiscount > 0 && (
-                    <BillRow label="Coupon Discount" value={`- ₹${absCouponDiscount.toFixed(2)}`} isGreen />
-                )}
+                    {/* Coupon */}
+                    {absCouponDiscount > 0 && (
+                        <BillRow label="Coupon Discount" value={`- ₹${absCouponDiscount.toFixed(2)}`} />
+                    )}
 
-                {/* Gift Card */}
-                {absGiftCardAmount > 0 && (
-                    <BillRow label="GiftCard Applied" value={`- ₹${absGiftCardAmount.toFixed(2)}`} isGreen />
-                )}
+                    {/* Gift Card */}
+                    {absGiftCardAmount > 0 && (
+                        <BillRow label="GiftCard Applied" value={`- ₹${absGiftCardAmount.toFixed(2)}`} />
+                    )}
 
-                {/* B-Coins */}
-                {absBcoinsAppliedValue > 0 && (
-                    <BillRow label="Bcoins Applied" value={`- ₹${absBcoinsAppliedValue.toFixed(2)}`} isGreen />
-                )}
+                    {/* B-Coins */}
+                    {absBcoinsAppliedValue > 0 && (
+                        <BillRow label="Bcoins Applied" value={`- ₹${absBcoinsAppliedValue.toFixed(2)}`} />
+                    )}
 
-                <View style={styles.billDivider} />
-                <View style={styles.billSumView}>
-                    <Text style={styles.billSumText}>To Pay</Text>
-                    <Text style={styles.billSumText}>₹{toPay.toFixed(2)}</Text>
+                    {/* Savings */}
+                    {totalSavings > 0 && (
+                        <BillRow label="You have saved" value={`- ₹${totalSavings.toFixed(2)}`} isGreen />
+                    )}
+
+                    <View style={styles.billDivider} />
+                    <View style={styles.billSumView}>
+                        <Text style={styles.billSumText}>To pay</Text>
+                        <Text style={styles.billSumText}>₹{toPay.toFixed(2)}</Text>
+                    </View>
                 </View>
-
-                {/* Savings */}
-                {totalSavings > 0 && (
-                    <Text style={styles.savingsText}>
-                        You saved : ₹{totalSavings.toFixed(2)}
-                    </Text>
-                )}
-            </View>
-        </ImageBackground>
+            </ImageBackground>
+        </View>
     );
 };
 

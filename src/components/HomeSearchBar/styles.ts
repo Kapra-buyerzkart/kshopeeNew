@@ -2,6 +2,7 @@ import { StyleSheet } from 'react-native';
 import { colors } from '../../assets/theme/colours';
 import { fonts } from '../../assets/theme/typography';
 import { Fonts } from '../../assets/theme/fonts';
+import { wp } from '../../utils/responsive';
 
 export const styles = StyleSheet.create({
   container: {
@@ -18,13 +19,14 @@ export const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 4,
   },
-  searchBarContainer:{
+  searchBarContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.white,
     borderRadius: 24, // Pill shape match from Figma
     paddingHorizontal: 12,
-    height: 50,
+    height: 45,
+    width: wp('70%'),
   },
   kIcon: {
     width: 20,
@@ -37,19 +39,23 @@ export const styles = StyleSheet.create({
   kIconText: {
     fontWeight: '800',
     fontSize: 20,
-    color: '#00B4D8', // Bright cyan matching Figma "K"
+    color: '#F25000', // Bright cyan matching Figma "K"
     fontFamily: fonts.h1.fontFamily,
   },
   input: {
     flex: 1,
+    width: wp('60%'),
     fontFamily: Fonts.regular,
     fontSize: 16,
     color: colors.text,
-    fontWeight:'400'
+    fontWeight: '400',
   },
 
+  micContainer: {
+    paddingLeft: 8,
+  },
   micIconText: {
     fontSize: 12,
     color: colors.black,
-  }
+  },
 });

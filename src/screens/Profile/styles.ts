@@ -110,7 +110,7 @@ export const styles = StyleSheet.create({
     width: wp('28%'),
     backgroundColor: colors.white,
     borderRadius: 15,
-    paddingVertical: hp('3%'),
+    paddingVertical: hp('1%'),
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 0.5,
@@ -153,7 +153,7 @@ export const styles = StyleSheet.create({
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: hp('1%'),
+    paddingVertical: hp('0.5%'),
     paddingHorizontal: wp('4%'),
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
@@ -212,6 +212,8 @@ export const styles = StyleSheet.create({
     height: 70,
   },
   backgroundImage: {
+    width: '100%',
+    backgroundColor: 'yellow',
     flex: 1,
     alignItems: 'center',
     borderBottomLeftRadius: wp('9.3%'),
@@ -252,7 +254,7 @@ export const styles = StyleSheet.create({
   },
   editProfileFormContainer: {
     paddingHorizontal: wp('5%'),
-    marginTop: hp('3%'),
+    //marginTop: hp('3%'),
   },
   inputGroup: {
     marginBottom: hp('2.5%'),

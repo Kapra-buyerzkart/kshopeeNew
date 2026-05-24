@@ -9,14 +9,19 @@ import {
   Platform,
   KeyboardAvoidingView,
   StyleSheet,
+  Image,
+  ImageBackground,
+  Modal,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-import { colors } from '../../assets/theme/colours';
+import { colors, fontColors } from '../../assets/theme/colours';
 import { styles } from './styles';
 import { AppIcons } from '../../assets/icons';
 import InputField from '../../components/TextField';
+import CustomGradientButton from '../../components/CustomGradientButton';
 
 import { useUser } from '../../context/UserContext';
 import StatusModal from '../../components/StatusModal';
@@ -48,6 +53,9 @@ const EditProfile: React.FC = () => {
   const [pincode, setPincode] = useState(profile?.pincode?.toString() || '');
   const [gender, setGender] = useState(profile?.gender || ''); // 'Male', 'Female', 'Other'
   const [dob, setDob] = useState(
+    profile?.dob ? new Date(profile.dob) : new Date(2000, 0, 1),
+  );
+  const [tempDate, setTempDate] = useState(
     profile?.dob ? new Date(profile.dob) : new Date(2000, 0, 1),
   );
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -112,9 +120,8 @@ const EditProfile: React.FC = () => {
   };
 
   const onDateChange = (event: any, selectedDate?: Date) => {
-    setShowDatePicker(false);
     if (selectedDate) {
-      setDob(selectedDate);
+      setTempDate(selectedDate);
     }
   };
 
@@ -139,27 +146,44 @@ const EditProfile: React.FC = () => {
   );
 
   return (
-    <SafeAreaView
-      style={[
-        styles.editProfileContainer,
-        { paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
-      ]}
+    // <SafeAreaView
+    //   style={[
+    //     styles.editProfileContainer,
+    //     { paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
+    //   ]}
+    // >
+    //   <StatusBar
+    //     barStyle="dark-content"
+    //     backgroundColor={colors.white}
+    //     translucent={false}
+    //   />
+    <ImageBackground
+      source={require('../../assets/images/login/bg_test.png')}
+      style={localStyles.backgroundImage}
+      resizeMode="cover"
     >
-      <StatusBar
-        barStyle="dark-content"
-        backgroundColor={colors.white}
-        translucent={false}
-      />
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
+        style={{ flex: 1, width: '100%' }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingBottom: 10,
+            width: '95%',
+            alignSelf: 'center',
+          }}
         >
-          {/* Header Section */}
-          <View style={styles.editProfileHeader}>
+          <View
+            style={[
+              styles.editProfileHeader,
+              {
+                backgroundColor: 'transparent',
+                paddingTop: Platform.OS === 'ios' ? hp('5%') : hp('2%'),
+              },
+            ]}
+          >
             <TouchableOpacity
               onPress={() => navigation.goBack()}
               style={styles.backButton}
@@ -172,12 +196,20 @@ const EditProfile: React.FC = () => {
             </TouchableOpacity> */}
           </View>
 
+          {/* <View style={localStyles.headerSection}> */}
+          <Image
+            source={require('../../assets/images/login/logo.png')}
+            style={localStyles.logo}
+          />
+          {/* </View> */}
+          {/* Header Section */}
+
           {/* Form Section */}
           <View style={styles.editProfileFormContainer}>
             <InputField
               label="Name"
               placeholder="Enter name"
-              placeholderTextColor={colors.gray || '#DADADA'}
+              placeholderTextColor={colors.grey || '#DADADA'}
               value={fullName}
               onChangeText={setFullName}
             />
@@ -195,12 +227,18 @@ const EditProfile: React.FC = () => {
               <Text style={styles.inputLabel}>Date of Birth</Text>
               <TouchableOpacity
                 style={styles.inputWrapper}
-                onPress={() => setShowDatePicker(true)}
+                onPress={() => {
+                  setTempDate(dob);
+                  setShowDatePicker(true);
+                }}
               >
                 <Text
                   style={[
                     styles.textInput,
-                    { textAlignVertical: 'center', paddingTop: hp('1.5%') },
+                    {
+                      textAlignVertical: 'center',
+                      lineHeight: Platform.OS === 'ios' ? hp('5.8%') : hp('6%'),
+                    },
                   ]}
                 >
                   {dob.toLocaleDateString('en-GB')}
@@ -209,20 +247,60 @@ const EditProfile: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            {showDatePicker && (
-              <DateTimePicker
-                value={dob}
-                mode="date"
-                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                maximumDate={new Date()}
-                onChange={onDateChange}
-              />
-            )}
+            <Modal
+              visible={showDatePicker}
+              transparent={true}
+              animationType="slide"
+              onRequestClose={() => setShowDatePicker(false)}
+            >
+              <View style={localStyles.modalContainer}>
+                <TouchableWithoutFeedback
+                  onPress={() => setShowDatePicker(false)}
+                >
+                  <View style={localStyles.modalBackdrop} />
+                </TouchableWithoutFeedback>
+                <View style={localStyles.bottomSheetContainer}>
+                  <View style={localStyles.bottomSheetHeader}>
+                    <TouchableOpacity
+                      onPress={() => setShowDatePicker(false)}
+                      style={localStyles.bottomSheetCancelButton}
+                    >
+                      <Text style={localStyles.bottomSheetCancelText}>
+                        Cancel
+                      </Text>
+                    </TouchableOpacity>
+                    <Text style={localStyles.bottomSheetTitle}>
+                      Select Date of Birth
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setDob(tempDate);
+                        setShowDatePicker(false);
+                      }}
+                      style={localStyles.bottomSheetDoneButton}
+                    >
+                      <Text style={localStyles.bottomSheetDoneText}>Done</Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  <View style={localStyles.pickerContainer}>
+                    <DateTimePicker
+                      value={tempDate}
+                      mode="date"
+                      display="spinner"
+                      maximumDate={new Date()}
+                      onChange={onDateChange}
+                      textColor="#000"
+                    />
+                  </View>
+                </View>
+              </View>
+            </Modal>
 
             <InputField
               label="Pin code"
               placeholder="00 00 00"
-              placeholderTextColor={colors.gray || '#DADADA'}
+              placeholderTextColor={colors.grey || '#DADADA'}
               keyboardType="numeric"
               maxLength={6}
               value={pincode}
@@ -233,7 +311,7 @@ const EditProfile: React.FC = () => {
               <InputField
                 label="Email ID (Update from Security)"
                 placeholder="Enter email"
-                placeholderTextColor={colors.gray || '#DADADA'}
+                placeholderTextColor={colors.grey || '#DADADA'}
                 value={email}
                 editable={false}
               />
@@ -243,43 +321,30 @@ const EditProfile: React.FC = () => {
               <InputField
                 label="Phone Number (Update from Security)"
                 placeholder="Enter phone"
-                placeholderTextColor={colors.gray || '#DADADA'}
+                placeholderTextColor={colors.grey || '#DADADA'}
                 value={phone}
                 editable={false}
               />
             </View>
 
-            <TouchableOpacity
-              style={{
-                backgroundColor:
-                  !hasChanges || isLoading
-                    ? colors.themeTeal
-                    : colors.themeTeal,
-                height: 50,
-                justifyContent: 'center',
-                alignItems: 'center',
-                borderRadius: 10,
-                marginTop: 30,
-              }}
+            <CustomGradientButton
+              title="Save Changes"
               onPress={handleSave}
               disabled={!hasChanges || isLoading}
-            >
-              <Text style={{ color: '#FFF', fontSize: 16, fontWeight: 'bold' }}>
-                {isLoading ? 'Saving...' : 'Save Changes'}
-              </Text>
-            </TouchableOpacity>
+              loading={isLoading}
+              style={{ marginTop: 30 }}
+            />
           </View>
         </ScrollView>
+        <StatusModal
+          visible={modalVisible}
+          type={modalConfig.type}
+          title={modalConfig.title}
+          message={modalConfig.message}
+          onClose={() => setModalVisible(false)}
+        />
       </KeyboardAvoidingView>
-
-      <StatusModal
-        visible={modalVisible}
-        type={modalConfig.type}
-        title={modalConfig.title}
-        message={modalConfig.message}
-        onClose={() => setModalVisible(false)}
-      />
-    </SafeAreaView>
+    </ImageBackground>
   );
 };
 
@@ -288,6 +353,25 @@ const localStyles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: hp('0.5%'),
+  },
+  headerSection: {
+    height: hp('20%'),
+    backgroundColor: 'transparent',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backgroundImage: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  logo: {
+    width: wp('30%'),
+    height: hp('8%'),
+    resizeMode: 'contain',
+    alignSelf: 'center',
+    marginTop: hp('2.5%'),
+    marginBottom: hp('2.5%'),
   },
   genderOption: {
     flex: 1,
@@ -312,6 +396,59 @@ const localStyles = StyleSheet.create({
   genderTextSelected: {
     color: colors.white,
     fontWeight: 'bold',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  modalBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+  },
+  bottomSheetContainer: {
+    backgroundColor: colors.white,
+    borderTopLeftRadius: wp('8%'),
+    borderTopRightRadius: wp('8%'),
+    paddingBottom: Platform.OS === 'ios' ? hp('4%') : hp('2%'),
+    overflow: 'hidden',
+  },
+  bottomSheetHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: wp('5.8%'),
+    paddingVertical: hp('2%'),
+    borderBottomWidth: 1,
+    borderColor: '#E5E5E5',
+  },
+  bottomSheetCancelButton: {
+    paddingVertical: 5,
+  },
+  bottomSheetCancelText: {
+    fontSize: wp('4%'),
+    color: '#9E9E9E',
+    fontFamily: 'Gilroy-Medium',
+  },
+  bottomSheetTitle: {
+    fontSize: wp('4.5%'),
+    color: fontColors.titleBlack,
+    fontWeight: 'bold',
+    fontFamily: 'Gilroy-Bold',
+  },
+  bottomSheetDoneButton: {
+    paddingVertical: 5,
+  },
+  bottomSheetDoneText: {
+    fontSize: wp('4%'),
+    color: colors.themeTeal || '#F25000',
+    fontWeight: 'bold',
+    fontFamily: 'Gilroy-Bold',
+  },
+  pickerContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: hp('2%'),
+    backgroundColor: colors.white,
   },
 });
 

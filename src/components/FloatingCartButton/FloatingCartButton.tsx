@@ -7,7 +7,11 @@ import { colors } from '../../assets/theme/colours';
 import LinearGradient from 'react-native-linear-gradient';
 import FallbackImage from '../FallbackImage';
 
-const FloatingCartButton: React.FC = () => {
+interface FloatingCartButtonProps {
+  bottom?: number;
+}
+
+const FloatingCartButton: React.FC<FloatingCartButtonProps> = ({ bottom }) => {
   const navigation = useNavigation<any>();
   const { cartCount, cartItems = [] } = useCart();
 
@@ -20,9 +24,9 @@ const FloatingCartButton: React.FC = () => {
   const fallbackImage = require('../../assets/images/logos/noimage.png');
 
   return (
-    <View style={styles.outerContainer}>
+    <View style={[styles.outerContainer, bottom !== undefined && { bottom }]}>
       <LinearGradient
-        colors={[colors.themeTeal, colors.themeDarkTeal]}
+        colors={['#F25000', '#FF6A00']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={styles.gradientContainer}

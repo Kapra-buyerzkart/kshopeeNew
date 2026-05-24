@@ -855,11 +855,11 @@ const styles = StyleSheet.create({
         borderColor: '#F25000',
         borderRadius: wp('2.12%'),
         paddingHorizontal: wp('2.8%'),
-        paddingVertical: hp('0.2%'),
+       //paddingVertical: hp('0.1%'),
     },
     addressTypeIcon: {
-        width: wp('3.95%'),
-        height: hp('3.25%'),
+        width: wp('2.95%'),
+        height: hp('2.25%'),
         resizeMode: 'contain'
     },
     inputWrapper: {

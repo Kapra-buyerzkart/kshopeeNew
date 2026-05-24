@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,8 @@ import {
   SafeAreaView,
   StatusBar,
   ImageBackground,
+  Modal,
+  Clipboard,
 } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -15,6 +17,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
+import CustomGradientButton from '../../components/CustomGradientButton';
 
 import { colors } from '../../assets/theme/colours';
 import { styles } from './styles';
@@ -23,12 +26,18 @@ import { hp, wp } from '../../utils/responsive';
 
 import { useUser } from '../../context/UserContext';
 import ConfirmationModal from '../../components/ConfirmationModal';
+import CouponModal from '../../components/CouponModal';
+import FloatingCartButton from '../../components/FloatingCartButton/FloatingCartButton';
 import { useCustomAlert } from '../../context/AlertContext';
 import { LoaderContext } from '../../context/loaderContext';
 import {
   deleteAccountApi,
   getWalletDataApi,
 } from '../../api/services/userService';
+import {
+  getAvailableCouponsApi,
+  getAvailableGiftCardsApi,
+} from '../../api/services/cartService';
 import Toast from 'react-native-simple-toast';
 
 const ProfileScreen: React.FC = () => {
@@ -42,11 +51,18 @@ const ProfileScreen: React.FC = () => {
   const [isDeleteAccountModalVisible, setIsDeleteAccountModalVisible] =
     React.useState(false);
   const [walletData, setWalletData] = React.useState<any>(null);
+  const [activeOfferModal, setActiveOfferModal] = React.useState<
+    'smart' | 'coupon' | null
+  >(null);
+
+  const [availableCoupons, setAvailableCoupons] = React.useState<any[]>([]);
+  const [availableGiftCards, setAvailableGiftCards] = React.useState<any[]>([]);
   const scrollViewRef = React.useRef<ScrollView>(null);
 
   React.useEffect(() => {
     loadProfile();
     fetchWalletData();
+    fetchOffersData();
   }, []);
 
   const fetchWalletData = async () => {
@@ -57,6 +73,37 @@ const ProfileScreen: React.FC = () => {
       }
     } catch (error) {
       console.error('Error fetching wallet data:', error);
+    }
+  };
+
+  const fetchOffersData = async () => {
+    try {
+      const [couponsRes, giftCardsRes] = await Promise.all([
+        getAvailableCouponsApi(),
+        getAvailableGiftCardsApi(),
+      ]);
+      if (couponsRes?.success) {
+        setAvailableCoupons(couponsRes.data?.items || []);
+      } else {
+        setAvailableCoupons([]);
+      }
+      if (giftCardsRes?.success) {
+        setAvailableGiftCards(giftCardsRes.data?.items || []);
+      } else {
+        setAvailableGiftCards([]);
+      }
+    } catch (error) {
+      console.error('Error fetching offers data:', error);
+      setAvailableCoupons([]);
+      setAvailableGiftCards([]);
+    }
+  };
+
+  const handleCouponClickOnProfile = (item: any) => {
+    const code = item.couponCode || item.code || item.giftCardCode;
+    if (code) {
+      Clipboard.setString(code);
+      Toast.show(`Code "${code}" copied to clipboard!`, Toast.SHORT);
     }
   };
 
@@ -139,7 +186,7 @@ const ProfileScreen: React.FC = () => {
             borderBottomLeftRadius: wp('10%'),
             borderBottomRightRadius: wp('10%'),
           }}
-          source={require('../../assets/icons/profile/topbg.png')}
+          source={require('../../assets/images/profile.png')}
         >
           <View style={styles.headerContent}>
             <TouchableOpacity
@@ -178,14 +225,34 @@ const ProfileScreen: React.FC = () => {
 
               <View style={styles.headerRightActions}>
                 <TouchableOpacity onPress={() => navigation.navigate('BCoin')}>
-                  <Image
-                    source={require('../../assets/icons/profile/bcoin.png')}
-                    style={{ width: 75, height: 75, top: -5 }}
+                  <ImageBackground
+                    source={require('../../assets/images/bcoinprofile.png')}
+                    style={{
+                      width: 75,
+                      height: 22,
+                      top: -5,
+                      left: 10,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
                     resizeMode="contain"
-                  />
-                  {/* <Text style={[styles.coinText, { position: 'absolute', right: wp('2%'), top: hp('1.5%'), color: colors.black, fontWeight: 'bold' }]}>
-                                        {profile?.totalBCoins || '0.00'}
-                                    </Text> */}
+                  >
+                    <Text
+                      style={[
+                        styles.coinText,
+                        {
+                          color: '#FFBA33',
+                          fontWeight: 'bold',
+                          fontSize: wp('2.9%'),
+                          textAlign: 'center',
+                          marginLeft: hp('1.3%'),
+                          marginTop: hp('0.1%'), // offset slightly to sit perfectly on the gold pill asset
+                        },
+                      ]}
+                    >
+                      {profile?.totalBCoins || '0.00'}
+                    </Text>
+                  </ImageBackground>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.notificationBell}
@@ -219,8 +286,9 @@ const ProfileScreen: React.FC = () => {
             onPress={() => navigation.navigate('Cart')}
           >
             <Image
-              source={require('../../assets/icons/profile/cart.png')}
-              style={{ width: 22, height: 22 }}
+              source={require('../../assets/images/profile/cart.png')}
+              style={{ width: 35, height: 35 }}
+              resizeMode="contain"
             />
             <Text style={styles.actionText}>Cart</Text>
           </TouchableOpacity>
@@ -229,8 +297,8 @@ const ProfileScreen: React.FC = () => {
             onPress={() => navigation.navigate('MyOrder')}
           >
             <Image
-              source={require('../../assets/icons/profile/orders.png')}
-              style={{ width: 22, height: 22 }}
+              source={require('../../assets/images/profile/order.png')}
+              style={{ width: 35, height: 35 }}
             />
             <Text style={styles.actionText}>My Orders</Text>
           </TouchableOpacity>
@@ -239,8 +307,8 @@ const ProfileScreen: React.FC = () => {
             onPress={() => navigation.navigate('SavedAddressScreen')}
           >
             <Image
-              source={require('../../assets/icons/profile/location.png')}
-              style={{ width: 22, height: 22 }}
+              source={require('../../assets/images/profile/location.png')}
+              style={{ width: 35, height: 35 }}
               resizeMode="contain"
             />
             <Text style={styles.actionText}>Address</Text>
@@ -251,7 +319,7 @@ const ProfileScreen: React.FC = () => {
 
         <TouchableOpacity onPress={() => navigation.navigate('Referral')}>
           <Image
-            source={require('../../assets/icons/profile/refer.png')}
+            source={require('../../assets/images/refer.png')}
             style={styles.referIllustration}
             resizeMode="contain"
           />
@@ -262,8 +330,8 @@ const ProfileScreen: React.FC = () => {
           <View style={styles.menuCard}>
             {renderMenuItem(
               <Image
-                source={require('../../assets/icons/profile/profile.png')}
-                style={{ width: 20, height: 20 }}
+                source={require('../../assets/images/profile/profile.png')}
+                style={{ width: 16, height: 16 }}
                 resizeMode="contain"
               />,
               'Edit profile',
@@ -288,7 +356,7 @@ const ProfileScreen: React.FC = () => {
             {renderMenuItem(
               <MaterialCommunityIcons
                 name="email-outline"
-                size={20}
+                size={16}
                 color={colors.themeTeal}
               />,
               'Update Email ID',
@@ -307,41 +375,39 @@ const ProfileScreen: React.FC = () => {
             {renderMenuItem(
               <Image
                 source={require('../../assets/icons/profile/gift.png')}
-                style={{ width: 20, height: 20 }}
+                style={{ width: 16, height: 16, tintColor: colors.themeTeal }}
                 resizeMode="contain"
               />,
               'Smart point',
               false,
               undefined,
-              colors.themeTeal,
-              () =>
-                showAlert(
-                  'Coming Soon',
-                  'Smart Points feature is coming soon!',
-                ),
+              undefined, //colors.themeTeal,
+              () => setActiveOfferModal('smart'),
             )}
             {renderMenuItem(
               <Image
-                source={require('../../assets/icons/profile/coupon.png')}
-                style={{ width: 20, height: 20 }}
+                source={require('../../assets/images/offer.png')}
+                style={{ width: 16, height: 16 }}
                 resizeMode="contain"
               />,
               'Coupon',
               false,
               undefined,
-              colors.themeTeal,
-              () => showAlert('Coming Soon', 'Coupons feature is coming soon!'),
+              undefined,
+              //colors.themeTeal,
+              () => setActiveOfferModal('coupon'),
             )}
             {renderMenuItem(
               <Image
-                source={require('../../assets/icons/profile/rupee.png')}
-                style={{ width: 20, height: 20 }}
+                source={require('../../assets/images/cartbcoin.png')}
+                style={{ width: 16, height: 16 }}
                 resizeMode="contain"
               />,
               'B coin',
               false,
               undefined,
-              colors.themeTeal,
+              undefined,
+              //colors.themeTeal,
               () => navigation.navigate('BCoin'),
             )}
           </View>
@@ -353,8 +419,8 @@ const ProfileScreen: React.FC = () => {
           <View style={styles.menuCard}>
             {renderMenuItem(
               <Image
-                source={require('../../assets/icons/profile/lock.png')}
-                style={{ width: 20, height: 20 }}
+                source={require('../../assets/images/profile/Union.png')}
+                style={{ width: 16, height: 16 }}
                 resizeMode="contain"
               />,
               'Privacy Policy',
@@ -369,8 +435,8 @@ const ProfileScreen: React.FC = () => {
             )}
             {renderMenuItem(
               <Image
-                source={require('../../assets/icons/profile/terms.png')}
-                style={{ width: 20, height: 20 }}
+                source={require('../../assets/images/profile/terms.png')}
+                style={{ width: 16, height: 16 }}
                 resizeMode="contain"
               />,
               'Terms and conditions',
@@ -385,8 +451,8 @@ const ProfileScreen: React.FC = () => {
             )}
             {renderMenuItem(
               <Image
-                source={require('../../assets/icons/profile/info.png')}
-                style={{ width: 20, height: 20 }}
+                source={require('../../assets/images/profile/info.png')}
+                style={{ width: 16, height: 16 }}
                 resizeMode="contain"
               />,
               'About us',
@@ -402,7 +468,7 @@ const ProfileScreen: React.FC = () => {
             {renderMenuItem(
               <MaterialCommunityIcons
                 name="account-remove-outline"
-                size={20}
+                size={16}
                 color={colors.themeTeal}
               />,
               'Delete account',
@@ -425,7 +491,7 @@ const ProfileScreen: React.FC = () => {
         {/* Footer */}
         <View style={styles.footerContainer}>
           <Image
-            source={require('../../assets/images/logos/homelogo.png')}
+            source={require('../../assets/images/login/logo.png')}
             style={styles.footerLogo}
             resizeMode="contain"
           />
@@ -455,6 +521,16 @@ const ProfileScreen: React.FC = () => {
         iconName="delete-forever"
         themeColor={colors.themeTeal}
       />
+
+      <CouponModal
+        visible={activeOfferModal !== null}
+        onClose={() => setActiveOfferModal(null)}
+        isGiftCard={activeOfferModal === 'smart'}
+        availableCoupons={availableCoupons}
+        availableGiftCards={availableGiftCards}
+        onCouponClick={handleCouponClickOnProfile}
+      />
+      <FloatingCartButton bottom={90} />
     </SafeAreaView>
   );
 };

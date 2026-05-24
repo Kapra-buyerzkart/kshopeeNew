@@ -316,7 +316,7 @@ const KshopeScreen: React.FC = () => {
         onPress={() => handleCategoryPress(item)}
       >
         <LinearGradient
-          colors={['#00A7B3', '#FFFFFF']}
+          colors={['#F25000', '#FFFFFF']}
           start={{ x: 0, y: 0 }}
           end={{ x: 0, y: 1 }}
           style={styles.categoryCircle}
@@ -577,7 +577,7 @@ const KshopeScreen: React.FC = () => {
 
               return (
                 <LinearGradient
-                  colors={['#00A7B3', '#FFFFFF']}
+                  colors={['#F25000', '#FFFFFF']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 0, y: 1 }}
                   style={styles.dummyAccessorizeContainer}
@@ -1110,8 +1110,8 @@ const styles = StyleSheet.create({
     borderTopRightRadius: wp('3%'),
   },
   accessorizeCardActive: {
-    backgroundColor: '#00A7B3',
-    borderColor: '#00A7B3',
+    backgroundColor: '#F25000',
+    borderColor: '#F25000',
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
   },
@@ -1252,7 +1252,7 @@ const styles = StyleSheet.create({
     marginHorizontal: wp('1%'),
   },
   indicatorPillActive: {
-    backgroundColor: '#00A7B3',
+    backgroundColor: '#F25000',
     width: wp('10%'),
   },
   bestSellingCard: {
@@ -1302,7 +1302,7 @@ const styles = StyleSheet.create({
     width: wp('10%'),
     height: wp('10%'),
     borderRadius: wp('5%'),
-    backgroundColor: '#00A7B3',
+    backgroundColor: '#F25000',
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 4,

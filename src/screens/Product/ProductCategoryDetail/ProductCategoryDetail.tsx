@@ -19,7 +19,11 @@ import { styles } from './styles';
 import { AppIcons } from '../../../assets/icons';
 import { useWishlist } from '../../../context/WishlistContext';
 import { Rating } from 'react-native-ratings';
-import FallbackImage from '../../../components/FallbackImage';
+import ExploreItem from '../../../components/ExploreItem/ExploreItem';
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
 
 const ProductCategoryDetail = () => {
   const navigation = useNavigation<any>();
@@ -100,78 +104,33 @@ const ProductCategoryDetail = () => {
   };
 
   const renderProduct = ({ item }: { item: any }) => {
-    const isOutOfStock =
-      item.stockQty <= 0 || item.stockAvailability === 'Out Of Stock';
-    const hasDiscount = item.discountPercentage || item.discountPercent;
-
     return (
-      <TouchableOpacity
-        style={styles.productCard}
+      <ExploreItem
+        item={item}
         onPress={() =>
           navigation.navigate('ProductDetailsScreen', {
             productId: item.productId,
             product: item,
           })
         }
-        activeOpacity={0.7}
-      >
-        <View style={styles.topBadgesRow}>
-          <View
-            style={[styles.discountCircle, { opacity: hasDiscount ? 1 : 0 }]}
-          >
-            <Text style={styles.discountCircleText}>
-              {Math.round(hasDiscount || 0)}%
-            </Text>
-          </View>
-          <TouchableOpacity onPress={() => toggleWishlist(item)}>
-            {isInWishlist(item.productId || item.id) ? (
-              <AppIcons.BookmarkFilled color={colors.tealIconFont} size={24} />
-            ) : (
-              <AppIcons.BookmarkOutline color={colors.tealIconFont} size={24} />
-            )}
-          </TouchableOpacity>
-        </View>
-
-        <View style={{ position: 'relative' }}>
-          <FallbackImage
-            source={imageSource(item)}
-            style={styles.productImage}
-            resizeMode="contain"
-          />
-          {isOutOfStock && (
-            <View style={styles.outOfStockOverlay}>
-              <Text style={styles.outOfStockText}>OUT OF STOCK</Text>
-            </View>
-          )}
-        </View>
-
-        <View style={styles.infoContainer}>
-          <Text style={styles.productName} numberOfLines={2}>
-            {item.prName || item.title || item.name}
-          </Text>
-          {/* <Rating
-                        type='custom'
-                        readonly
-                        startingValue={item.rating || 4}
-                        ratingCount={5}
-                        imageSize={12}
-                        ratingColor={colors.starYellow}
-                        ratingBackgroundColor={colors.lightGrey}
-                        tintColor={colors.white}
-                        style={{ alignSelf: 'flex-start', marginVertical: 4 }}
-                    /> */}
-          <View style={styles.priceRow}>
-            <View style={styles.pricePill}>
-              <Text style={styles.pricePillText}>
-                ₹{item.specialPrice || item.unitPrice || 0}
-              </Text>
-            </View>
-            {item.unitPrice > item.specialPrice && (
-              <Text style={styles.unitPrice}>MRP ₹{item.unitPrice}</Text>
-            )}
-          </View>
-        </View>
-      </TouchableOpacity>
+        toggleWishlist={() => toggleWishlist(item)}
+        isInWishlist={id => isInWishlist(id)}
+        style={{
+          width: wp('29%'),
+          marginBottom: hp('1.5%'),
+          contentContainer: { padding: 6 },
+          image: { height: 80 }, // Shorter image for 3 columns
+          caption: { fontSize: 9, height: 28 }, // Slightly smaller font
+          pricePill: {
+            minWidth: 45,
+            height: 20,
+            borderRadius: 6,
+            paddingHorizontal: 4,
+          },
+          pricePillText: { fontSize: 10 },
+          originalPriceText: { fontSize: 7 },
+        }}
+      />
     );
   };
 
@@ -193,9 +152,10 @@ const ProductCategoryDetail = () => {
         keyExtractor={(item, index) =>
           (item.productId || item.id || index).toString()
         }
-        numColumns={2}
+        numColumns={3}
+        key={3}
         contentContainerStyle={styles.listContainer}
-        columnWrapperStyle={styles.columnWrapper}
+        columnWrapperStyle={{ justifyContent: 'flex-start', gap: wp('0.1%') }}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View

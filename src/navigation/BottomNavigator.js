@@ -33,13 +33,13 @@ const BottomTabNavigator = () => {
                     let isKebra = false;
 
                     if (route.name === 'HomeScreen') {
-                        iconSource = focused ? require('../assets/images/bottomtab/home_fill.png') : require('../assets/images/bottomtab/home.png');
+                        iconSource = focused ? require('../assets/images/bottomtab/homeicon.png') : require('../assets/images/bottomtab/homee.png');
                         //label = 'Home';
                     } else if (route.name === 'CategoryScreen') {
-                        iconSource = focused ? require('../assets/images/bottomtab/category_fill.png') : require('../assets/images/bottomtab/category.png');
+                        iconSource = focused ? require('../assets/images/bottomtab/cat_fil.png') : require('../assets/images/bottomtab/category.png');
                         //label = 'Category';
                     } else if (route.name === 'WishlistScreen') {
-                        iconSource = focused ? require('../assets/images/bottomtab/wishlist_fill.png') : require('../assets/images/bottomtab/wishlist.png');
+                        iconSource = focused ? require('../assets/images/bottomtab/wishlist_fil.png') : require('../assets/images/bottomtab/wishlistt.png');
                         //label = 'Wish List';
                     } else if (route.name === 'KebraScreen') {
                         iconSource = require('../assets/images/bottomtab/udendeallogo.png');
@@ -108,8 +108,8 @@ const styles = StyleSheet.create({
         borderBottomWidth: 0,
     },
     normalIcon: {
-        width: 48,
-        height: 48,
+        width: 35,
+        height: 35,
         marginTop: 20,
     },
     unselectedIcon: {
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     kebraIcon: {
         width: 100,
         height: 50,
-        //marginTop: 20,
+        marginTop: 10,
     }
 });
 

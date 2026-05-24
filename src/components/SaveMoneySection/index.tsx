@@ -1,209 +1,192 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { AppIcons } from '../../assets/icons';
 import { colors } from '../../assets/theme/colours';
+import { Fonts } from '../../assets/theme/fonts';
 import { saveMoneyStyles as styles } from './styles';
 
 export interface SaveMoneySectionProps {
-    appliedCouponCode?: string | null;
-    appliedGiftCardCode?: string | null;
-    bcoinsAppliedValue?: number;
-    availableBCoins?: number;
-    onApplyOffer: (offerId: string) => void;
-    onRejectOffer: (offerId: string) => void;
+  appliedCouponCode?: string | null;
+  appliedGiftCardCode?: string | null;
+  bcoinsAppliedValue?: number;
+  availableBCoins?: number;
+  onApplyOffer: (offerId: string) => void;
+  onRejectOffer: (offerId: string) => void;
 }
 
 const SaveMoneySection: React.FC<SaveMoneySectionProps> = ({
-    appliedCouponCode,
-    appliedGiftCardCode,
-    bcoinsAppliedValue = 0,
-    availableBCoins = 0,
-    onApplyOffer,
-    onRejectOffer,
+  appliedCouponCode,
+  appliedGiftCardCode,
+  bcoinsAppliedValue = 0,
+  availableBCoins = 0,
+  onApplyOffer,
+  onRejectOffer,
 }) => {
-    return (
-        <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Save money</Text>
-                <MaterialCommunityIcons
-                    name="ticket-percent-outline"
-                    size={18}
-                    color="#000"
-                    style={{ alignSelf: 'center', top: -3 }}
-                />
-            </View>
+  return (
+    <View style={styles.section}>
+      <View style={[styles.sectionHeader, { marginBottom: 8 }]}>
+        <MaterialCommunityIcons
+          name="brightness-percent"
+          size={20}
+          color="#000"
+        />
+        <Text style={styles.sectionTitle}>Add offers</Text>
+      </View>
 
-            <View style={styles.offerCardsList}>
-                {/* Coupon */}
-                <View
-                    style={[
-                        styles.offerCard,
-                        appliedCouponCode ? { borderColor: colors.green } : undefined,
-                    ]}>
-                    <View style={[styles.menuIconContainer, { backgroundColor: colors.themeTeal }]}>
-                        <Image
-                            source={require('../../assets/icons/profile/coupon.png')}
-                            style={{ width: 20, height: 20 }}
-                            resizeMode="contain"
-                        />
-                    </View>
-                    <View style={styles.offerDetails}>
-                        <Text style={styles.offerName}>Coupon</Text>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
-                            {appliedCouponCode ? (
-                                <>
-                                    <View style={styles.appliedCouponTag}>
-                                        <Text style={styles.appliedCouponText}>
-                                            {appliedCouponCode}
-                                        </Text>
-                                    </View>
-                                    <MaterialCommunityIcons
-                                        name="check-circle"
-                                        size={14}
-                                        color={colors.green}
-                                        style={styles.checkIcon}
-                                    />
-                                    <Text style={styles.appliedBadgeText}>Applied</Text>
-                                </>
-                            ) : (
-                                <Text style={[styles.offerSub, { marginTop: 0 }]}>
-                                    View all coupons {'>'}
-                                </Text>
-                            )}
-                        </View>
-                    </View>
-                    <TouchableOpacity
-                        style={styles.applyBtn}
-                        onPress={() =>
-                            appliedCouponCode
-                                ? onRejectOffer('2')
-                                : onApplyOffer('2')
-                        }>
-                        {appliedCouponCode ? (
-                            <Text style={[styles.applyBtnText, { color: colors.themeTeal }]}>
-                                Remove
-                            </Text>
-                        ) : (
-                            <Text style={styles.applyBtnText}>Apply {'>'}</Text>
-                        )}
-                    </TouchableOpacity>
-                </View>
+      <View style={styles.offerCardsRow}>
+        {/* B-coin */}
+        <View
+          style={[
+            styles.offerCard,
+            bcoinsAppliedValue > 0 && { borderColor: colors.themeTeal },
+          ]}
+        >
+          <View style={styles.offerIconContainer}>
+            <Image
+              source={require('../../assets/images/cartbcoin.png')}
+              style={{ width: 30, height: 30 }}
+              resizeMode="contain"
+            />
+          </View>
+          <Text style={styles.offerName}>B-COIN</Text>
+          <Text style={styles.offerSub} numberOfLines={1}>
+            Available BCoins: {availableBCoins}
+          </Text>
 
-                {/* Smart Point */}
-                <View
-                    style={[
-                        styles.offerCard,
-                        styles.offerCardSpacing,
-                        appliedGiftCardCode ? { borderColor: colors.green } : undefined,
-                    ]}>
-                    <View style={[styles.menuIconContainer, { backgroundColor: colors.themeTeal }]}>
-                        <Image
-                            source={require('../../assets/icons/profile/gift.png')}
-                            style={{ width: 20, height: 20 }}
-                            resizeMode="contain"
-                        />
-                    </View>
-                    <View style={styles.offerDetails}>
-                        <Text style={styles.offerName}>Smart point</Text>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
-                            {appliedGiftCardCode ? (
-                                <>
-                                    <View style={styles.appliedCouponTag}>
-                                        <Text style={styles.appliedCouponText}>
-                                            {appliedGiftCardCode}
-                                        </Text>
-                                    </View>
-                                    <MaterialCommunityIcons
-                                        name="check-circle"
-                                        size={14}
-                                        color={colors.green}
-                                        style={styles.checkIcon}
-                                    />
-                                    <Text style={styles.appliedBadgeText}>Applied</Text>
-                                </>
-                            ) : (
-                                <Text style={[styles.offerSub, { marginTop: 0 }]}>
-                                    View all gift cards {'>'}
-                                </Text>
-                            )}
-                        </View>
-                    </View>
-                    <TouchableOpacity
-                        style={styles.applyBtn}
-                        onPress={() =>
-                            appliedGiftCardCode
-                                ? onRejectOffer('4')
-                                : onApplyOffer('4')
-                        }>
-                        {appliedGiftCardCode ? (
-                            <Text style={[styles.applyBtnText, { color: '#FF4D4D' }]}>
-                                Remove
-                            </Text>
-                        ) : (
-                            <Text style={styles.applyBtnText}>Apply {'>'}</Text>
-                        )}
-                    </TouchableOpacity>
-                </View>
+          <View style={styles.dashedLineContainer}>
+            <View style={styles.notchLeft} />
+            <View style={styles.dashedLine} />
+            <View style={styles.notchRight} />
+          </View>
 
-                {/* B-coin */}
-                <View
-                    style={[
-                        styles.offerCard,
-                        styles.offerCardSpacing,
-                        bcoinsAppliedValue > 0 ? { borderColor: colors.green } : undefined,
-                    ]}>
-                    <View style={[styles.menuIconContainer, { backgroundColor: colors.themeTeal }]}>
-                        <Image
-                            source={require('../../assets/icons/profile/rupee.png')}
-                            style={{ width: 20, height: 20 }}
-                            resizeMode="contain"
-                        />
-                    </View>
-                    <View style={styles.offerDetails}>
-                        <Text style={styles.offerName}>B-coin</Text>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
-                            {bcoinsAppliedValue > 0 ? (
-                                <>
-                                    <View style={styles.appliedCouponTag}>
-                                        <Text style={styles.appliedCouponText}>
-                                            ₹{bcoinsAppliedValue}
-                                        </Text>
-                                    </View>
-                                    <MaterialCommunityIcons
-                                        name="check-circle"
-                                        size={14}
-                                        color={colors.green}
-                                        style={styles.checkIcon}
-                                    />
-                                    <Text style={styles.appliedBadgeText}>Applied</Text>
-                                </>
-                            ) : (
-                                <Text style={[styles.offerSub, { marginTop: 0 }]}>
-                                    Available B-coins : {availableBCoins}
-                                </Text>
-                            )}
-                        </View>
-                    </View>
-                    <TouchableOpacity
-                        style={styles.applyBtn}
-                        onPress={() =>
-                            bcoinsAppliedValue > 0
-                                ? onRejectOffer('3')
-                                : onApplyOffer('3')
-                        }>
-                        {bcoinsAppliedValue > 0 ? (
-                            <Text style={[styles.applyBtnText, { color: '#FF4D4D' }]}>
-                                Remove
-                            </Text>
-                        ) : (
-                            <Text style={styles.applyBtnText}>Apply {'>'}</Text>
-                        )}
-                    </TouchableOpacity>
-                </View>
-            </View>
+          <TouchableOpacity
+            onPress={() =>
+              bcoinsAppliedValue > 0 ? onRejectOffer('3') : onApplyOffer('3')
+            }
+          >
+            <Text
+              style={
+                bcoinsAppliedValue > 0
+                  ? styles.appliedBtnText
+                  : styles.applyBtnText
+              }
+            >
+              {bcoinsAppliedValue > 0 ? 'Remove' : 'Apply'}
+            </Text>
+          </TouchableOpacity>
         </View>
-    );
+
+        {/* Coupon */}
+        <View
+          style={[
+            styles.offerCard,
+            appliedCouponCode && { borderColor: colors.green },
+          ]}
+        >
+          <View style={styles.offerIconContainer}>
+            {/* <Image
+              source={require('../../assets/images/offer.png')}
+              style={{ width: 30, height: 30, tintColor: '#F25000' }}
+              resizeMode="contain"
+            /> */}
+
+            <Image
+              source={require('../../assets/images/offer.png')}
+              style={{ width: 30, height: 30 }}
+              resizeMode="contain"
+            />
+          </View>
+          <Text style={styles.offerName}>COUPON</Text>
+          <Text
+            style={[
+              styles.offerSub,
+              appliedCouponCode
+                ? { color: colors.green, fontFamily: Fonts.gilroyBold }
+                : null,
+            ]}
+            numberOfLines={1}
+          >
+            {appliedCouponCode ? appliedCouponCode : 'View All Coupons'}
+          </Text>
+
+          <View style={styles.dashedLineContainer}>
+            <View style={styles.notchLeft} />
+            <View style={styles.dashedLine} />
+            <View style={styles.notchRight} />
+          </View>
+
+          <TouchableOpacity
+            onPress={() =>
+              appliedCouponCode ? onRejectOffer('2') : onApplyOffer('2')
+            }
+          >
+            <Text
+              style={
+                appliedCouponCode ? styles.appliedBtnText : styles.applyBtnText
+              }
+            >
+              {appliedCouponCode ? 'Applied' : 'View'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Smart Point */}
+        <View
+          style={[
+            styles.offerCard,
+            appliedGiftCardCode && { borderColor: colors.green },
+          ]}
+        >
+          <View style={styles.offerIconContainer}>
+            <Image
+              source={require('../../assets/icons/profile/gift.png')}
+              style={{ width: 30, height: 30, tintColor: colors.themeTeal }}
+              resizeMode="contain"
+            />
+            {/* <Image
+              source={require('../../assets/icons/profile/gift.png')}
+              style={{ width: 30, height: 30 }}
+              resizeMode="contain"
+            /> */}
+          </View>
+          <Text style={styles.offerName}>SMART POINT</Text>
+          <Text
+            style={[
+              styles.offerSub,
+              appliedGiftCardCode
+                ? { color: colors.green, fontFamily: Fonts.gilroyBold }
+                : null,
+            ]}
+            numberOfLines={1}
+          >
+            {appliedGiftCardCode ? appliedGiftCardCode : 'View All Gift Cards'}
+          </Text>
+
+          <View style={styles.dashedLineContainer}>
+            <View style={styles.notchLeft} />
+            <View style={styles.dashedLine} />
+            <View style={styles.notchRight} />
+          </View>
+
+          <TouchableOpacity
+            onPress={() =>
+              appliedGiftCardCode ? onRejectOffer('4') : onApplyOffer('4')
+            }
+          >
+            <Text
+              style={
+                appliedGiftCardCode
+                  ? styles.appliedBtnText
+                  : styles.applyBtnText
+              }
+            >
+              {appliedGiftCardCode ? 'Applied' : 'View'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
 };
 
 export default React.memo(SaveMoneySection);

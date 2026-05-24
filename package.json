@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "android": "react-native run-android",
-    "ios": "PATH=\"/opt/homebrew/opt/ruby/bin:/opt/homebrew/lib/ruby/gems/4.0.0/bin:$PATH\" react-native run-ios",
+    "ios": "PATH=\"/opt/homebrew/opt/ruby/bin:/opt/homebrew/lib/ruby/gems/4.0.0/bin:$PATH\" RCT_NEW_ARCH_ENABLED=1 react-native run-ios",
     "lint": "eslint .",
     "postinstall": "patch-package",
-    "start": "react-native start",
+    "start": "RCT_NEW_ARCH_ENABLED=1 react-native start",
     "test": "jest"
   },
   "dependencies": {

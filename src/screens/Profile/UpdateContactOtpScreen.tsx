@@ -5,38 +5,48 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
   StatusBar,
   StyleSheet,
   ImageBackground,
+  Image,
 } from 'react-native';
 import { wp, hp } from '../../utils/responsive';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useUser } from '../../context/UserContext';
 import StatusModal from '../../components/StatusModal';
 import { AppIcons } from '../../assets/icons';
-import { colors } from '../../assets/theme/colours';
+import { colors, fontColors } from '../../assets/theme/colours';
 import {
   verifyEmailOtpApi,
   verifyPhoneOtpApi,
   requestPhoneOtpApi,
-  requestEmailOtpApi
+  requestEmailOtpApi,
 } from '../../api/services/userService';
 import CustomGradientButton from '../../components/CustomGradientButton';
 
 const UpdateContactOtpScreen = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
-  const { type, contactValue } = route.params || {}; 
+  const { type, contactValue } = route.params || {};
   const { loadProfile } = useUser();
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [modalConfig, setModalConfig] = useState<{ title: string; message: string; type: 'success' | 'error', onCloseCallback?: () => void }>({ title: '', message: '', type: 'success' });
+  const [modalConfig, setModalConfig] = useState<{
+    title: string;
+    message: string;
+    type: 'success' | 'error';
+    onCloseCallback?: () => void;
+  }>({ title: '', message: '', type: 'success' });
 
-  const showModal = (title: string, message: string, type: 'success' | 'error', onCloseCallback?: () => void) => {
+  const showModal = (
+    title: string,
+    message: string,
+    type: 'success' | 'error',
+    onCloseCallback?: () => void,
+  ) => {
     setModalConfig({ title, message, type, onCloseCallback });
     setModalVisible(true);
   };
@@ -44,7 +54,7 @@ const UpdateContactOtpScreen = () => {
   const handleModalClose = () => {
     setModalVisible(false);
     if (modalConfig.onCloseCallback) {
-        modalConfig.onCloseCallback();
+      modalConfig.onCloseCallback();
     }
   };
 
@@ -68,7 +78,8 @@ const UpdateContactOtpScreen = () => {
   const handleRequestOtp = async () => {
     try {
       setIsLoading(true);
-      const payload = type === 'phone' ? { phone: contactValue } : { email: contactValue };
+      const payload =
+        type === 'phone' ? { phone: contactValue } : { email: contactValue };
       const response =
         type === 'phone'
           ? await requestPhoneOtpApi(payload as any)
@@ -80,7 +91,11 @@ const UpdateContactOtpScreen = () => {
         setOtp(['', '', '', '', '']);
         otpRefs.current[0]?.focus();
       } else {
-        showModal('Error', response?.message || 'Failed to request OTP', 'error');
+        showModal(
+          'Error',
+          response?.message || 'Failed to request OTP',
+          'error',
+        );
       }
     } catch (error) {
       showModal('Error', 'Failed to request OTP. Please try again.', 'error');
@@ -112,15 +127,18 @@ const UpdateContactOtpScreen = () => {
         await loadProfile();
         showModal(
           'Success',
-          `${type === 'phone' ? 'Phone Number' : 'Email ID'} updated successfully`,
+          `${
+            type === 'phone' ? 'Phone Number' : 'Email ID'
+          } updated successfully`,
           'success',
           () => {
-              // Reset stack routing to Profile/MainTabs properly
-              navigation.reset({
-                  index: 0,
-                  routes: [{ name: 'MainTabs', params: { screen: 'KebraScreen' } as any }],
-              });
-          }
+            navigation.reset({
+              index: 0,
+              routes: [
+                { name: 'MainTabs', params: { screen: 'KebraScreen' } as any },
+              ],
+            });
+          },
         );
       } else {
         showModal('Error', response?.message || 'Verification failed', 'error');
@@ -149,12 +167,17 @@ const UpdateContactOtpScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.mainContainer}>
-      <StatusBar
-        barStyle="light-content"
-        translucent
-        backgroundColor="transparent"
-      />
+    // <SafeAreaView style={styles.mainContainer}>
+    // <StatusBar
+    //   barStyle="dark-content"
+    //   translucent
+    //   backgroundColor="transparent"
+    // />
+    <ImageBackground
+      style={styles.backgroundImage}
+      source={require('../../assets/images/login/bg_test.png')}
+      resizeMode="stretch"
+    >
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -164,95 +187,97 @@ const UpdateContactOtpScreen = () => {
           keyboardShouldPersistTaps="handled"
           bounces={false}
         >
-          <ImageBackground
-            style={styles.backgroundImage}
-            source={require('../../assets/images/imagebackgorund/reg.png')}
-          >
-            <View style={styles.headerRow}>
-              <TouchableOpacity
-                onPress={() => navigation.goBack()}
-                style={styles.backButton}
-              >
-                <AppIcons.ArrowBack size={28} color={colors.white} />
-              </TouchableOpacity>
-              <Text style={styles.headerTitle}>
-                Verify OTP
-              </Text>
-              <View style={{ width: wp('12%') }} />
-            </View>
-          </ImageBackground>
+          <View style={styles.headerRow}>
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={styles.backButton}
+            >
+              <AppIcons.ArrowBack size={28} color={colors.black} />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Verify OTP</Text>
+          </View>
+
+          {/* <View style={styles.headerSection}> */}
+          <Image
+            source={require('../../assets/images/login/logo.png')}
+            style={styles.logo}
+          />
+          {/* </View> */}
 
           <View style={styles.bottomContainer}>
             <View style={styles.formContent}>
-                <View style={{ flex: 1, justifyContent: 'space-between' }}>
-                  <View>
-                    <Text style={styles.welcomeText}>Verify OTP</Text>
-                    <Text style={styles.subText}>
-                      Enter the 5-digit code sent to {contactValue}
-                    </Text>
+              <View style={{ flex: 1, justifyContent: 'space-between' }}>
+                <View>
+                  <Text style={styles.welcomeText}>Verify OTP</Text>
+                  <Text style={styles.subText}>
+                    Enter the 5-digit code sent to {contactValue}
+                  </Text>
 
-                    <View style={styles.inputContainer}>
-                      <View style={styles.otpContainer}>
-                        {otp.map((digit, index) => (
-                          <View style={styles.otpBox} key={index}>
-                            <TextInput
-                              ref={el => (otpRefs.current[index] = el)}
-                              style={styles.otpInput}
-                              keyboardType="number-pad"
-                              maxLength={1}
-                              value={digit}
-                              onChangeText={text => handleOtpChange(text, index)}
-                              onKeyPress={e => handleBackspace(e, index)}
-                            />
-                          </View>
-                        ))}
-                      </View>
-                    </View>
-
-                    <View style={styles.resendRow}>
-                      {canResend ? (
-                        <TouchableOpacity onPress={handleRequestOtp}>
-                          <Text style={styles.resendTextActive}>Resend OTP</Text>
-                        </TouchableOpacity>
-                      ) : (
-                        <Text style={styles.resendTextDisabled}>
-                          Resend OTP in {timer}s
-                        </Text>
-                      )}
+                  <View style={styles.inputContainer}>
+                    <View style={styles.otpContainer}>
+                      {otp.map((digit, index) => (
+                        <View style={styles.otpBox} key={index}>
+                          <TextInput
+                            ref={el => {
+                              otpRefs.current[index] = el;
+                            }}
+                            style={styles.otpInput}
+                            keyboardType="number-pad"
+                            maxLength={1}
+                            value={digit}
+                            onChangeText={text => handleOtpChange(text, index)}
+                            onKeyPress={e => handleBackspace(e, index)}
+                          />
+                        </View>
+                      ))}
                     </View>
                   </View>
 
-                  <View>
-                    <CustomGradientButton
-                      title="Verify & Update"
-                      onPress={handleVerifyOtp}
-                      loading={isLoading}
-                      disabled={isLoading}
-                    />
-
-                    <TouchableOpacity
-                      onPress={() => navigation.goBack()}
-                      style={styles.changeContactLink}
-                    >
-                      <Text style={styles.changeContactLinkText}>
-                        Change {type === 'phone' ? 'Phone' : 'Email'}
+                  <View style={styles.resendRow}>
+                    {canResend ? (
+                      <TouchableOpacity onPress={handleRequestOtp}>
+                        <Text style={styles.resendTextActive}>Resend OTP</Text>
+                      </TouchableOpacity>
+                    ) : (
+                      <Text style={styles.resendTextDisabled}>
+                        Resend OTP in {timer}s
                       </Text>
-                    </TouchableOpacity>
+                    )}
                   </View>
                 </View>
+
+                <View style={{ marginBottom: hp('7%') }}>
+                  <CustomGradientButton
+                    title="Verify & Update"
+                    onPress={handleVerifyOtp}
+                    loading={isLoading}
+                    disabled={isLoading}
+                  />
+
+                  <TouchableOpacity
+                    onPress={() => navigation.goBack()}
+                    style={styles.changeContactLink}
+                  >
+                    <Text style={styles.changeContactLinkText}>
+                      Change {type === 'phone' ? 'Phone' : 'Email'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
             </View>
           </View>
         </ScrollView>
+        <StatusModal
+          visible={modalVisible}
+          type={modalConfig.type}
+          title={modalConfig.title}
+          message={modalConfig.message}
+          onClose={handleModalClose}
+        />
       </KeyboardAvoidingView>
+    </ImageBackground>
 
-      <StatusModal
-        visible={modalVisible}
-        type={modalConfig.type}
-        title={modalConfig.title}
-        message={modalConfig.message}
-        onClose={handleModalClose}
-      />
-    </SafeAreaView>
+    // </SafeAreaView>
   );
 };
 
@@ -264,48 +289,41 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   backgroundImage: {
-    flex: 1,
     width: '100%',
-    paddingTop: Platform.OS === 'ios' ? hp('5%') : hp('2%'),
-    paddingBottom: hp('7.5%'),
+    height: '100%',
   },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: wp('2%'),
+    paddingHorizontal: wp('3%'),
+    paddingTop: Platform.OS === 'ios' ? hp('5%') : hp('2%'),
+    paddingBottom: hp('2%'),
+    backgroundColor: 'transparent',
   },
   backButton: {
     padding: 10,
   },
   headerTitle: {
-    fontSize: wp('5%'),
-    color: colors.white,
+    fontSize: 18,
+    color: fontColors.titleBlack,
     fontWeight: 'bold',
     fontFamily: 'Gilroy-Bold',
+    marginLeft: wp('4%'),
+    flex: 1,
   },
   bottomContainer: {
-    height: hp('35%'),
-    backgroundColor: colors.white,
-    borderTopLeftRadius: wp('9.3%'),
-    borderTopRightRadius: wp('9.3%'),
-    marginTop: -hp('4%'),
-    paddingTop: hp('3%'),
-    paddingBottom: hp('4%'),
+    flex: 1,
     paddingHorizontal: wp('5.8%'),
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    justifyContent: 'space-between',
+    paddingTop: hp('4%'),
+    paddingBottom: hp('4%'),
+    backgroundColor: 'transparent',
   },
   formContent: {
     flex: 1,
   },
   welcomeText: {
-    fontSize: wp('4.65%'),
-    color: '#000',
+    fontSize: wp('6%'),
+    color: fontColors.titleBlack,
     fontWeight: 'bold',
     alignSelf: 'center',
     marginBottom: hp('3%'),
@@ -313,7 +331,7 @@ const styles = StyleSheet.create({
   },
   subText: {
     fontSize: wp('3.72%'),
-    color: '#616161',
+    color: fontColors.subtext,
     marginBottom: hp('1.5%'),
     fontFamily: 'Gilroy-Regular',
   },
@@ -324,14 +342,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: hp('1%'),
-    paddingHorizontal: wp('2%'),
   },
   otpBox: {
     width: wp('12.95%'),
     height: hp('6.36%'),
     backgroundColor: colors.white,
-    borderWidth: 0.5,
-    borderColor: '#E5E5E5',
+    borderWidth: 1,
+    borderColor: colors.themeLightGray || '#E5E5E5',
     borderRadius: wp('6.33%'),
     justifyContent: 'center',
     alignItems: 'center',
@@ -340,7 +357,8 @@ const styles = StyleSheet.create({
     fontSize: wp('4.5%'),
     textAlign: 'center',
     width: '100%',
-    color: '#000',
+    color: fontColors.titleBlack,
+    fontWeight: 'bold',
   },
   resendRow: {
     alignItems: 'center',
@@ -353,15 +371,34 @@ const styles = StyleSheet.create({
   },
   resendTextDisabled: {
     fontSize: wp('3.5%'),
-    color: '#616161',
+    color: fontColors.subtext,
   },
   changeContactLink: {
     alignItems: 'center',
-    marginTop: hp('4%'),
+    marginTop: hp('3%'),
   },
   changeContactLinkText: {
     fontSize: wp('3.5%'),
     color: colors.themeTeal || '#F25000',
     textDecorationLine: 'underline',
+  },
+  headerSection: {
+    height: hp('25%'),
+    backgroundColor: 'transparent',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  // backgroundImage: {
+  //   flex: 1,
+  //   width: '100%',
+  //   height: '100%',
+  // },
+  logo: {
+    width: wp('30%'),
+    height: hp('8%'),
+    resizeMode: 'contain',
+    alignSelf: 'center',
+    marginTop: hp('2.5%'),
+    marginBottom: hp('2.5%'),
   },
 });

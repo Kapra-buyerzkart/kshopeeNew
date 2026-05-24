@@ -7,112 +7,104 @@ import { cartItemCardStyles as styles } from './styles';
 import FallbackImage from '../FallbackImage';
 
 export interface CartItem {
-    id: string;
-    title: string;
-    size: string;
-    color: string;
-    price: number;
-    originalPrice: number;
-    discount: string;
-    quantity: number;
-    image: string;
+  id: string;
+  title: string;
+  price: number;
+  originalPrice: number;
+  discount: string;
+  quantity: number;
+  image: string;
 }
 
 interface CartItemCardProps {
-    item: CartItem;
-    onDelete?: (id: string) => void;
-    onIncrement?: (id: string) => void;
-    onDecrement?: (id: string) => void;
+  item: CartItem;
+  onDelete?: (id: string) => void;
+  onIncrement?: (id: string) => void;
+  onDecrement?: (id: string) => void;
 }
 
 const CartItemCard: React.FC<CartItemCardProps> = ({
-    item,
-    onDelete,
-    onIncrement,
-    onDecrement,
+  item,
+  onDelete,
+  onIncrement,
+  onDecrement,
 }) => {
-    return (
-        <View style={styles.itemCard}>
-            {/* Top: Image + Details */}
-            <View style={styles.itemTopRow}>
-                <FallbackImage 
-                    source={item.image ? { uri: item.image } : require('../../assets/images/logos/noimage.png')} 
-                    style={styles.itemImage} 
-                    resizeMode='cover' 
-                />
-                <View style={styles.itemDetails}>
-                    <View style={styles.itemTitleRow}>
-                        <Text style={styles.itemTitle} numberOfLines={2}>
-                            {item.title}
-                        </Text>
-                        <TouchableOpacity
-                            style={styles.deleteButton}
-                            onPress={() => onDelete?.(item.id)}>
-                            <AppIcons.Delete color={colors.grey} size={20} />
-                        </TouchableOpacity>
-                    </View>
-                    {/* <View style={[styles.variantRow, { marginTop: 19 }]}>
-                        <Text style={styles.variantLabel}>Size : </Text>
-                        <Text style={styles.variantValue}>{item.size}</Text>
-                    </View>
-                    <View style={[styles.variantRow, { marginTop: 5 }]}>
-                        <Text style={styles.variantLabel}>Color : </Text>
-                        <View
-                            style={[
-                                styles.colorCircle,
-                                { backgroundColor: item.color },
-                            ]}
-                        />
-                    </View> */}
-                </View>
-            </View>
-            <View style={styles.separator} />
-            {/* Bottom: Quantity + Price (full width) */}
-            <View style={styles.itemBottomRow}>
-                <View style={styles.quantitySelector}>
-                    <TouchableOpacity
-                        activeOpacity={0.8}
-                        onPress={() => onDecrement?.(item.id)}>
-                        <LinearGradient
-                            colors={[colors.themeTeal, colors.themeDarkTeal, colors.themeDarkTeal]}
-                            start={{ x: 0.1, y: 0.5 }}
-                            end={{ x: 1, y: 0.5 }}
-                            style={styles.qtyBtn}>
-                            <AppIcons.Back color={colors.white} size={20} />
-                        </LinearGradient>
-                    </TouchableOpacity>
-                    <Text style={styles.qtyText}>
-                        {String(item.quantity).padStart(2, '0')}
-                    </Text>
-                    <TouchableOpacity
-                        activeOpacity={0.8}
-                        onPress={() => onIncrement?.(item.id)}>
-                        <LinearGradient
-                            colors={[colors.themeTeal, colors.themeDarkTeal, colors.themeDarkTeal]}
-                            start={{ x: 0.1, y: 0.5 }}
-                            end={{ x: 1, y: 0.5 }}
-                            style={styles.qtyBtn}>
-                            <AppIcons.Forward color={colors.white} size={20} />
-                        </LinearGradient>
-                    </TouchableOpacity>
-                </View>
-
-                <View style={styles.priceContainer}>
-                    <View style={styles.discountBadge}>
-                        <Text style={styles.discountArrow}>▼</Text>
-                        <Text style={styles.discountText}>{item.discount}</Text>
-                    </View>
-                    <Text style={styles.mrpText}>
-                        MRP ₹{item.originalPrice.toFixed(2)}
-                    </Text>
-                    <Text style={styles.priceText}>
-                        <Text style={styles.rupeeSign}>₹</Text>
-                        {item.price.toFixed(2)}
-                    </Text>
-                </View>
-            </View>
+  return (
+    <View style={styles.itemCard}>
+      {/* Top: Image + Details */}
+      <View style={styles.itemTopRow}>
+        <View style={styles.imageContainer}>
+          <FallbackImage
+            source={
+              item.image
+                ? { uri: item.image }
+                : require('../../assets/images/logos/noimage.png')
+            }
+            style={styles.itemImage}
+            resizeMode="contain"
+          />
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={() => onDelete?.(item.id)}
+          >
+            <AppIcons.Delete color={'red'} size={14} />
+          </TouchableOpacity>
         </View>
-    );
+        <View style={styles.itemDetails}>
+          <Text style={styles.itemTitle} numberOfLines={2}>
+            {item.title}
+          </Text>
+          <View style={styles.variantRowContainer} />
+
+          <Text style={styles.mrpText}>
+            MRP{' '}
+            <Text style={{ textDecorationLine: 'line-through' }}>
+              ₹{item.originalPrice.toFixed(2)}
+            </Text>
+          </Text>
+
+          <View style={styles.priceQtyRow}>
+            <Text style={styles.priceText}>
+              <Text style={styles.rupeeSign}>₹</Text>
+              {item.price.toFixed(2)}
+            </Text>
+
+            <View style={styles.quantitySelector}>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => onDecrement?.(item.id)}
+              >
+                <LinearGradient
+                  colors={['#F25000', '#FF6A00']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.qtyBtn}
+                >
+                  <AppIcons.Back color={colors.white} size={14} />
+                </LinearGradient>
+              </TouchableOpacity>
+              <Text style={styles.qtyText}>
+                {String(item.quantity).padStart(2, '0')}
+              </Text>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => onIncrement?.(item.id)}
+              >
+                <LinearGradient
+                  colors={['#F25000', '#FF6A00']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.qtyBtn}
+                >
+                  <AppIcons.Forward color={colors.white} size={14} />
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </View>
+    </View>
+  );
 };
 
 export default CartItemCard;

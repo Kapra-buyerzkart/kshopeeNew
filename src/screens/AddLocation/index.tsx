@@ -382,6 +382,9 @@ const AddLocationScreen: React.FC = () => {
             language: 'en',
             components: 'country:in',
           }}
+          fetchDetails={true}
+          enablePoweredByContainer={false}
+          keyboardShouldPersistTaps="handled"
           renderLeftButton={() => (
             <View style={{ justifyContent: 'center', paddingLeft: 10 }}>
               <Ionicons name="search" size={20} color={colors.themeTeal} />

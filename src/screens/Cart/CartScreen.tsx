@@ -115,7 +115,8 @@ const CartScreen = () => {
 
   const [isClearCartModalVisible, setIsClearCartModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('cod');
+  const [paymentMethod, setPaymentMethod] = useState('Online');
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentModes, setPaymentModes] = useState<any[]>([]);
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [serviceabilityTrigger, setServiceabilityTrigger] = useState(false);
@@ -217,10 +218,16 @@ const CartScreen = () => {
             });
           }
           setPaymentModes(modes);
-          const cod = modes.find(
-            m => m.paymentModeName?.toUpperCase() === 'COD',
+          const online = modes.find(m =>
+            ['online', 'razorpay', 'upi', 'online payment'].includes(
+              m.paymentModeName?.toLowerCase(),
+            ),
           );
-          if (cod) setPaymentMethod(cod.paymentModeName);
+          if (online) {
+            setPaymentMethod(online.paymentModeName);
+          } else if (modes.length > 0) {
+            setPaymentMethod(modes[0].paymentModeName);
+          }
         }
       } catch (err) {
         console.error('Error fetching payment modes:', err);
@@ -382,13 +389,23 @@ const CartScreen = () => {
       console.log('📦 [ORDER] Payload State:', {
         hasSummary: !!cartSummary,
         couponDiscount:
-          cartSummary?.couponDiscount || cartSummary?.couponAmount || cartSummary?.discountCoupon || cartSummary?.appliedCouponAmount || 0,
+          cartSummary?.couponDiscount ||
+          cartSummary?.couponAmount ||
+          cartSummary?.discountCoupon ||
+          cartSummary?.appliedCouponAmount ||
+          0,
         deliveryCharges:
           cartSummary?.deliveryCharge || cartSummary?.shippingCharge || 0,
         toPay: cartSummary?.grandTotal || cartSummary?.netTotal || 0,
-        totalSavings: cartSummary?.totalSavings || cartSummary?.totalDiscount || 0,
+        totalSavings:
+          cartSummary?.totalSavings || cartSummary?.totalDiscount || 0,
         bcoinsAppliedValue:
-          cartSummary?.bcoinDiscount || cartSummary?.bCoinAmount || cartSummary?.bcoinsApplied || cartSummary?.bCoinDiscount || cartSummary?.appliedBCoins || 0,
+          cartSummary?.bcoinDiscount ||
+          cartSummary?.bCoinAmount ||
+          cartSummary?.bcoinsApplied ||
+          cartSummary?.bCoinDiscount ||
+          cartSummary?.appliedBCoins ||
+          0,
         userBCoins: profile?.totalBCoins || profile?.bCoins || 0,
         cartId: resolvedCartId,
         latestVersion,
@@ -603,8 +620,6 @@ const CartScreen = () => {
   const mappedItems = cartItems.map(item => ({
     id: String(item.cartItemId),
     title: item.productName,
-    size: item.unitSize || item.variantName || 'Standard',
-    color: '#8B4513',
     price: item.specialPrice || item.unitPrice,
     originalPrice: item.unitPrice,
     discount:
@@ -643,102 +658,47 @@ const CartScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <AppIcons.Back color={colors.black} size={24} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Cart</Text>
-
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-          {cartItems.length > 0 && (
-            <TouchableOpacity
-              style={styles.heartButton}
-              onPress={() => setIsClearCartModalVisible(true)}
-            >
-              <View
-                style={[styles.heartCircle, { backgroundColor: '#fbe2e6' }]}
-              >
-                <AntDesign name="delete" color={colors.red} size={18} />
-              </View>
-            </TouchableOpacity>
-          )}
+      {/* Top White Container */}
+      <View style={styles.topContainer}>
+        {/* Header */}
+        <View style={styles.header}>
           <TouchableOpacity
-            style={styles.heartButton}
-            onPress={() => navigation.navigate('Wishlist')}
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
           >
-            <View style={styles.heartCircle}>
-              <AppIcons.BookmarkOutline color={colors.white} size={24} />
-            </View>
+            <AppIcons.Back color={colors.black} size={24} />
           </TouchableOpacity>
+          <Text style={styles.headerTitle}>Summary</Text>
+          <View style={{ width: 34 }} />
         </View>
-      </View>
 
-      <ScrollView
-        ref={scrollViewRef}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
-        {/* Delivery Method Toggle */}
-        {/* <View style={styles.deliveryToggleRow}>
-                    <TouchableOpacity
-                        activeOpacity={0.8}
-                        onPress={() => setSelectedDeliveryType('express')}
-                        style={[styles.toggleButton, selectedDeliveryType === 'express' && styles.toggleButtonActive]}
-                    >
-                        <LinearGradient
-                            colors={selectedDeliveryType === 'express' ? [colors.themeTeal, colors.themeDarkTeal] : [colors.white, colors.white]}
-                            start={{ x: 0, y: 0.5 }}
-                            end={{ x: 1, y: 0.5 }}
-                            style={styles.toggleGradient}
-                        >
-                            <AppIcons.Check color={selectedDeliveryType === 'express' ? colors.white : colors.themeTeal} size={16} />
-                            <Text style={[styles.toggleText, selectedDeliveryType === 'express' && styles.toggleTextActive]}>Express</Text>
-                        </LinearGradient>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        activeOpacity={0.8}
-                        onPress={() => {
-                            setSelectedDeliveryType('slot');
-                            setShowSlotModal(true);
-                        }}
-                        style={[styles.toggleButton, selectedDeliveryType === 'slot' && styles.toggleButtonActive]}
-                    >
-                        <LinearGradient
-                            colors={selectedDeliveryType === 'slot' ? [colors.themeTeal, colors.themeDarkTeal] : [colors.white, colors.white]}
-                            start={{ x: 0, y: 0.5 }}
-                            end={{ x: 1, y: 0.5 }}
-                            style={styles.toggleGradient}
-                        >
-                            <AppIcons.Calendar color={selectedDeliveryType === 'slot' ? colors.white : colors.themeTeal} size={16} />
-                            <Text style={[styles.toggleText, selectedDeliveryType === 'slot' && styles.toggleTextActive]}>Scheduled</Text>
-                        </LinearGradient>
-                    </TouchableOpacity>
-                </View> */}
+        {/* Stepper */}
+        <View style={styles.stepperContainer}>
+          <View style={styles.stepperRow}>
+            <View style={styles.stepDotSmallOrange} />
+            <View style={[styles.stepLine, { backgroundColor: '#F25000' }]} />
+            <View style={styles.stepDotLargeContainer}>
+              <View style={styles.stepDotLargeInner} />
+            </View>
+            <View style={[styles.stepLine, { backgroundColor: '#E0E0E0' }]} />
+            <View style={styles.stepDotSmallGrey} />
+          </View>
+          <View style={styles.stepperTextRow}>
+            <Text style={styles.stepTextSmall}>Address</Text>
+            <Text style={styles.stepTextOrange}>Summary</Text>
+            <Text style={styles.stepTextSmall}>Payment</Text>
+          </View>
+        </View>
 
         {/* Delivering to Section */}
-        <View
-          style={[
-            styles.addressCard,
-            isAddressFocused && {
-              borderColor: colors.themeTeal,
-              borderWidth: 2,
-              shadowColor: colors.themeTeal,
-              shadowOpacity: 0.3,
-              elevation: 10,
-            },
-          ]}
-        >
+        <View style={styles.addressSection}>
           <View style={styles.addressRow}>
-            <View style={styles.locationIconContainer}>
-              <AppIcons.Home color={colors.themeTeal} size={20} />
-            </View>
+            <MaterialIcons
+              name="location-on"
+              color={'#F25000'}
+              size={24}
+              style={{ marginTop: -2 }}
+            />
             <View style={styles.addressInfo}>
               <View style={styles.deliveringToRow}>
                 <Text style={styles.deliveringToText}>Delivering to : </Text>
@@ -751,27 +711,25 @@ const CartScreen = () => {
                   ? selectedAddress.address
                   : 'No address selected'}
               </Text>
+              <TouchableOpacity
+                onPress={() => setShowAddressModal(true)}
+                style={{ marginTop: 8 }}
+              >
+                <Text style={styles.changeLink}>Change</Text>
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity onPress={() => setShowAddressModal(true)}>
-              <Text style={styles.changeLink}>Change</Text>
-            </TouchableOpacity>
           </View>
-
-          <View style={styles.separator} />
-
-          {/* <View style={styles.deliveryDateRow}>
-                        <View style={styles.calendarIconContainer}>
-                            <AppIcons.Calendar color={colors.themeTeal} size={18} />
-                        </View>
-                        <Text style={styles.deliveryByText}>Delivery by : </Text>
-                        <Text style={styles.deliveryDate}>
-                            {selectedDeliveryType === 'slot'
-                                ? (chosenSlot ? `${chosenSlot.dateDisplay} | ${chosenSlot.slotDisplay}` : 'Select Slot')
-                                : 'Express (20-30 min)'}
-                        </Text>
-                    </View> */}
         </View>
+      </View>
 
+      <ScrollView
+        ref={scrollViewRef}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         {/* Cart Items List */}
         <View style={styles.itemsSection}>
           {mappedItems.map(item => (
@@ -818,90 +776,51 @@ const CartScreen = () => {
           appliedCouponCode={appliedCouponCode}
           appliedGiftCardCode={appliedGiftCardCode}
           bcoinsAppliedValue={billCalculations.bcoinsAppliedValue || 0}
-          availableBCoins={profile?.totalBCoins || profile?.bCoins || profile?.bCoinBalance || 0}
+          availableBCoins={
+            profile?.totalBCoins ||
+            profile?.bCoins ||
+            profile?.bCoinBalance ||
+            0
+          }
           onApplyOffer={onApplyOffer}
           onRejectOffer={onRejectOffer}
         />
+        <BillSection billCalculations={billCalculations} />
 
-        {/* Payment Method Selection */}
-        <View style={styles.paymentSection}>
-          <Text style={styles.paymentSectionTitle}>Select Payment Method</Text>
-          <View style={styles.paymentOptionsGrid}>
-            {paymentModes.map((mode, index) => {
-              const isSelected = paymentMethod === mode.paymentModeName;
-              const isCOD = mode.paymentModeName?.toUpperCase() === 'COD';
-              return (
-                <TouchableOpacity
-                  key={mode.paymentModeId || index}
-                  style={[
-                    styles.paymentMethodOption,
-                    isSelected && styles.paymentMethodOptionActive,
-                  ]}
-                  onPress={() => setPaymentMethod(mode.paymentModeName)}
-                  activeOpacity={0.7}
-                >
-                  <View
-                    style={[
-                      styles.radioCircle,
-                      isSelected && styles.radioCircleActive,
-                    ]}
-                  >
-                    {isSelected && <View style={styles.radioInner} />}
-                  </View>
-                  <MaterialCommunityIcons
-                    name={isCOD ? 'cash' : 'cellphone'}
-                    size={22}
-                    color={isCOD ? '#0CA201' : '#1A73E8'}
-                    style={{ marginRight: 10 }}
-                  />
-                  <View style={{ flex: 1 }}>
-                    <Text
-                      style={[
-                        styles.paymentMethodName,
-                        isSelected && styles.paymentMethodNameActive,
-                      ]}
-                    >
-                      {mode.paymentModeName}
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: 12,
-                        color: '#999',
-                        fontFamily: Fonts.gilroyRegular,
-                        marginTop: 2,
-                      }}
-                    >
-                      {isCOD
-                        ? 'Pay when you receive'
-                        : 'UPI, Cards, Net Banking'}
-                    </Text>
-                  </View>
-                  {isSelected && (
-                    <AppIcons.Check color={colors.themeTeal} size={16} />
-                  )}
-                </TouchableOpacity>
-              );
-            })}
-            {paymentModes.length === 0 && (
-              <Text
-                style={{
-                  fontSize: 14,
-                  color: '#999',
-                  fontFamily: Fonts.gilroyMedium,
-                  textAlign: 'center',
-                  paddingVertical: 12,
-                }}
-              >
-                Loading payment methods...
+        {/* Selected Payment Method Trigger */}
+        {/* <TouchableOpacity
+          style={styles.paymentSectionTriggerCard}
+          onPress={() => setShowPaymentModal(true)}
+          activeOpacity={0.8}
+        >
+          <View style={styles.paymentTriggerLeft}>
+            <View style={styles.paymentIconBackground}>
+              <MaterialCommunityIcons
+                name={
+                  paymentMethod?.toUpperCase() === 'COD' ? 'cash' : 'cellphone'
+                }
+                size={22}
+                color={
+                  paymentMethod?.toUpperCase() === 'COD' ? '#0CA201' : '#1A73E8'
+                }
+              />
+            </View>
+            <View style={styles.paymentTriggerTextContainer}>
+              <Text style={styles.paymentTriggerLabel}>Payment Method</Text>
+              <Text style={styles.paymentTriggerValue}>
+                {paymentMethod || 'Online'}
               </Text>
-            )}
+            </View>
           </View>
-        </View>
+          <View style={styles.paymentTriggerChangeButton}>
+            <Text style={styles.paymentTriggerChangeText}>Change</Text>
+          </View>
+        </TouchableOpacity> */}
 
         {/* Bill Summary */}
-        <View style={{ marginBottom: 120 }}>
+        {/* <View style={{ marginBottom: -100 }}>
           <BillSection billCalculations={billCalculations} />
-        </View>
+        </View> */}
       </ScrollView>
 
       {/* Bottom Bar */}
@@ -917,15 +836,33 @@ const CartScreen = () => {
           </View>
         )}
         <View style={styles.paymentActionRow}>
-          <View style={styles.paymentInfo}>
-            <Text style={styles.payUsingLabel}>PAYING VIA</Text>
+          <TouchableOpacity
+            style={styles.paymentInfo}
+            onPress={() => setShowPaymentModal(true)}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.payUsingLabel}>PAY USING</Text>
             <View style={styles.paymentMethod}>
-              <View style={styles.paymentIconCircle}>
-                <AppIcons.Check color={colors.white} size={14} />
+              <View style={styles.paymentIconCircleOrange}>
+                <MaterialCommunityIcons
+                  name={
+                    paymentMethod?.toUpperCase() === 'COD'
+                      ? 'cash'
+                      : 'cellphone'
+                  }
+                  color="#F25000"
+                  size={16}
+                />
               </View>
               <Text style={styles.payUsingValue}>{paymentMethod}</Text>
+              <MaterialCommunityIcons
+                name="menu-up"
+                color="#000"
+                size={24}
+                style={{ marginLeft: 4 }}
+              />
             </View>
-          </View>
+          </TouchableOpacity>
 
           <TouchableOpacity
             activeOpacity={0.8}
@@ -933,15 +870,19 @@ const CartScreen = () => {
             style={styles.payButtonContainer}
           >
             <LinearGradient
-              colors={[colors.themeTeal, colors.themeDarkTeal]}
-              start={{ x: 0, y: 0.5 }}
-              end={{ x: 1, y: 0.5 }}
+              colors={['#F25000', '#FF7A00']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
               style={styles.payButton}
             >
               <Text style={styles.payButtonText}>
                 Pay ₹{billCalculations.toPay.toFixed(2)}
               </Text>
-              <AppIcons.Forward color={colors.white} size={16} />
+              <MaterialCommunityIcons
+                name="menu-right"
+                color={colors.white}
+                size={20}
+              />
             </LinearGradient>
           </TouchableOpacity>
         </View>
@@ -1017,6 +958,104 @@ const CartScreen = () => {
         onConfirm={submitOrder}
         data={addressConfirmationData}
       />
+
+      <Modal
+        visible={showPaymentModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowPaymentModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity
+            style={{ flex: 1 }}
+            activeOpacity={1}
+            onPress={() => setShowPaymentModal(false)}
+          />
+          <View style={styles.paymentModalContent}>
+            <View style={styles.modalHeaderIndicator} />
+            <View style={styles.modalHeaderRow}>
+              <Text style={styles.modalTitle}>Choose Payment Method</Text>
+              <TouchableOpacity onPress={() => setShowPaymentModal(false)}>
+                <MaterialCommunityIcons name="close" size={24} color="#000" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.paymentOptionsGrid}>
+              {paymentModes.map((mode, index) => {
+                const isSelected = paymentMethod === mode.paymentModeName;
+                const isCOD = mode.paymentModeName?.toUpperCase() === 'COD';
+                return (
+                  <TouchableOpacity
+                    key={mode.paymentModeId || index}
+                    style={[
+                      styles.paymentMethodOption,
+                      isSelected && styles.paymentMethodOptionActive,
+                    ]}
+                    onPress={() => {
+                      setPaymentMethod(mode.paymentModeName);
+                      setShowPaymentModal(false);
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <View
+                      style={[
+                        styles.radioCircle,
+                        isSelected && styles.radioCircleActive,
+                      ]}
+                    >
+                      {isSelected && <View style={styles.radioInner} />}
+                    </View>
+                    <MaterialCommunityIcons
+                      name={isCOD ? 'cash' : 'cellphone'}
+                      size={22}
+                      color={isCOD ? '#0CA201' : '#1A73E8'}
+                      style={{ marginRight: 10 }}
+                    />
+                    <View style={{ flex: 1 }}>
+                      <Text
+                        style={[
+                          styles.paymentMethodName,
+                          isSelected && styles.paymentMethodNameActive,
+                        ]}
+                      >
+                        {mode.paymentModeName}
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: '#999',
+                          fontFamily: Fonts.gilroyRegular,
+                          marginTop: 2,
+                        }}
+                      >
+                        {isCOD
+                          ? 'Pay when you receive'
+                          : 'UPI, Cards, Net Banking'}
+                      </Text>
+                    </View>
+                    {isSelected && (
+                      <AppIcons.Check color={colors.themeTeal} size={16} />
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+              {paymentModes.length === 0 && (
+                <Text
+                  style={{
+                    fontSize: 14,
+                    color: '#999',
+                    fontFamily: Fonts.gilroyMedium,
+                    textAlign: 'center',
+                    paddingVertical: 12,
+                  }}
+                >
+                  Loading payment methods...
+                </Text>
+              )}
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -1026,7 +1065,7 @@ export default CartScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.homeScreenBackground,
+    backgroundColor: colors.figmaTeal,
   },
   header: {
     flexDirection: 'row',
@@ -1056,14 +1095,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   scrollContent: {
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingTop: 12,
     paddingBottom: 120,
   },
   addressCard: {
     backgroundColor: colors.white,
     borderRadius: 12,
     padding: 16,
-    marginBottom: 16,
+    marginBottom: 8,
     borderWidth: 1,
     borderColor: '#E8F8FA',
   },
@@ -1110,7 +1150,79 @@ const styles = StyleSheet.create({
     color: colors.themeTeal,
     fontFamily: Fonts.bold,
     fontWeight: '400',
-    textDecorationLine: 'underline',
+    // textDecorationLine: 'underline',
+  },
+  topContainer: {
+    backgroundColor: colors.white,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    paddingBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 4,
+    marginBottom: 8,
+    zIndex: 10,
+  },
+  stepperContainer: {
+    paddingHorizontal: 30,
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  stepperRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepDotSmallOrange: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#F25000',
+  },
+  stepDotSmallGrey: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#E0E0E0',
+  },
+  stepDotLargeContainer: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#FFD9C6',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  stepDotLargeInner: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#F25000',
+  },
+  stepLine: {
+    flex: 1,
+    height: 2,
+    marginHorizontal: 4,
+  },
+  stepperTextRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
+  stepTextSmall: {
+    fontSize: 10,
+    color: '#999999',
+    fontFamily: Fonts.gilroyMedium,
+  },
+  stepTextOrange: {
+    fontSize: 10,
+    color: '#F25000',
+    fontFamily: Fonts.gilroyBold,
+  },
+  addressSection: {
+    paddingHorizontal: 20,
   },
   separator: {
     height: 1,
@@ -1173,10 +1285,10 @@ const styles = StyleSheet.create({
     color: colors.white,
   },
   itemsSection: {
-    backgroundColor: '#E8F8FA',
+    backgroundColor: colors.figmaTeal,
     borderRadius: 16,
-    padding: 12,
-    marginBottom: 16,
+    //  padding: 12,
+    // marginBottom: -10,
   },
   modalOverlay: {
     flex: 1,
@@ -1199,7 +1311,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderRadius: 16,
     padding: 16,
-    marginTop: 16,
+    marginBottom: 8,
     borderWidth: 1,
     borderColor: '#E8F8FA',
   },
@@ -1212,19 +1324,70 @@ const styles = StyleSheet.create({
   paymentOptionsGrid: {
     gap: 8,
   },
-  paymentMethodOption: {
+  paymentSectionTriggerCard: {
+    backgroundColor: colors.white,
+    borderRadius: 16,
+    padding: 16,
+    marginTop: 16,
+    //  marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#E8F8FA',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#F0F0F0',
-    marginBottom: 12,
+    justifyContent: 'space-between',
   },
-  paymentMethodOptionActive: {
-    borderColor: colors.themeTeal,
-    backgroundColor: '#F2FBFB',
+  paymentTriggerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  paymentIconBackground: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F5F7F9',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  paymentTriggerTextContainer: {
+    flex: 1,
+  },
+  paymentTriggerLabel: {
+    fontSize: 12,
+    color: '#999',
+    fontFamily: Fonts.gilroyMedium,
+  },
+  paymentTriggerValue: {
+    fontSize: 15,
+    color: colors.black,
+    fontFamily: Fonts.gilroyBold,
+    marginTop: 2,
+  },
+  paymentTriggerChangeButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: '#FFF0E6',
+  },
+  paymentTriggerChangeText: {
+    fontSize: 13,
+    color: '#F25000',
+    fontFamily: Fonts.gilroyBold,
+  },
+  modalHeaderIndicator: {
+    width: 40,
+    height: 4,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginBottom: 16,
+  },
+  modalHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
   },
   radioCircle: {
     width: 20,
@@ -1237,13 +1400,27 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   radioCircleActive: {
-    borderColor: colors.themeTeal,
+    borderColor: '#F25000',
   },
   radioInner: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: colors.themeTeal,
+    backgroundColor: '#F25000',
+  },
+  paymentMethodOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    borderWidth: 0.5,
+    borderColor: '#F0F0F0',
+    marginBottom: 12,
+  },
+  paymentMethodOptionActive: {
+    borderColor: colors.themeTeal,
+    backgroundColor: colors.figmaTeal,
   },
   paymentMethodName: {
     fontSize: 16,
@@ -1270,7 +1447,7 @@ const styles = StyleSheet.create({
     elevation: 20,
   },
   savingsBanner: {
-    backgroundColor: '#F2FBFB',
+    backgroundColor: colors.figmaTeal,
     paddingVertical: 10,
     alignItems: 'center',
     borderTopLeftRadius: 30,
@@ -1314,24 +1491,38 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 8,
   },
+  paymentIconCircleOrange: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#FFF0E6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: '#FFD9C6',
+  },
   payUsingValue: {
     fontSize: 14,
     color: colors.black,
-    fontFamily: Fonts.gilroyBold,
+    fontFamily: Fonts.gilroyMedium,
   },
   payButtonContainer: {
     borderRadius: 25,
     overflow: 'hidden',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   payButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 20,
-    borderRadius: 30,
-    height: 45,
-    width: 200,
-    left: 20,
+    // paddingHorizontal: 16,
+    height: 48,
+    minWidth: 160,
   },
   payButtonText: {
     color: colors.white,

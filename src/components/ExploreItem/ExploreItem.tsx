@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { AppIcons } from '../../assets/icons';
 import { colors } from '../../assets/theme/colours';
 import CONFIG from '../../globals/config';
@@ -16,6 +11,7 @@ interface ExploreItemProps {
   onPress: (item: any) => void;
   toggleWishlist: (item: any) => void;
   isInWishlist: (id: any) => boolean;
+  style?: any;
 }
 
 const ExploreItem: React.FC<ExploreItemProps> = ({
@@ -23,12 +19,13 @@ const ExploreItem: React.FC<ExploreItemProps> = ({
   onPress,
   toggleWishlist,
   isInWishlist,
+  style,
 }) => {
   const styles = useCommonStyles();
 
   return (
     <TouchableOpacity
-      style={styles.exploreItemCard}
+      style={[styles.exploreItemCard, style]}
       onPress={() => onPress(item)}
     >
       <View style={styles.exploreTopBadgesRow}>
@@ -36,14 +33,19 @@ const ExploreItem: React.FC<ExploreItemProps> = ({
           <Text style={[styles.discountCircleText]}>
             {item.discountPercent
               ? `-${Math.round(item.discountPercent)}%`
-              : item.discountBadge || '0%'}
+              : item.discountBadge ||
+                Math.round(
+                  ((item?.unitPrice - item?.specialPrice) / item?.unitPrice) *
+                    100,
+                ) + '%' ||
+                '0%'}
           </Text>
         </View>
         <TouchableOpacity onPress={() => toggleWishlist(item)}>
           {isInWishlist(item.productId || item.id) ? (
-            <AppIcons.BookmarkFilled color={colors.tealIconFont} size={24} />
+            <AppIcons.BookmarkFilled color={colors.tealIconFont} size={22} />
           ) : (
-            <AppIcons.BookmarkOutline color={colors.tealIconFont} size={24} />
+            <AppIcons.BookmarkOutline color={colors.greyborder} size={22} />
           )}
         </TouchableOpacity>
       </View>
@@ -53,9 +55,13 @@ const ExploreItem: React.FC<ExploreItemProps> = ({
           source={
             item.featuredImage
               ? { uri: CONFIG.image_base_url + item.featuredImage }
+              : item.productImage
+              ? { uri: CONFIG.image_base_url + item.productImage }
+              : item.imageUrl
+              ? { uri: CONFIG.image_base_url + item.imageUrl }
               : item.image
           }
-          style={styles.exploreItemImage}
+          style={[styles.exploreItemImage, style?.image]}
           resizeMode="contain"
         />
         {(item.stockQty <= 0 || item.stockAvailability === 'Out Of Stock') && (
@@ -90,9 +96,14 @@ const ExploreItem: React.FC<ExploreItemProps> = ({
         )}
       </View>
 
-      <View style={{ padding: 10, flex: 1, justifyContent: 'space-between' }}>
-        <Text style={[styles.caption]} numberOfLines={3}>
-          {item.prName || item.title}
+      <View
+        style={[
+          { padding: 10, flex: 1, justifyContent: 'space-between' },
+          style?.contentContainer,
+        ]}
+      >
+        <Text style={[styles.caption, style?.caption]} numberOfLines={2}>
+          {item.prName || item.productName || item.title || item.name}
         </Text>
         <View>
           <View
@@ -104,13 +115,13 @@ const ExploreItem: React.FC<ExploreItemProps> = ({
               gap: 2,
             }}
           >
-            <View style={styles.pricePill}>
-              <Text style={styles.pricePillText}>
-                ₹{item.specialPrice || item.currentPrice}
+            <View style={[styles.pricePill, style?.pricePill]}>
+              <Text style={[styles.pricePillText, style?.pricePillText]}>
+                ₹{item.specialPrice || item.price || item.currentPrice || 0}
               </Text>
             </View>
-            <Text style={styles.originalPriceText}>
-              MRP₹{item.unitPrice || item.originalPrice}
+            <Text style={[styles.originalPriceText, style?.originalPriceText]}>
+              MRP₹{item.unitPrice || item.mrp || item.originalPrice || 0}
             </Text>
           </View>
         </View>

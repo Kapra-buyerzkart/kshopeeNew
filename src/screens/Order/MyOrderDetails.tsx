@@ -430,6 +430,14 @@ const MyOrderDetails = () => {
               <Text style={styles.productNameDetail}>
                 {selectedItem?.productName}
               </Text>
+              <View style={styles.productInfoRow}>
+                <Text style={styles.productQtyText}>
+                  Qty: {selectedItem?.quantity || 1}
+                </Text>
+                <Text style={styles.productPriceText}>
+                  ₹{(selectedItem?.lineTotal || (selectedItem?.quantity || 1) * (selectedItem?.unitPrice || selectedItem?.price || 0)).toFixed(2)}
+                </Text>
+              </View>
             </View>
           </View>
           {/* <TouchableOpacity style={styles.buyAgainBtn} onPress={() => setConfirmModal({ visible: true, type: 'reorder' })}>
@@ -680,9 +688,9 @@ const MyOrderDetails = () => {
             style={{ marginHorizontal: 16, marginBottom: 16 }}
           >
             <LinearGradient
-              colors={['#00eeffff', '#00aeffff']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
+              colors={['#FF5200', '#FF7A3D', '#FF9B5E']}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 0.5, y: 1 }}
               style={{
                 borderRadius: 30,
                 flexDirection: 'row',

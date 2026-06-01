@@ -24,6 +24,7 @@ interface CouponModalProps {
   availableCoupons: any[];
   availableGiftCards: any[];
   onCouponClick: (coupon: any) => void;
+  profile?: 'user' | 'cart';
 }
 
 const CouponModal: React.FC<CouponModalProps> = ({
@@ -33,6 +34,7 @@ const CouponModal: React.FC<CouponModalProps> = ({
   availableCoupons,
   availableGiftCards,
   onCouponClick,
+  profile = 'cart',
 }) => {
   const [manualCode, setManualCode] = useState('');
   const offers = isGiftCard ? availableGiftCards : availableCoupons;
@@ -51,7 +53,9 @@ const CouponModal: React.FC<CouponModalProps> = ({
       <View style={styles.offerInfo}>
         <View style={styles.codeRow}>
           <Text style={styles.offerCode}>{item.couponCode || item.code}</Text>
-          <Text style={styles.applyLabel}>APPLY</Text>
+          <Text style={styles.applyLabel}>
+            {profile == 'user' ? 'COPY' : 'APPLY'}
+          </Text>
         </View>
         <Text style={styles.offerTitle}>{item.title || item.couponName}</Text>
         <Text style={styles.offerDescription} numberOfLines={2}>
@@ -106,7 +110,7 @@ const CouponModal: React.FC<CouponModalProps> = ({
                   !manualCode && styles.applyActionDisabled,
                 ]}
               >
-                APPLY
+                {profile === 'user' ? 'COPY' : 'APPLY'}
               </Text>
             </TouchableOpacity>
           </View>

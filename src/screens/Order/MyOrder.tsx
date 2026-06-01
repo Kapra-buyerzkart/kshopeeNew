@@ -90,9 +90,11 @@ const MyOrder = () => {
     }
   };
 
-  useEffect(() => {
-    fetchMyOrderFunction();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchMyOrderFunction();
+    }, []),
+  );
 
   const fetchMyOrderFunction = async () => {
     try {

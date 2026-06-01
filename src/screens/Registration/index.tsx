@@ -239,6 +239,7 @@ const RegistrationScreen: React.FC = () => {
                     setErrors(prev => ({ ...prev, name: '' }));
                   }}
                   error={errors.name}
+                  isRequired={true}
                 />
               </View>
 
@@ -253,6 +254,7 @@ const RegistrationScreen: React.FC = () => {
                   }}
                   keyboardType="email-address"
                   error={errors.email}
+                  isRequired={false}
                 />
               </View>
 
@@ -281,6 +283,7 @@ const RegistrationScreen: React.FC = () => {
                     setIsPasswordVisible(!isPasswordVisible)
                   }
                   error={errors.password}
+                  isRequired={true}
                 />
               </View>
 
@@ -296,6 +299,7 @@ const RegistrationScreen: React.FC = () => {
                   keyboardType="number-pad"
                   maxLength={6}
                   error={errors.pincode}
+                  isRequired={true}
                 />
               </View>
 

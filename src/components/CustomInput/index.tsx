@@ -9,6 +9,7 @@ interface CustomInputProps extends TextInputProps {
     onPressRightIcon?: () => void;
     containerStyle?: StyleProp<ViewStyle>;
     error?: string;
+    isRequired?: boolean;
 }
 
 const CustomInput: React.FC<CustomInputProps> = ({
@@ -17,13 +18,23 @@ const CustomInput: React.FC<CustomInputProps> = ({
     onPressRightIcon,
     containerStyle,
     error,
+    isRequired,
     ...rest
 }) => {
     const [isFocused, setIsFocused] = useState(false);
 
     return (
         <View style={[styles.container, containerStyle]}>
-            {label && <Text style={styles.label}>{label}</Text>}
+            {label && (
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                    <Text style={[styles.label, { marginBottom: 0 }]}>{label}</Text>
+                    {isRequired ? (
+                        <Text style={{ color: 'red', marginLeft: 2, fontSize: 14 }}>*</Text>
+                    ) : (
+                        <Text style={{ color: colors.grey, marginLeft: 4, fontSize: 12 }}>(Optional)</Text>
+                    )}
+                </View>
+            )}
             <View style={[styles.inputWrapper, isFocused && styles.focusedWrapper]}>
                 <TextInput
                     style={styles.input}

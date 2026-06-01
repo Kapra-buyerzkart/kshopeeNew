@@ -4,6 +4,7 @@ import { getAddressListApi, deleteAddressApi } from '../api/services/addressServ
 import { Alert } from 'react-native';
 import Toast from 'react-native-simple-toast';
 import CONFIG from '../globals/config';
+import { useUser } from './UserContext';
 
 export interface CartItem {
     cartItemId: number;
@@ -43,6 +44,7 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+    const { user, profile } = useUser();
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [cartSummary, setCartSummary] = useState<any | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -221,8 +223,14 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, [fetchAddresses]);
 
     useEffect(() => {
-        loadCart();
-    }, [loadCart]);
+        if (user?.loggedIn || profile) {
+            loadCart();
+        } else {
+            // Clear cart if user is not logged in
+            setCartItems([]);
+            setCartSummary(null);
+        }
+    }, [user?.loggedIn, profile, loadCart]);
 
     const cartCount = useMemo(() => cartItems.reduce((acc, item) => acc + item.quantity, 0), [cartItems]);
     const cartTotal = useMemo(() => cartSummary?.grandTotal || 0, [cartSummary]);

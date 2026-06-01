@@ -15,9 +15,9 @@ export const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   headerContent: {
-    flex: 1,
+    width: '100%',
     // paddingHorizontal: wp('5%'),
-    paddingTop: Platform.OS === 'ios' ? hp('1%') : hp('5%'),
+    paddingTop: Platform.OS === 'ios' ? hp('5%') : hp('5%'),
   },
   backButton: {
     marginStart: wp('2%'),
@@ -214,7 +214,6 @@ export const styles = StyleSheet.create({
   backgroundImage: {
     width: '100%',
     backgroundColor: 'yellow',
-    flex: 1,
     alignItems: 'center',
     borderBottomLeftRadius: wp('9.3%'),
     borderBottomRightRadius: wp('9.3%'),

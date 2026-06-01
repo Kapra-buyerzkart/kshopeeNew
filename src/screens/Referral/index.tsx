@@ -144,54 +144,32 @@ const ReferralScreen: React.FC = () => {
       </View>
       <View style={styles.innerContainer}>
         <View style={{ flex: 1 }}>
-          <View style={styles.unifiedCard}>
+          <View style={styles.solidPremiumCard}>
             <View style={styles.solidHeaderRow}>
               <Image
                 style={styles.solidSpeakerIcon}
-                source={require('../../assets/images/referbell.png')}
+                source={require('../../assets/images/loud-speaker.png')}
               />
+              <View style={styles.solidTitleCol}>
+                <Text style={styles.solidReferTitle}>Refer & Earn</Text>
+                <Text style={styles.solidSubTitle}>Get rewarded for every friend who shops using your invite.</Text>
+              </View>
             </View>
 
-            <TouchableOpacity style={styles.solidInviteBtn} onPress={onShare}>
-              <LinearGradient
-                colors={['#F25000', '#FF8A50']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.gradientOverlay}
-              >
-                <MaterialCommunityIcons
-                  name="share-variant"
-                  size={wp('5%')}
-                  color="#FFFFFF"
-                />
-                <Text style={styles.solidBtnText}>Invite Friends</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          </View>
-          <View style={[styles.solidRewardBox, { marginTop: hp('1.5%') }]}>
-            <View style={styles.referralCodeRow}>
-              <View
-                style={[
-                  styles.codeContainer,
-                  {
-                    width: '100%',
-                    alignItems: 'center',
-                    backgroundColor: colors.figmaTeal,
-                    paddingVertical: hp('1%'),
-                  },
-                ]}
-              >
-                <Text style={styles.solidRewardLabel}>
-                  Referral Reward you Earned
-                </Text>
-                <Text style={styles.referralCodeText}>
-                  {referrals.reduce(
-                    (sum, item) => sum + Number(item.totalTokensEarned || 0),
-                    0,
-                  )}
+            <View style={styles.solidRewardBox}>
+              <Text style={styles.solidRewardLabel}>Total Rewards Earned</Text>
+              <View style={styles.solidRewardAmountRow}>
+                <Image source={require('../../assets/images/profile/homebcoin.png')} style={styles.solidCoinIcon} />
+                <Text style={styles.solidRewardValue}>
+                  {profile?.referralEarning || referrals.reduce((sum, item) => sum + Number(item.totalTokensEarned || 0), 0) || '0.00'}
                 </Text>
               </View>
             </View>
+
+            <TouchableOpacity style={styles.solidInviteBtn} onPress={onShare}>
+              <MaterialCommunityIcons name="share-variant" size={wp('5%')} color="#FFFFFF" />
+              <Text style={styles.solidBtnText}>Send Invite</Text>
+            </TouchableOpacity>
           </View>
           <Text
             style={[

@@ -912,6 +912,7 @@ const CartScreen = () => {
         slotsByDate={slotsByDate}
       />
       <CouponModal
+        profile="cart"
         visible={showCouponModal}
         onClose={() => setShowCouponModal(false)}
         isGiftCard={isGiftCard}

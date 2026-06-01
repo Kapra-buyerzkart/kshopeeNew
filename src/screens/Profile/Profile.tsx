@@ -104,6 +104,7 @@ const ProfileScreen: React.FC = () => {
     if (code) {
       Clipboard.setString(code);
       Toast.show(`Code "${code}" copied to clipboard!`, Toast.SHORT);
+      setActiveOfferModal(null);
     }
   };
 
@@ -169,116 +170,124 @@ const ProfileScreen: React.FC = () => {
   );
 
   return (
-    <SafeAreaView style={styles.mainContainer}>
+    <View style={styles.mainContainer}>
       <StatusBar
         barStyle="light-content"
         translucent
         backgroundColor="transparent"
       />
-      <ScrollView ref={scrollViewRef} showsVerticalScrollIndicator={false}>
-        {/* Header Section */}
-        <ImageBackground
-          style={[
-            styles.backgroundImage,
-            { paddingTop: hp('2%'), paddingBottom: hp('2%') },
-          ]}
-          imageStyle={{
-            borderBottomLeftRadius: wp('10%'),
-            borderBottomRightRadius: wp('10%'),
-          }}
-          source={require('../../assets/images/profile.png')}
-        >
-          <View style={styles.headerContent}>
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => navigation.goBack()}
-            >
-              <Ionicons name="arrow-back" size={28} color={colors.black} />
-            </TouchableOpacity>
 
-            <View style={styles.userInfoContainer}>
-              <View style={styles.userProfileSection}>
-                <View style={styles.avatarContainer}>
-                  <MaterialIcons
-                    name="person"
-                    size={40}
-                    color={colors.themeTeal}
-                  />
-                </View>
-                <View style={styles.userDetails}>
-                  <Text style={styles.welcomeText}>Hey</Text>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Text style={styles.userName} numberOfLines={1}>
-                      {profile?.custName || 'User'}
-                    </Text>
-                    {/* <TouchableOpacity 
+      {/* Header Section */}
+      <ImageBackground
+        style={[
+          styles.backgroundImage,
+          { paddingTop: hp('2%'), paddingBottom: hp('2%') },
+        ]}
+        imageStyle={{
+          borderBottomLeftRadius: wp('10%'),
+          borderBottomRightRadius: wp('10%'),
+        }}
+        source={require('../../assets/images/profile.png')}
+      >
+        <View style={styles.headerContent}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Ionicons name="arrow-back" size={28} color={colors.black} />
+          </TouchableOpacity>
+
+          <View style={styles.userInfoContainer}>
+            <View style={styles.userProfileSection}>
+              <View style={styles.avatarContainer}>
+                <MaterialIcons
+                  name="person"
+                  size={40}
+                  color={colors.themeTeal}
+                />
+              </View>
+              <View style={styles.userDetails}>
+                <Text style={styles.welcomeText}>Hey</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Text style={styles.userName} numberOfLines={1}>
+                    {profile?.custName || 'User'}
+                  </Text>
+                  {/* <TouchableOpacity 
                           hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
                           onPress={() => navigation.navigate('EditProfile')} 
                           style={{ marginLeft: wp('2%'), zIndex: 99, elevation: 99 }}
                       >
                           <MaterialIcons name="edit" size={wp('4%')} color={colors.themeLightTeal || "#F25000"} />
                       </TouchableOpacity> */}
-                  </View>
-                  <Text style={styles.userPhone}>{profile?.phoneNo || ''}</Text>
                 </View>
+                <Text style={styles.userPhone}>{profile?.phoneNo || ''}</Text>
               </View>
+            </View>
 
-              <View style={styles.headerRightActions}>
-                <TouchableOpacity onPress={() => navigation.navigate('BCoin')}>
-                  <ImageBackground
-                    source={require('../../assets/images/bcoinprofile.png')}
-                    style={{
-                      width: 75,
-                      height: 22,
-                      top: -5,
-                      left: 10,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}
-                    resizeMode="contain"
-                  >
-                    <Text
-                      style={[
-                        styles.coinText,
-                        {
-                          color: '#FFBA33',
-                          fontWeight: 'bold',
-                          fontSize: wp('2.9%'),
-                          textAlign: 'center',
-                          marginLeft: hp('1.3%'),
-                          marginTop: hp('0.1%'), // offset slightly to sit perfectly on the gold pill asset
-                        },
-                      ]}
-                    >
-                      {profile?.totalBCoins || '0.00'}
-                    </Text>
-                  </ImageBackground>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.notificationBell}
-                  onPress={() =>
-                    showAlert('Notifications', 'You have no new notifications.')
-                  }
+            <View style={styles.headerRightActions}>
+              <TouchableOpacity onPress={() => navigation.navigate('BCoin')}>
+                <ImageBackground
+                  source={require('../../assets/images/bcoinprofile.png')}
+                  style={{
+                    width: 75,
+                    height: 22,
+                    top: -5,
+                    left: 10,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                  resizeMode="contain"
                 >
-                  <Ionicons
-                    name="notifications"
-                    size={24}
-                    color={colors.black}
-                    style={{ top: -5 }}
-                  />
-                </TouchableOpacity>
-                {/* <TouchableOpacity onPress={() => navigation.navigate('EditProfile')} style={{ marginLeft: wp('2%') }}>
+                  <Text
+                    style={[
+                      styles.coinText,
+                      {
+                        color: '#FFBA33',
+                        fontWeight: 'bold',
+                        fontSize: wp('2.9%'),
+                        textAlign: 'center',
+                        marginLeft: hp('1.3%'),
+                        marginTop: hp('0.1%'), // offset slightly to sit perfectly on the gold pill asset
+                      },
+                    ]}
+                  >
+                    {profile?.totalBCoins || '0.00'}
+                  </Text>
+                </ImageBackground>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.notificationBell}
+                onPress={() =>
+                  showAlert('Notifications', 'You have no new notifications.')
+                }
+              >
+                <Ionicons
+                  name="notifications"
+                  size={24}
+                  color={colors.black}
+                  style={{ top: -5 }}
+                />
+              </TouchableOpacity>
+              {/* <TouchableOpacity onPress={() => navigation.navigate('EditProfile')} style={{ marginLeft: wp('2%') }}>
                                     <Image
                                         source={require('../../assets/images/edit_icon.png')}
                                         style={{ width: 18, height: 18, top: -15 }}
                                         tintColor={colors.black}
                                     />
                                 </TouchableOpacity> */}
-              </View>
             </View>
           </View>
-        </ImageBackground>
-
+        </View>
+      </ImageBackground>
+      <ScrollView
+        ref={scrollViewRef}
+        showsVerticalScrollIndicator={false}
+        style={{ flex: 1 }}
+        contentContainerStyle={{
+          paddingTop: hp('2%'),
+          paddingBottom: hp('10%'),
+        }}
+      >
         {/* Quick Action Cards */}
         <View style={styles.quickActionsContainer}>
           <TouchableOpacity
@@ -523,6 +532,7 @@ const ProfileScreen: React.FC = () => {
       />
 
       <CouponModal
+        profile="user"
         visible={activeOfferModal !== null}
         onClose={() => setActiveOfferModal(null)}
         isGiftCard={activeOfferModal === 'smart'}
@@ -530,8 +540,8 @@ const ProfileScreen: React.FC = () => {
         availableGiftCards={availableGiftCards}
         onCouponClick={handleCouponClickOnProfile}
       />
-      <FloatingCartButton bottom={90} />
-    </SafeAreaView>
+      <FloatingCartButton bottom={20} />
+    </View>
   );
 };
 

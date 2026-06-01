@@ -1308,6 +1308,13 @@ const HomeScreen: React.FC = () => {
         b.PlacementKey === 'app_home_bottom',
     ) || [];
 
+  const midBannerBottom =
+    homeData?.banners?.filter(
+      (b: any) =>
+        b.placementKey === 'app_home_mid_banner_bottom' ||
+        b.PlacementKey === 'app_home_mid_banner_bottom',
+    ) || [];
+
   const topBrands =
     homeData?.brands && homeData.brands.length > 0
       ? homeData.brands
@@ -1329,6 +1336,17 @@ const HomeScreen: React.FC = () => {
       (b: any) =>
         b.placementKey === 'app_home_bottom_showcase_product_image' ||
         b.PlacementKey === 'app_home_bottom_showcase_product_image',
+    ) || [];
+  const gShockMainBanner2 = homeData?.banners?.find(
+    (b: any) =>
+      b.placementKey === 'app_home_bottom_showcase_banner_image2' ||
+      b.PlacementKey === 'app_home_bottom_showcase_banner_image2',
+  );
+  const bottomShowcaseItems2 =
+    homeData?.banners?.filter(
+      (b: any) =>
+        b.placementKey === 'app_home_bottom_showcase_product_image2' ||
+        b.PlacementKey === 'app_home_bottom_showcase_product_image2',
     ) || [];
 
   const bestSelling = homeData?.showcaseSlider || [];
@@ -1547,18 +1565,17 @@ const HomeScreen: React.FC = () => {
         style={styles.categoryItem}
         onPress={() => handleCategoryPress(item)}
       >
-        <LinearGradient
-          colors={['#FFF7CA', '#FFF3DA']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 0, y: 1 }}
+        <ImageBackground
+          source={require('../../assets/images/profile/backimg.png')}
           style={styles.categoryCircle}
+          resizeMode="contain"
         >
           <Image
             source={imgSrc}
             style={styles.categoryImage}
             resizeMode="contain"
           />
-        </LinearGradient>
+        </ImageBackground>
         <Text style={styles.categoryLabel} numberOfLines={2}>
           {item.catName || item.name}
         </Text>
@@ -1609,7 +1626,7 @@ const HomeScreen: React.FC = () => {
             resizeMode="cover"
           />
         </View>
-        <View style={{ height: 10, backgroundColor: '#FFE9AE' }}></View>
+        <View style={{ height: 10, backgroundColor: '#FF52000' }}></View>
         <Text
           style={[
             styles.accessorizeLabel,
@@ -1687,7 +1704,7 @@ const HomeScreen: React.FC = () => {
       <Image
         source={getImageSource(item.imageUrl || item.ImageUrl || item.image)}
         style={styles.goatDealBg}
-        resizeMode="cover"
+        resizeMode="contain"
       />
     </TouchableOpacity>
   );
@@ -1766,9 +1783,15 @@ const HomeScreen: React.FC = () => {
                 {/* <View style={styles.profileIconView}>
                     <LinearGradient
                       colors={['#F25000', '#FF8C00']}
-                      style={styles.profileGradient}
+                      style={styles.profileGr
+                      adient}
                     > */}
-                <CircleUserRound size={25} color="#222222" strokeWidth={1} />
+                <Image
+                  source={require('../../assets/images/profile/profilei.png')}
+                  style={{ height: hp('6%'), width: wp('6%') }}
+                  resizeMode="contain"
+                />
+                {/* <CircleUserRound size={25} color="#222222" strokeWidth={1} /> */}
                 {/* </LinearGradient>
                   </View> */}
                 {/* {profile?.isPrivileged && (
@@ -1788,68 +1811,11 @@ const HomeScreen: React.FC = () => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#00BCD4"
+            tintColor="#FF52000"
           />
         }
         contentContainerStyle={{ paddingBottom: 0 }}
       >
-        <View style={styles.headerSectionContainer}>
-          <View style={styles.topBar}>
-            {/* <TouchableOpacity
-              style={styles.profileArea}
-              onPress={() => navigation.navigate('KebraScreen')}
-            >
-              <CircleUserRound size={24} color="#000" strokeWidth={1.5} />
-              <Text style={styles.userName}>
-                {profile?.custName
-                  ? profile.custName.length > 15
-                    ? `${profile.custName.substring(0, 15)}...`
-                    : profile.custName
-                  : 'Guest User'}
-              </Text> */}
-            {/* </TouchableOpacity> */}
-            {/* <HomeSearchBar placeholder="Search Products" /> */}
-
-            {/* <View style={styles.topIconsRow}>
-              <TouchableOpacity
-                style={styles.iconButton}
-                onPress={() => navigation.navigate('Cart')}
-              >
-                <Image
-                  source={require('../../assets/images/home/carthome.png')}
-                  style={{ width: 20, height: 20 }}
-                  resizeMode="contain"
-                />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.iconButton}>
-                <Image
-                  source={require('../../assets/images/logos/notify.png')}
-                  style={{ width: 20, height: 20 }}
-                  resizeMode="contain"
-                />
-              </TouchableOpacity>
-            </View> */}
-          </View>
-
-          {/* <View style={{ paddingHorizontal: 16, marginBottom: 10 }}>
-            <HomeSearchBar placeholder="Search Products" />
-          </View> */}
-
-          {/* OUR CATEGORIES MOVED UP */}
-          {displayCategories.length > 0 && (
-            <View style={{ paddingBottom: 10 }}>
-              <FlatList
-                data={displayCategories}
-                renderItem={renderCategoryItem}
-                keyExtractor={(item, i) => (item.catId || i).toString()}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.categoriesGrid}
-              />
-            </View>
-          )}
-        </View>
-
         {/* FEATURED BANNER SECTION */}
         {firstProductBlockBanners.length > 0 && (
           <View style={styles.featuredBannerContainer}>
@@ -1865,7 +1831,7 @@ const HomeScreen: React.FC = () => {
                       item.imageUrl || item.ImageUrl || item.image,
                     )}
                     style={styles.featuredBannerImage}
-                    resizeMode="cover"
+                    resizeMode="contain"
                   />
                 </TouchableOpacity>
               )}
@@ -1889,7 +1855,7 @@ const HomeScreen: React.FC = () => {
             />
 
             {/* Dynamic dots based on firstProductBlockBanners */}
-            {firstProductBlockBanners.length > 1 && (
+            {/* {firstProductBlockBanners.length > 1 && (
               <View style={styles.mockDotsContainer}>
                 {firstProductBlockBanners.map((_: any, index: number) => (
                   <View
@@ -1901,16 +1867,104 @@ const HomeScreen: React.FC = () => {
                   />
                 ))}
               </View>
-            )}
+            )} */}
+          </View>
+        )}
+        {displayCategories.length > 0 && (
+          <View style={{ paddingBottom: 10, marginTop: hp('2%') }}>
+            {/* <Text style={styles.sectionTitle}> CATEGORIES</Text> */}
+            <FlatList
+              data={displayCategories.reduce(
+                (rows: any[][], item: any, index: number) => {
+                  if (index % 2 === 0) rows.push([item]);
+                  else rows[rows.length - 1].push(item);
+                  return rows;
+                },
+                [],
+              )}
+              keyExtractor={(_, i) => `cat_col_${i}`}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.categoriesGrid}
+              renderItem={({ item: pair }) => (
+                <View style={{ flexDirection: 'column' }}>
+                  {pair.map((catItem: any, idx: number) =>
+                    renderCategoryItem({ item: catItem, index: idx }),
+                  )}
+                </View>
+              )}
+            />
           </View>
         )}
 
+        {/* G-SHOCK SHOWCASE */}
+        {activeGShockItems?.length > 0 && gShockMainBanner && (
+          <View style={{ ...styles.section, marginTop: hp('0%') }}>
+            <ImageBackground
+              source={{
+                uri: CONFIG.image_base_url + gShockMainBanner.imageUrl,
+              }}
+              style={styles.gShockTopBanner}
+              resizeMode="stretch"
+            >
+              <View
+                style={{
+                  paddingHorizontal: 16,
+                  position: 'absolute',
+                  bottom: 20,
+                  left: 0,
+                  right: 0,
+                }}
+              >
+                <FlatList
+                  data={activeGShockItems}
+                  renderItem={renderGShockCard}
+                  keyExtractor={(item, index) =>
+                    item.bannerId?.toString() ||
+                    item.id?.toString() ||
+                    index.toString()
+                  }
+                  numColumns={2}
+                  columnWrapperStyle={{
+                    justifyContent: 'space-between',
+                  }}
+                  scrollEnabled={false}
+                />
+              </View>
+            </ImageBackground>
+          </View>
+        )}
+
+        {/* TOP BRANDS */}
+        {topBrands && topBrands.length > 0 && (
+          <View
+            style={[
+              styles.section,
+              { backgroundColor: '#FFE8E8', marginTop: hp('2%') },
+            ]}
+          >
+            <Text style={[styles.sectionTitle, { marginTop: hp('2%') }]}>
+              {getSectionTitle('top_brands', 'TOP BRANDS')}
+            </Text>
+            <FlatList
+              data={topBrands}
+              renderItem={renderBrandItem}
+              keyExtractor={(_, i) => `brand_${i}`}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{
+                paddingHorizontal: wp('3%'),
+                paddingBottom: 20, // Added so the drop shadow is not clipped
+              }}
+            />
+          </View>
+        )}
         {/* ACCESSORIZE */}
         {accessorizeCategories.length > 0 && (
           <View
             style={[
               styles.section,
-              { backgroundColor: '#FFF', marginTop: hp('0.5%') },
+              { backgroundColor: '#FFF', marginTop: hp('2%') },
             ]}
           >
             <Text
@@ -1924,7 +1978,7 @@ const HomeScreen: React.FC = () => {
             <View
               style={{
                 //backgroundColor: '#FFE9AE',
-                paddingTop: hp('0.5%'),
+                //  paddingTop: hp('0.5%'),
                 marginHorizontal: -wp('0%'),
               }}
             >
@@ -1950,7 +2004,7 @@ const HomeScreen: React.FC = () => {
               return (
                 <LinearGradient
                   // colors={['#00A7B3', '#FFFFFF']}
-                  colors={['#FFE9AE', '#FFF7CA', '#FFFFEF']}
+                  colors={['#ff5200', '#fa9a6dff', '#FFFFfF']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 0, y: 1 }}
                   style={styles.dummyAccessorizeContainer}
@@ -1997,169 +2051,19 @@ const HomeScreen: React.FC = () => {
             })()}
           </View>
         )}
-
-        {/* TOP BRANDS */}
-        {topBrands && topBrands.length > 0 && (
-          <View style={[styles.section, { marginTop: hp('1%') }]}>
-            <Text style={styles.sectionTitle}>
-              {getSectionTitle('top_brands', 'TOP BRANDS')}
-            </Text>
-            <FlatList
-              data={topBrands}
-              renderItem={renderBrandItem}
-              keyExtractor={(_, i) => `brand_${i}`}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: wp('3%') }}
-            />
-          </View>
-        )}
-
-        {/* G-SHOCK SHOWCASE */}
-        {activeGShockItems?.length > 0 && gShockMainBanner && (
-          <View style={styles.section}>
-            <ImageBackground
-              source={{
-                uri: CONFIG.image_base_url + gShockMainBanner.imageUrl,
-              }}
-              style={styles.gShockTopBanner}
-              resizeMode="cover"
-            >
-              <View
-                style={{
-                  paddingHorizontal: 16,
-                  position: 'absolute',
-                  bottom: 20,
-                  left: 0,
-                  right: 0,
-                }}
-              >
-                <FlatList
-                  data={activeGShockItems}
-                  renderItem={renderGShockCard}
-                  keyExtractor={(item, index) =>
-                    item.bannerId?.toString() ||
-                    item.id?.toString() ||
-                    index.toString()
-                  }
-                  numColumns={2}
-                  columnWrapperStyle={{
-                    justifyContent: 'space-between',
-                  }}
-                  scrollEnabled={false}
-                />
-              </View>
-            </ImageBackground>
-          </View>
-        )}
-
-        {/* BEST SELLING */}
-        {bestSelling && bestSelling.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>
-              {getSectionTitle('image_slides', 'BEST SELLING')}
-            </Text>
-            <View style={styles.bestSellingCard}>
-              {/* Left peeking image */}
-              {bestSellingIndex > 0 && (
-                <Image
-                  source={getImageSource(
-                    bestSelling[bestSellingIndex - 1].imageUrl ||
-                      bestSelling[bestSellingIndex - 1].image,
-                  )}
-                  style={[styles.sideImage, styles.sideImageLeft]}
-                  resizeMode="contain"
-                />
-              )}
-              {/* Right peeking image */}
-              {bestSellingIndex < bestSelling.length - 1 && (
-                <Image
-                  source={getImageSource(
-                    bestSelling[bestSellingIndex + 1].imageUrl ||
-                      bestSelling[bestSellingIndex + 1].image,
-                  )}
-                  style={[styles.sideImage, styles.sideImageRight]}
-                  resizeMode="contain"
-                />
-              )}
-
-              {/* Main active image */}
-              <TouchableOpacity
-                style={styles.centerImageContainer}
-                activeOpacity={0.8}
-                onPress={() => {
-                  const item = bestSelling[bestSellingIndex];
-                  navigation.navigate('ProductDetailsScreen', {
-                    productId: item.productId || item.id,
-                    product: item,
-                  });
-                }}
-              >
-                <Image
-                  source={getImageSource(
-                    bestSelling[bestSellingIndex].imageUrl ||
-                      bestSelling[bestSellingIndex].image,
-                  )}
-                  style={styles.centerImage}
-                  resizeMode="contain"
-                />
-              </TouchableOpacity>
-
-              {/* Navigation Arrows — centered vertically on card */}
-              <View style={styles.arrowRow}>
-                {bestSellingIndex > 0 ? (
-                  <TouchableOpacity
-                    style={styles.arrowButton}
-                    onPress={() => setBestSellingIndex(prev => prev - 1)}
-                  >
-                    <Ionicons name="chevron-back" size={22} color="#FFF" />
-                  </TouchableOpacity>
-                ) : (
-                  <View style={{ width: wp('10%') }} />
-                )}
-                <View style={{ flex: 1 }} />
-                {bestSellingIndex < bestSelling.length - 1 ? (
-                  <TouchableOpacity
-                    style={styles.arrowButton}
-                    onPress={() => setBestSellingIndex(prev => prev + 1)}
-                  >
-                    <Ionicons name="chevron-forward" size={22} color="#FFF" />
-                  </TouchableOpacity>
-                ) : (
-                  <View style={{ width: wp('10%') }} />
-                )}
-              </View>
-
-              {/* Bottom Info Row: name left, MRP + price right */}
-              <View style={styles.bestSellingTextOverlay}>
-                <Text style={styles.bestSellingTitleText} numberOfLines={2}>
-                  {bestSelling[bestSellingIndex].brand ||
-                    bestSelling[bestSellingIndex].prName ||
-                    'Product'}
-                </Text>
-                <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={styles.bestSellingMrpText}>
-                    MRP ₹
-                    {bestSelling[bestSellingIndex].unitPrice ||
-                      bestSelling[bestSellingIndex].originalPrice ||
-                      '0'}
-                  </Text>
-                  <Text style={styles.bestSellingPriceText}>
-                    ₹
-                    {bestSelling[bestSellingIndex].specialPrice ||
-                      bestSelling[bestSellingIndex].price ||
-                      '0'}
-                  </Text>
-                </View>
-              </View>
-            </View>
-          </View>
-        )}
-
         {/* FIRST PRODUCT BLOCK */}
         {activeFirstProducts.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>
+          <View style={[styles.section, { marginTop: '1%' }]}>
+            <Text
+              style={[
+                styles.sectionTitle,
+                {
+                  textTransform: 'uppercase',
+                  marginTop: '1%',
+                  // marginBottom: '3%',
+                },
+              ]}
+            >
               {parsedFirstBlock?.title ||
                 parsedFirstBlock?.Title ||
                 'Top Deals'}
@@ -2239,12 +2143,39 @@ const HomeScreen: React.FC = () => {
             </View>
           </View>
         )}
+
         {/* GOAT DEALS */}
-        {activeGoatDeals && activeGoatDeals.length > 0 && (
+        {/* {activeGoatDeals && activeGoatDeals.length > 0 && (
           <View style={[styles.section, { marginHorizontal: 16 }]}>
             <Text style={styles.sectionTitle}>
               {getSectionTitle('4_image_in_2_rows', 'GOAT DEALS')}
             </Text>
+            <FlatList
+              data={activeGoatDeals}
+              renderItem={renderGoatDeal}
+              keyExtractor={(item, index) =>
+                item.bannerId?.toString() ||
+                item.id?.toString() ||
+                index.toString()
+              }
+              horizontal
+              // numColumns={3}
+              //  columnWrapperStyle={{ justifyContent: 'space-between' }}
+              scrollEnabled={true}
+            />
+          </View>
+        )} */}
+
+        {/* GOAT DEALS */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle]}>GOAT DEALS</Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              marginHorizontal: 10,
+            }}
+          >
             <FlatList
               data={activeGoatDeals}
               renderItem={renderGoatDeal}
@@ -2258,11 +2189,139 @@ const HomeScreen: React.FC = () => {
               scrollEnabled={false}
             />
           </View>
+        </View>
+
+        {/* BEST SELLING */}
+        {bestSelling && bestSelling.length > 0 && (
+          <View style={styles.section}>
+            <Text
+              style={[
+                styles.sectionTitle,
+                {
+                  textTransform: 'uppercase',
+                  marginBottom: hp('1%'),
+                  marginTop: hp('0%'),
+                },
+              ]}
+            >
+              {getSectionTitle('image_slides', 'BEST SELLING')}
+            </Text>
+            <View style={{ position: 'relative' }}>
+              <ImageBackground
+                source={require('../../assets/images/profile/bestsellingbg.png')}
+                style={styles.bestSellingCard}
+                resizeMode="contain"
+                imageStyle={{ alignSelf: 'center', alignContent: 'center' }}
+              >
+                {/* Left peeking image */}
+                {bestSellingIndex > 0 && (
+                  <Image
+                    source={getImageSource(
+                      bestSelling[bestSellingIndex - 1].imageUrl ||
+                        bestSelling[bestSellingIndex - 1].image,
+                    )}
+                    style={[styles.sideImage, styles.sideImageLeft]}
+                    resizeMode="contain"
+                  />
+                )}
+                {/* Right peeking image */}
+                {bestSellingIndex < bestSelling.length - 1 && (
+                  <Image
+                    source={getImageSource(
+                      bestSelling[bestSellingIndex + 1].imageUrl ||
+                        bestSelling[bestSellingIndex + 1].image,
+                    )}
+                    style={[styles.sideImage, styles.sideImageRight]}
+                    resizeMode="contain"
+                  />
+                )}
+
+                {/* Main active image */}
+                <TouchableOpacity
+                  style={styles.centerImageContainer}
+                  activeOpacity={0.8}
+                  onPress={() => {
+                    const item = bestSelling[bestSellingIndex];
+                    navigation.navigate('ProductDetailsScreen', {
+                      productId: item.productId || item.id,
+                      product: item,
+                    });
+                  }}
+                >
+                  <Image
+                    source={getImageSource(
+                      bestSelling[bestSellingIndex].imageUrl ||
+                        bestSelling[bestSellingIndex].image,
+                    )}
+                    style={styles.centerImage}
+                    resizeMode="contain"
+                  />
+                </TouchableOpacity>
+
+                {/* Bottom Info Row: name left, MRP + price right */}
+                <View style={styles.bestSellingTextOverlay}>
+                  <Text style={styles.bestSellingTitleText} numberOfLines={2}>
+                    {bestSelling[bestSellingIndex].brand ||
+                      bestSelling[bestSellingIndex].prName ||
+                      'Product'}
+                  </Text>
+                  <View style={{ alignItems: 'flex-end' }}>
+                    <Text style={styles.bestSellingMrpText}>
+                      MRP ₹
+                      {bestSelling[bestSellingIndex].unitPrice ||
+                        bestSelling[bestSellingIndex].originalPrice ||
+                        '0'}
+                    </Text>
+                    <Text style={styles.bestSellingPriceText}>
+                      ₹
+                      {bestSelling[bestSellingIndex].specialPrice ||
+                        bestSelling[bestSellingIndex].price ||
+                        '0'}
+                    </Text>
+                  </View>
+                </View>
+              </ImageBackground>
+
+              {/* Navigation Arrows — outside ImageBackground to avoid overflow clipping */}
+              <View style={styles.arrowRow}>
+                {bestSellingIndex > 0 ? (
+                  <TouchableOpacity
+                    style={styles.arrowButton}
+                    onPress={() => setBestSellingIndex(prev => prev - 1)}
+                  >
+                    <Image
+                      source={require('../../assets/images/profile/arrowleft.png')}
+                      style={{ width: wp('10%'), height: hp('10%') }}
+                      resizeMode="contain"
+                    />
+                  </TouchableOpacity>
+                ) : (
+                  <View style={{ width: wp('10%') }} />
+                )}
+                <View style={{ flex: 1 }} />
+                {bestSellingIndex < bestSelling.length - 1 ? (
+                  <TouchableOpacity
+                    style={styles.arrowButton}
+                    onPress={() => setBestSellingIndex(prev => prev + 1)}
+                  >
+                    <Image
+                      source={require('../../assets/images/profile/arrowright.png')}
+                      style={{ width: wp('10%'), height: hp('10%') }}
+                      resizeMode="contain"
+                    />
+                  </TouchableOpacity>
+                ) : (
+                  <View style={{ width: wp('10%') }} />
+                )}
+              </View>
+            </View>
+          </View>
         )}
+
         {/* SECOND PRODUCT BLOCK */}
         {activeSecondProducts.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>
+            <Text style={[styles.sectionTitle, { textTransform: 'uppercase' }]}>
               {parsedSecondBlock?.title ||
                 parsedSecondBlock?.Title ||
                 'Featured Products'}
@@ -2327,30 +2386,101 @@ const HomeScreen: React.FC = () => {
           </View>
         )}
 
-        {/* FOOTER LOGO */}
-        <LinearGradient
-          colors={['#FFFFFF', '#F1F1F1']}
-          style={styles.footerBranding}
-        >
-          <Image
-            source={require('../../assets/images/bottomtab/48grey.png')}
-            style={{
-              width: wp('65%'),
-              height: hp('10%'),
-              resizeMode: 'contain',
-              marginLeft: wp('-10%'),
-            }}
-          />
-          {/* <KapraSVG
-                            width={wp('85%')}
-                            height={hp('15%')}
-                            style={{
-                                alignSelf: 'flex-start',
-                                marginLeft: wp('-5%'),
-                            }}
-                        /> */}
-          <View style={{ height: hp('10%') }} />
-        </LinearGradient>
+        {/* G-SHOCK SHOWCASE */}
+        {bottomShowcaseItems2?.length > 0 && gShockMainBanner2 && (
+          <View style={{ ...styles.section, marginTop: hp('2%') }}>
+            <ImageBackground
+              source={{
+                uri: CONFIG.image_base_url + gShockMainBanner2.imageUrl,
+              }}
+              style={styles.gShockTopBanner}
+              resizeMode="stretch"
+            >
+              <View
+                style={{
+                  paddingHorizontal: 16,
+                  position: 'absolute',
+                  bottom: 20,
+                  left: 0,
+                  right: 0,
+                }}
+              >
+                <FlatList
+                  data={bottomShowcaseItems2}
+                  renderItem={renderGShockCard}
+                  keyExtractor={(item, index) =>
+                    item.bannerId?.toString() ||
+                    item.id?.toString() ||
+                    index.toString()
+                  }
+                  numColumns={2}
+                  columnWrapperStyle={{
+                    justifyContent: 'space-between',
+                  }}
+                  scrollEnabled={false}
+                />
+              </View>
+            </ImageBackground>
+          </View>
+        )}
+
+        {/* MID BANNER BOTTOM */}
+        {midBannerBottom && midBannerBottom.length > 0 && (
+          <View
+            style={[
+              styles.section,
+              { marginTop: hp('0%'), marginBottom: hp('0%') },
+            ]}
+          >
+            <FlatList
+              data={midBannerBottom}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  activeOpacity={0.9}
+                  onPress={() => handleBannerPress(item)}
+                  style={{ marginRight: 15 }}
+                >
+                  <Image
+                    source={getImageSource(
+                      item.imageUrl || item.ImageUrl || item.image,
+                    )}
+                    style={{
+                      width: wp('45%'),
+                      height: hp('15%'),
+                      borderRadius: 12,
+                    }}
+                    resizeMode="contain"
+                  />
+                </TouchableOpacity>
+              )}
+              keyExtractor={(item, index) =>
+                item.bannerId?.toString() ||
+                item.id?.toString() ||
+                `midbot_${index}`
+              }
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: wp('4%') }}
+            />
+          </View>
+        )}
+
+        <View
+          style={{
+            backgroundColor: '#F0F0F0',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+          }}
+        />
+        <Image
+          source={require('../../assets/images/profile/kaprabottom.png')}
+          style={{
+            width: wp('100%'),
+            height: hp('48%'),
+          }}
+          resizeMode="contain"
+        />
       </ScrollView>
       <FloatingCartButton bottom={20} />
     </SafeAreaView>
@@ -2364,7 +2494,7 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    paddingTop: hp('1%'),
+    //  paddingTop: hp('1%'),
   },
   topSectionContainer: {
     width: width,
@@ -2377,17 +2507,18 @@ const styles = StyleSheet.create({
   },
   headerSectionContainer: {
     width: width,
-    backgroundColor: '#FFFFFF',
-    // paddingTop: 10,
+    backgroundColor: '#ffffff',
+    top: -20,
   },
   featuredBannerContainer: {
-    width: width,
-    backgroundColor: '#FFFFFF',
-    paddingBottom: 20,
+    //   width: width,
+    //  backgroundColor: '#FFFFFF',
+    // paddingBottom: 20,
+    marginTop: -5,
   },
   featuredBannerImage: {
     width: width,
-    height: hp('37%'),
+    height: hp('21%'),
   },
   mockDotsContainer: {
     flexDirection: 'row',
@@ -2631,7 +2762,9 @@ const styles = StyleSheet.create({
   },
   categoryItem: {
     width: (width - wp('6%')) / 4,
+    height: wp('28%'), // Fixed height ensures the second row always aligns perfectly
     alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   categoryCircle: {
     width: wp('16%'),
@@ -2644,8 +2777,8 @@ const styles = StyleSheet.create({
     borderColor: '#4c2c00',
   },
   categoryImage: {
-    width: wp('11%'),
-    height: wp('11%'),
+    width: wp('13.5%'),
+    height: wp('13.5%'),
   },
   categoryLabel: {
     fontSize: wp('3%'),
@@ -2666,8 +2799,8 @@ const styles = StyleSheet.create({
     borderTopRightRadius: wp('5%'),
   },
   accessorizeCardActive: {
-    backgroundColor: '#FFE9AE',
-    borderColor: '#FFE9AE',
+    backgroundColor: '#FF5200',
+    borderColor: '#FF5200',
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
     paddingHorizontal: hp('1%'),
@@ -2742,20 +2875,18 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   brandCard: {
-    width: wp('26%'),
-    height: hp('10%'),
+    width: 86,
+    height: 86,
     borderRadius: wp('4%'),
-    backgroundColor: '#F4F1EC',
+    backgroundColor: '#FFFFFF', // Using solid white to prevent shadow bleed
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: wp('3%'),
-    borderWidth: 1,
-    borderColor: '#EEE',
-    // elevation: 2,
-    // shadowColor: '#000',
-    // shadowOffset: { width: 0, height: 1 },
-    // shadowOpacity: 0.1,
-    // shadowRadius: 2,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.05,
+    shadowRadius: 20,
+    elevation: 3, // For Android
   },
   brandImage: {
     width: '80%',
@@ -2768,7 +2899,7 @@ const styles = StyleSheet.create({
   },
   gShockTopBanner: {
     width: width,
-    height: hp('50%'),
+    height: hp('40%'), // 1/3 of screen size
     alignSelf: 'center',
     overflow: 'hidden',
     justifyContent: 'flex-end',
@@ -2806,20 +2937,21 @@ const styles = StyleSheet.create({
   },
   bestSellingCard: {
     marginHorizontal: wp('4%'),
-    backgroundColor: '#FFF7CA',
-    borderRadius: wp('8%'),
-    height: hp('30%'),
+    width: width * 0.9,
+    // backgroundColor: 'red',
+    // borderRadius: wp('8%'),
+    height: hp('35%'),
     overflow: 'hidden',
     position: 'relative',
     padding: wp('4%'),
-    borderWidth: 0.4,
-    borderColor: '#4c2c00',
+    //   borderWidth: 0.4,
+    // borderColor: '#4c2c00',
   },
   sideImage: {
     position: 'absolute',
     width: wp('23%'),
     height: hp('18%'),
-    top: hp('3%'),
+    top: hp('8%'),
     opacity: 0.45,
   },
   sideImageLeft: {
@@ -2838,25 +2970,27 @@ const styles = StyleSheet.create({
   centerImage: {
     width: '100%',
     height: '100%',
-    top: -2,
+    bottom: hp('2%'),
     resizeMode: 'contain',
   },
   arrowRow: {
     position: 'absolute',
-    left: wp('4%'),
-    right: wp('4%'),
+    left: wp('1%'),
+    right: wp('1%'),
     top: '45%',
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     zIndex: 10,
   },
   arrowButton: {
     width: wp('10%'),
     height: wp('10%'),
     borderRadius: wp('5%'),
-    backgroundColor: '#F25000',
+    //  backgroundColor: '#F25000',
     justifyContent: 'center',
     alignItems: 'center',
+    alignSelf: 'center',
     elevation: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -2865,7 +2999,7 @@ const styles = StyleSheet.create({
   },
   bestSellingTextOverlay: {
     position: 'absolute',
-    bottom: wp('4%'),
+    bottom: wp('9%'),
     left: wp('5%'),
     right: wp('5%'),
     flexDirection: 'row',
@@ -2874,15 +3008,16 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   bestSellingTitleText: {
-    fontSize: wp('6%'),
-    fontFamily: Fonts.gilroyBold,
+    fontSize: wp('5%'),
+    fontFamily: Fonts.gilroySemiBold,
     color: '#1A1A1A',
     fontWeight: '800',
     maxWidth: '48%',
+    bottom: hp('1%'),
   },
   bestSellingPriceText: {
-    fontSize: wp('6.5%'),
-    fontFamily: Fonts.gilroyBold,
+    fontSize: wp('5.5%'),
+    fontFamily: Fonts.gilroySemiBold,
     color: '#1A1A1A',
     fontWeight: '800',
   },
@@ -2894,20 +3029,31 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   goatDealCard: {
+    // Fits 4 items per row
+    backgroundColor: '#FFFFFF',
+    marginStart: 5,
+    marginBottom: 5,
+    marginRight: wp('2%'),
+
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 4,
+
     width: (width - 32 - 32) / 3,
     // backgroundColor: 'red',
     borderRadius: 26,
-    marginBottom: 10,
+    //marginBottom: 15,
 
     // borderWidth: 0.8,
     // borderColor: colors.themeTeal,
-    height: 170,
+    height: hp('19%'),
     overflow: 'hidden',
-    // elevation: 3,
+    // Shadows
+    // elevation: 2,
     // shadowColor: '#000',
     // shadowOffset: { width: 0, height: 2 },
-    // shadowOpacity: 0.1,
-    // shadowRadius: 4,
+    // shadowOpacity: 0.3,
+    // shadowRadius: 0.5,
   },
   goatDealBg: {
     width: '100%',

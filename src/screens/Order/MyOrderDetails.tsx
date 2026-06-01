@@ -373,7 +373,7 @@ const MyOrderDetails = () => {
         visible: true,
         type: 'error',
         title: 'Payment Failed',
-        message: sdkError?.description || 'Payment was cancelled or failed.',
+        message: 'Payment was cancelled or failed.',
       });
     }
   };
@@ -435,7 +435,12 @@ const MyOrderDetails = () => {
                   Qty: {selectedItem?.quantity || 1}
                 </Text>
                 <Text style={styles.productPriceText}>
-                  ₹{(selectedItem?.lineTotal || (selectedItem?.quantity || 1) * (selectedItem?.unitPrice || selectedItem?.price || 0)).toFixed(2)}
+                  ₹
+                  {(
+                    selectedItem?.lineTotal ||
+                    (selectedItem?.quantity || 1) *
+                      (selectedItem?.unitPrice || selectedItem?.price || 0)
+                  ).toFixed(2)}
                 </Text>
               </View>
             </View>

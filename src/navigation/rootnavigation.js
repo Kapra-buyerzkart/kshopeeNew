@@ -34,6 +34,8 @@ import ChangePwdScreen from '../screens/Login/ChangePwdScreen';
 import LoginPwdScreen from '../screens/Login/LoginPwdScreen';
 import { CartProvider } from '../context/CartContext';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import SplashScreen from '../screens/Splash';
 
 
 import { getAccessToken } from '../api/services/tokenService';
@@ -48,24 +50,37 @@ export default function RootStack() {
 
   React.useEffect(() => {
     const checkAuthStatus = async () => {
+      const startTime = Date.now();
       try {
         const token = await getAccessToken();
+        let targetRoute = 'Login';
         if (token) {
-          await loadProfile();
-          setInitialRoute('MainTabs');
+          const cachedProfile = await AsyncStorage.getItem('profile');
+          if (cachedProfile) {
+            targetRoute = 'MainTabs';
+          } else {
+            await loadProfile();
+            targetRoute = 'MainTabs';
+          }
         } else {
-          setInitialRoute('Login');
+          targetRoute = 'Login';
         }
+        const elapsed = Date.now() - startTime;
+        const remainingDelay = Math.max(0, 800 - elapsed);
+        setTimeout(() => {
+          setInitialRoute(targetRoute);
+        }, remainingDelay);
       } catch (error) {
         console.error('RootStack auth check error:', error);
         setInitialRoute('Login');
       }
     };
     checkAuthStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (initialRoute === null) {
-    return null; // Or a loading spinner
+    return <SplashScreen />;
   }
 
   return (

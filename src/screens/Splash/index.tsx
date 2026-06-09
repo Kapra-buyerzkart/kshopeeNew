@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Image, StyleSheet } from 'react-native';
+import { View, Image } from 'react-native';
 import { getStyles } from './styles';
 import { colors } from '../../assets/theme/colours';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -9,7 +9,7 @@ import {
 } from 'react-native-responsive-screen';
 
 interface SplashScreenProps {
-  onFinish: () => void;
+  onFinish?: () => void;
 }
 
 const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
@@ -17,8 +17,10 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   const styles = getStyles(colour);
 
   useEffect(() => {
-    const timer = setTimeout(onFinish, 3000);
-    return () => clearTimeout(timer);
+    if (onFinish) {
+      const timer = setTimeout(onFinish, 3000);
+      return () => clearTimeout(timer);
+    }
   }, [onFinish]);
 
   useEffect(() => {

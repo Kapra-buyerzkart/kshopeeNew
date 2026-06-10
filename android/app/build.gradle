@@ -21,7 +21,7 @@ compileSdk rootProject.ext.compileSdkVersion
 namespace "com.kshop"  
 
 defaultConfig {  
-    applicationId "com.kshope"  
+    applicationId "com.udmv"  
     minSdkVersion rootProject.ext.minSdkVersion  
     targetSdkVersion rootProject.ext.targetSdkVersion  
     versionCode 6

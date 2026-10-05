@@ -1,0 +1,1056 @@
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  Platform,
+  StatusBar,
+  ScrollView,
+  ActivityIndicator,
+  PermissionsAndroid,
+} from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import MapView from 'react-native-maps';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import Toast from 'react-native-simple-toast';
+import axios from 'axios';
+import Geolocation from '@react-native-community/geolocation';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+
+import {
+  addAddressApi,
+  updateAddressApi,
+  getAreasByPincode,
+} from '../../api/services/addressService';
+import { useAddresses } from '../../hooks/useAddresses';
+import { validatePhoneNumbers } from '../../utils/validation';
+import { logApi } from '../../utils/apiLog';
+import { getAddressLine1 } from '../../../utils/addressFormat';
+import { UI_SPACING, MAX_FONT_SCALE, hitSlopTo, wp } from '../../theme/tokens';
+import useKeyboardVisible from '../../hooks/useKeyboardVisible';
+import styles, { placesStyles, LUXURY_COLORS } from './styles';
+import AreaPickerSheet from './AreaPickerSheet';
+
+const GOOGLE_MAPS_API_KEY = 'AIzaSyDhItv0zoWdQbDh-5jjKLAEjwRDDrFNc1Y';
+const DEFAULT_COORDS = { latitude: 10.0205, longitude: 76.3052 };
+const ADDRESS_TYPES = [
+  { key: 'HOME', label: 'Home', icon: 'home' },
+  { key: 'OFFICE', label: 'Office', icon: 'briefcase' },
+  { key: 'OTHER', label: 'Other', icon: 'map-marker' },
+];
+
+const IS_ANDROID = Platform.OS === 'android';
+
+const useStableCallback = <T extends (...args: any[]) => any>(fn: T) => {
+  const ref = useRef(fn);
+  ref.current = fn;
+  return useCallback((...args: any[]) => ref.current(...args), []) as T;
+};
+
+const SectionTitle = memo<{ title: string; hint?: string }>(
+  ({ title, hint }) => (
+    <View style={styles.sectionTitleWrap}>
+      <View style={styles.sectionTitleRow}>
+        <View style={styles.sectionTitleBar} />
+        <Text
+          maxFontSizeMultiplier={MAX_FONT_SCALE}
+          numberOfLines={1}
+          style={styles.sectionTitleText}
+        >
+          {title}
+        </Text>
+      </View>
+      {hint ? (
+        <Text
+          maxFontSizeMultiplier={MAX_FONT_SCALE}
+          style={styles.sectionTitleHint}
+        >
+          {hint}
+        </Text>
+      ) : null}
+    </View>
+  ),
+);
+
+const FieldLabel = memo<{
+  label: string;
+  required?: boolean;
+  isActive?: boolean;
+  style?: any;
+}>(({ label, required, isActive, style }) => (
+  <Text
+    maxFontSizeMultiplier={MAX_FONT_SCALE}
+    numberOfLines={1}
+    style={[styles.fieldLabel, isActive && styles.fieldLabelActive, style]}
+  >
+    {label}
+    {required ? <Text style={styles.fieldRequired}> *</Text> : null}
+  </Text>
+));
+
+type FieldProps = React.ComponentProps<typeof TextInput> & {
+  label: string;
+  required?: boolean;
+  wrapperStyle?: any;
+  inputStyle?: any;
+};
+
+const Field = memo<FieldProps>(
+  ({ label, required, wrapperStyle, inputStyle, ...inputProps }) => {
+    const [focused, setFocused] = useState(false);
+    const onFocus = useCallback(() => setFocused(true), []);
+    const onBlur = useCallback(() => setFocused(false), []);
+
+    return (
+      <View style={[styles.fieldWrapper, wrapperStyle]}>
+        <FieldLabel label={label} required={required} isActive={focused} />
+        <TextInput
+          placeholderTextColor={LUXURY_COLORS.textFaint}
+          maxFontSizeMultiplier={MAX_FONT_SCALE}
+          accessibilityLabel={label}
+          underlineColorAndroid="transparent"
+          autoCorrect={false}
+          {...inputProps}
+          style={[styles.input, focused && styles.inputFocused, inputStyle]}
+          onFocus={onFocus}
+          onBlur={onBlur}
+        />
+      </View>
+    );
+  },
+);
+
+type MapPanelProps = {
+  mapRef: React.MutableRefObject<MapView | null>;
+  initialRegion: any;
+  hasLocationPermission: boolean;
+  isDragging: boolean;
+  isGeocoding: boolean;
+  isInitialLoading: boolean;
+  topInset: number;
+  isHidden: boolean;
+  onMapReady: () => void;
+  onSearchFocus: () => void;
+  onSearchBlur: () => void;
+  onRegionChange: () => void;
+  onRegionChangeComplete: (region: any) => void;
+  onPlaceSelected: (lat: number, lng: number) => void;
+  onRecenter: () => void;
+  onBack: () => void;
+  onMapPress?: (e: any) => void;
+};
+
+const MapPanel = memo<MapPanelProps>(
+  ({
+    mapRef,
+    initialRegion,
+    hasLocationPermission,
+    isDragging,
+    isGeocoding,
+    isInitialLoading,
+    topInset,
+    isHidden,
+    onMapReady,
+    onSearchFocus,
+    onSearchBlur,
+    onRegionChange,
+    onRegionChangeComplete,
+    onPlaceSelected,
+    onRecenter,
+    onBack,
+    onMapPress,
+  }) => {
+    const placesQuery = useMemo(
+      () => ({
+        key: GOOGLE_MAPS_API_KEY,
+        language: 'en',
+        components: 'country:in',
+      }),
+      [],
+    );
+
+    const textInputProps = useMemo(
+      () => ({
+        placeholderTextColor: LUXURY_COLORS.textFaint,
+        returnKeyType: 'search' as const,
+        maxFontSizeMultiplier: MAX_FONT_SCALE,
+        underlineColorAndroid: 'transparent' as const,
+        onFocus: onSearchFocus,
+        onBlur: onSearchBlur,
+      }),
+      [onSearchFocus, onSearchBlur],
+    );
+
+    const handlePlacePress = useCallback(
+      (_data: any, details: any = null) => {
+        const loc = details?.geometry?.location;
+        if (loc) onPlaceSelected(loc.lat, loc.lng);
+      },
+      [onPlaceSelected],
+    );
+
+    const renderLeftButton = useCallback(
+      () => (
+        <Ionicons
+          name="search"
+          size={wp('4.4%')}
+          color={LUXURY_COLORS.emerald}
+          style={styles.searchIcon}
+        />
+      ),
+      [],
+    );
+
+    return (
+      <>
+        <View style={styles.mapContainer}>
+          <MapView
+            ref={mapRef}
+            style={styles.map}
+            initialRegion={initialRegion}
+            onMapReady={onMapReady}
+            onPress={onMapPress}
+            onRegionChange={onRegionChange}
+            onRegionChangeComplete={onRegionChangeComplete}
+            showsUserLocation={hasLocationPermission}
+            showsMyLocationButton={false}
+            moveOnMarkerPress={false}
+            toolbarEnabled={false}
+          />
+
+          <View
+            style={[styles.pinWrap, isHidden && styles.hidden]}
+            pointerEvents="none"
+          >
+            <View
+              style={[styles.pinCallout, isDragging && styles.pinCalloutHidden]}
+            >
+              <View style={styles.pinCalloutRow}>
+                <View style={styles.pinCalloutDot} />
+                <Text
+                  maxFontSizeMultiplier={MAX_FONT_SCALE}
+                  numberOfLines={1}
+                  style={styles.pinCalloutTitle}
+                >
+                  Order will be delivered here
+                </Text>
+              </View>
+              <Text
+                maxFontSizeMultiplier={MAX_FONT_SCALE}
+                numberOfLines={1}
+                style={styles.pinCalloutSubtitle}
+              >
+                Move map to set exact spot
+              </Text>
+              <View style={styles.pinCalloutTail} />
+            </View>
+
+            <View style={styles.pinIconContainer}>
+              <Ionicons
+                name="location"
+                size={wp('11%')}
+                color={LUXURY_COLORS.emerald}
+                style={[styles.pinIcon, isDragging && styles.pinIconLifted]}
+              />
+              <View
+                style={[
+                  styles.pinShadow,
+                  isDragging && styles.pinShadowExpanded,
+                ]}
+              />
+            </View>
+          </View>
+
+          <TouchableOpacity
+            activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel="Use my current location"
+            hitSlop={hitSlopTo(44)}
+            style={[styles.recenterButton, isHidden && styles.hidden]}
+            onPress={onRecenter}
+          >
+            <Ionicons
+              name="locate"
+              size={wp('4.2%')}
+              color={LUXURY_COLORS.emerald}
+            />
+            <Text
+              maxFontSizeMultiplier={MAX_FONT_SCALE}
+              style={styles.recenterText}
+            >
+              Use current location
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <View
+          pointerEvents="box-none"
+          style={[styles.overlay, { top: topInset }, isHidden && styles.hidden]}
+        >
+          <View pointerEvents="box-none" style={styles.overlayRow}>
+            <TouchableOpacity
+              activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel="Go back"
+              hitSlop={hitSlopTo(44)}
+              onPress={onBack}
+              style={styles.floatingButton}
+            >
+              <Ionicons
+                name="arrow-back"
+                size={wp('5.2%')}
+                color={LUXURY_COLORS.emerald}
+              />
+            </TouchableOpacity>
+
+            <View style={styles.searchLayer}>
+              <GooglePlacesAutocomplete
+                placeholder="Search area, street or landmark"
+                textInputProps={textInputProps}
+                onPress={handlePlacePress}
+                query={placesQuery}
+                fetchDetails
+                debounce={300}
+                enablePoweredByContainer={false}
+                keyboardShouldPersistTaps="handled"
+                renderLeftButton={renderLeftButton}
+                styles={placesStyles}
+              />
+
+              {isGeocoding && !isInitialLoading ? (
+                <View style={styles.geocodingBanner}>
+                  <ActivityIndicator
+                    size="small"
+                    color={LUXURY_COLORS.emerald}
+                  />
+                  <Text
+                    maxFontSizeMultiplier={MAX_FONT_SCALE}
+                    style={styles.geocodingText}
+                  >
+                    Fetching address…
+                  </Text>
+                </View>
+              ) : null}
+            </View>
+          </View>
+        </View>
+      </>
+    );
+  },
+);
+
+const AddLocationScreen: React.FC = () => {
+  const navigation = useNavigation<any>();
+  const route = useRoute<any>();
+  const { refreshAddresses, clearSelectedAddress } = useAddresses();
+  const insets = useSafeAreaInsets();
+
+  const isMountedRef = useRef(true);
+  const mapRef = useRef<MapView | null>(null);
+
+  const editAddress = route.params?.address;
+  const isEditMode = !!editAddress;
+
+  const [open, setOpen] = useState(false);
+  const [items, setItems] = useState<any[]>([]);
+  const [pincodeAreaId, setPincodeAreaId] = useState<number | null>(
+    editAddress?.pincodeAreaId || null,
+  );
+
+  const selectedAreaName = useMemo(
+    () => items.find(item => item.value === pincodeAreaId)?.label || '',
+    [items, pincodeAreaId],
+  );
+
+  const [custName, setCustName] = useState(editAddress?.custName || '');
+  const [addLine1, setAddLine1] = useState(editAddress?.addLine1 || '');
+  const [addLine2, setAddLine2] = useState(editAddress?.addLine2 || '');
+  const [landmark, setLandmark] = useState(editAddress?.landmark || '');
+  const [phone, setPhone] = useState(editAddress?.phone || '');
+  const [pincode, setPincode] = useState(editAddress?.pincode || '');
+  const [addressType, setAddressType] = useState(
+    editAddress?.addressType || 'HOME',
+  );
+  const [stateName, setStateName] = useState(editAddress?.state || 'Kerala');
+  const [districtName, setDistrictName] = useState(
+    editAddress?.district || 'Ernakulam',
+  );
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(!isEditMode);
+  const [isAreasLoading, setIsAreasLoading] = useState(false);
+  const [isGeocoding, setIsGeocoding] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [hasLocationPermission, setHasLocationPermission] = useState(false);
+
+  const initialRegion = useRef({
+    latitude: Number(editAddress?.latitude) || DEFAULT_COORDS.latitude,
+    longitude: Number(editAddress?.longitude) || DEFAULT_COORDS.longitude,
+    latitudeDelta: 0.005,
+    longitudeDelta: 0.005,
+  }).current;
+
+  const targetRegionRef = useRef(initialRegion);
+  const isMapReadyRef = useRef(false);
+  const isDraggingRef = useRef(false);
+  const markerRef = useRef({
+    latitude: initialRegion.latitude,
+    longitude: initialRegion.longitude,
+  });
+  const geocodeAbortRef = useRef<AbortController | null>(null);
+  const geocodeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const initialLoadTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+  const editedFieldsRef = useRef<Record<string, boolean>>({});
+  const fetchedPincodeRef = useRef<string | null>(editAddress?.pincode || null);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+      geocodeAbortRef.current?.abort();
+      if (geocodeTimerRef.current) clearTimeout(geocodeTimerRef.current);
+      if (initialLoadTimerRef.current) {
+        clearTimeout(initialLoadTimerRef.current);
+      }
+    };
+  }, []);
+
+  const requestLocationPermission = useCallback(async () => {
+    if (!IS_ANDROID) {
+      Geolocation.requestAuthorization();
+      setHasLocationPermission(true);
+      return true;
+    }
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      );
+      const isGranted = granted === PermissionsAndroid.RESULTS.GRANTED;
+      if (isMountedRef.current) setHasLocationPermission(isGranted);
+      return isGranted;
+    } catch (err) {
+      console.warn(err);
+      return false;
+    }
+  }, []);
+
+  const reverseGeocode = useStableCallback(async (lat: number, lng: number) => {
+    if (!isMountedRef.current) return;
+
+    geocodeAbortRef.current?.abort();
+    const controller = new AbortController();
+    geocodeAbortRef.current = controller;
+
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_MAPS_API_KEY}`;
+    try {
+      setIsGeocoding(true);
+      const response = await axios.get(url, {
+        timeout: 8000,
+        signal: controller.signal,
+      });
+      if (!isMountedRef.current || controller.signal.aborted) return;
+
+      logApi('geocode/reverse', response.data);
+
+      const result = response.data?.results?.[0];
+      if (result) {
+        const components = result.address_components || [];
+        const pick = (type: string) =>
+          components.find((c: any) => c.types.includes(type))?.long_name || '';
+
+        const sublocality1 = pick('sublocality_level_1');
+        const neighborhood = pick('neighborhood');
+        const locality = pick('locality');
+        const postalCode = pick('postal_code');
+        const stateFromMap = pick('administrative_area_level_1');
+        const districtFromMap = pick('administrative_area_level_2');
+
+        if (stateFromMap) setStateName(stateFromMap);
+        if (districtFromMap) setDistrictName(districtFromMap);
+
+        const edited = editedFieldsRef.current;
+        if (!edited.addLine1) {
+          setAddLine1(getAddressLine1(result));
+        }
+        if (!edited.addLine2) {
+          setAddLine2(`${sublocality1 || neighborhood || locality}`.trim());
+        }
+        if (postalCode && !edited.pincode) setPincode(postalCode);
+      }
+    } catch (error: any) {
+      if (!axios.isCancel?.(error) && error?.name !== 'CanceledError') {
+        console.error('Reverse geocode error', error?.message);
+      }
+    } finally {
+      if (isMountedRef.current && geocodeAbortRef.current === controller) {
+        setIsGeocoding(false);
+      }
+    }
+  });
+
+  const scheduleGeocode = useStableCallback((lat: number, lng: number) => {
+    editedFieldsRef.current = {};
+    if (geocodeTimerRef.current) clearTimeout(geocodeTimerRef.current);
+    geocodeTimerRef.current = setTimeout(() => reverseGeocode(lat, lng), 350);
+  });
+
+  const moveTo = useStableCallback((latitude: number, longitude: number) => {
+    targetRegionRef.current = {
+      ...targetRegionRef.current,
+      latitude,
+      longitude,
+    };
+    markerRef.current = { latitude, longitude };
+    if (isMapReadyRef.current) {
+      mapRef.current?.animateToRegion(targetRegionRef.current, 400);
+    }
+    scheduleGeocode(latitude, longitude);
+  });
+
+  const handleMapReady = useStableCallback(() => {
+    isMapReadyRef.current = true;
+    mapRef.current?.animateToRegion(targetRegionRef.current, 0);
+  });
+
+  const handleMapPress = useStableCallback((e: any) => {
+    const coord = e?.nativeEvent?.coordinate;
+    if (coord?.latitude && coord?.longitude) {
+      moveTo(coord.latitude, coord.longitude);
+    }
+  });
+
+  const handleRegionChange = useStableCallback(() => {
+    if (isDraggingRef.current) return;
+    isDraggingRef.current = true;
+    setIsDragging(true);
+  });
+
+  const handleRegionChangeComplete = useStableCallback((nextRegion: any) => {
+    isDraggingRef.current = false;
+    setIsDragging(false);
+
+    if (
+      !nextRegion ||
+      typeof nextRegion.latitude !== 'number' ||
+      typeof nextRegion.longitude !== 'number'
+    ) {
+      return;
+    }
+
+    targetRegionRef.current = nextRegion;
+
+    const moved =
+      Math.abs(nextRegion.latitude - markerRef.current.latitude) > 1e-5 ||
+      Math.abs(nextRegion.longitude - markerRef.current.longitude) > 1e-5;
+    if (!moved) return;
+
+    markerRef.current = {
+      latitude: nextRegion.latitude,
+      longitude: nextRegion.longitude,
+    };
+    scheduleGeocode(nextRegion.latitude, nextRegion.longitude);
+  });
+
+  const onEditField = useStableCallback(
+    (field: string, setter: (value: string) => void) => (value: string) => {
+      editedFieldsRef.current[field] = true;
+      setter(value);
+    },
+  );
+
+  const handleAddLine1Change = useMemo(
+    () => onEditField('addLine1', setAddLine1),
+    [onEditField],
+  );
+  const handleAddLine2Change = useMemo(
+    () => onEditField('addLine2', setAddLine2),
+    [onEditField],
+  );
+  const handlePincodeChange = useMemo(
+    () => onEditField('pincode', setPincode),
+    [onEditField],
+  );
+
+  const endInitialLoading = useStableCallback(() => {
+    if (initialLoadTimerRef.current) {
+      clearTimeout(initialLoadTimerRef.current);
+      initialLoadTimerRef.current = null;
+    }
+    if (isMountedRef.current) setIsInitialLoading(false);
+  });
+
+  const getCurrentLocation = useStableCallback((showLoader = false) => {
+    if (showLoader) setIsLoading(true);
+
+    const onSuccess = (position: any) => {
+      if (!isMountedRef.current) return;
+      const { latitude, longitude } = position.coords;
+      moveTo(latitude, longitude);
+      if (!isEditMode) endInitialLoading();
+      if (showLoader) setIsLoading(false);
+    };
+
+    const onFinalError = (error: any) => {
+      if (!isMountedRef.current) return;
+      console.error('Geolocation failed:', error?.message);
+      endInitialLoading();
+      if (showLoader) setIsLoading(false);
+      Toast.show('Failed to fetch location', Toast.SHORT);
+    };
+
+    Geolocation.getCurrentPosition(
+      onSuccess,
+      () =>
+        Geolocation.getCurrentPosition(
+          onSuccess,
+          () =>
+            Geolocation.getCurrentPosition(onSuccess, onFinalError, {
+              enableHighAccuracy: false,
+              timeout: 15000,
+              maximumAge: 60000,
+            }),
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
+        ),
+      { enableHighAccuracy: false, timeout: 1000, maximumAge: 600000 },
+    );
+  });
+
+  useEffect(() => {
+    if (isEditMode) {
+      endInitialLoading();
+      return;
+    }
+    initialLoadTimerRef.current = setTimeout(endInitialLoading, 12000);
+    requestLocationPermission().then(granted => {
+      if (!isMountedRef.current) return;
+      if (granted) getCurrentLocation();
+      else endInitialLoading();
+    });
+  }, [
+    isEditMode,
+    getCurrentLocation,
+    requestLocationPermission,
+    endInitialLoading,
+  ]);
+
+  const fetchAreas = useStableCallback(async (pin: string) => {
+    try {
+      setIsAreasLoading(true);
+      const response = await getAreasByPincode(pin);
+      if (!isMountedRef.current) return;
+      if (response?.success && Array.isArray(response.data)) {
+        const formattedAreas = response.data.map((area: any) => ({
+          label: area.areaName,
+          value: area.pincodeAreaId || area.id,
+        }));
+        setItems(formattedAreas);
+        if (formattedAreas.length === 1 && !isEditMode) {
+          setPincodeAreaId(formattedAreas[0].value);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching areas:', error);
+    } finally {
+      if (isMountedRef.current) setIsAreasLoading(false);
+    }
+  });
+
+  useEffect(() => {
+    if (pincode?.length !== 6) return;
+    if (fetchedPincodeRef.current === pincode && items.length) return;
+    fetchedPincodeRef.current = pincode;
+    fetchAreas(pincode);
+  }, [pincode, items.length, fetchAreas]);
+
+  const handleSave = useStableCallback(async () => {
+    if (isLoading) return;
+
+    if (!custName || !addLine1 || !phone || !pincode || !pincodeAreaId) {
+      Toast.show('Please fill all required fields', Toast.SHORT);
+      return;
+    }
+    if (!validatePhoneNumbers(phone)) {
+      Toast.show('Invalid phone number', Toast.SHORT);
+      return;
+    }
+
+    const payload = {
+      custName,
+      addLine1,
+      addLine2,
+      landmark,
+      phone,
+      country: 'India',
+      state: stateName || editAddress?.state || 'Kerala',
+      district: districtName || editAddress?.district || 'Ernakulam',
+      pincode,
+      pincodeAreaId,
+      pincodeAreaName: selectedAreaName,
+      latitude: markerRef.current.latitude,
+      longitude: markerRef.current.longitude,
+      addressType,
+      isDefaultBillingAddress: true,
+      isDefaultShippingAddress: true,
+    };
+
+    setIsLoading(true);
+    try {
+      const addressId =
+        editAddress?.custAddressId || editAddress?.addressId || editAddress?.id;
+      const response = isEditMode
+        ? await updateAddressApi(addressId, payload)
+        : await addAddressApi(payload);
+
+      if (response && response.success !== false) {
+        Toast.show(
+          isEditMode ? 'Address updated' : 'Address saved',
+          Toast.SHORT,
+        );
+        if (!isEditMode) await clearSelectedAddress();
+        await refreshAddresses();
+        navigation.goBack();
+        return;
+      }
+      Toast.show(response?.message || 'Failed to save address', Toast.SHORT);
+    } catch (error) {
+      console.error('Error saving address:', error);
+      Toast.show('An error occurred', Toast.SHORT);
+    } finally {
+      if (isMountedRef.current) setIsLoading(false);
+    }
+  });
+
+  const goBack = useStableCallback(() => navigation.goBack());
+  const recenter = useStableCallback(() => getCurrentLocation(true));
+
+  const isResolving = isGeocoding || isInitialLoading;
+  const isDuplicateLine2 =
+    addLine2.trim().toLowerCase() === addLine1.trim().toLowerCase();
+  const saveLabel = isEditMode ? 'Update address' : 'Save address';
+  const topInset = Math.max(insets.top, UI_SPACING.sm) + UI_SPACING.sm;
+  const isKeyboardVisible = useKeyboardVisible();
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const onSearchFocus = useStableCallback(() => setIsSearchFocused(true));
+  const onSearchBlur = useStableCallback(() => setIsSearchFocused(false));
+  const isFormFocused = isKeyboardVisible && !isSearchFocused;
+
+  const openAreaPicker = useStableCallback(() => setOpen(true));
+  const closeAreaPicker = useStableCallback(() => setOpen(false));
+  const handleSelectArea = useStableCallback((value: number) =>
+    setPincodeAreaId(value),
+  );
+  const footerStyle = useMemo(
+    () => [
+      styles.footer,
+      { paddingBottom: Math.max(insets.bottom, UI_SPACING.lg) },
+    ],
+    [insets.bottom],
+  );
+
+  return (
+    <View style={styles.screen}>
+      <StatusBar barStyle="dark-content" backgroundColor={LUXURY_COLORS.card} />
+
+      <MapPanel
+        mapRef={mapRef}
+        initialRegion={initialRegion}
+        hasLocationPermission={hasLocationPermission}
+        isDragging={isDragging}
+        isGeocoding={isGeocoding}
+        isInitialLoading={isInitialLoading}
+        topInset={topInset}
+        isHidden={isFormFocused}
+        onMapReady={handleMapReady}
+        onSearchFocus={onSearchFocus}
+        onSearchBlur={onSearchBlur}
+        onRegionChange={handleRegionChange}
+        onRegionChangeComplete={handleRegionChangeComplete}
+        onPlaceSelected={moveTo}
+        onRecenter={recenter}
+        onBack={goBack}
+        onMapPress={handleMapPress}
+      />
+
+      <KeyboardAvoidingView
+        pointerEvents="box-none"
+        style={styles.flex}
+        enabled={!IS_ANDROID}
+        behavior={IS_ANDROID ? undefined : 'padding'}
+      >
+        <View
+          pointerEvents="auto"
+          style={[styles.sheet, isFormFocused && { marginTop: topInset }]}
+        >
+          <View style={styles.grabHandle} />
+
+          <View style={styles.sheetHeader}>
+            <Text
+              maxFontSizeMultiplier={MAX_FONT_SCALE}
+              numberOfLines={1}
+              style={styles.sheetTitle}
+            >
+              {isEditMode
+                ? 'Edit Delivery Address'
+                : 'Confirm Delivery Location'}
+            </Text>
+            <Text
+              maxFontSizeMultiplier={MAX_FONT_SCALE}
+              numberOfLines={1}
+              style={styles.sheetSubtitle}
+            >
+              Drag the map above to fine-tune your exact spot
+            </Text>
+          </View>
+
+          <ScrollView
+            style={styles.scroll}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="none"
+            removeClippedSubviews={false}
+            nestedScrollEnabled
+          >
+            <View style={styles.resolvedCard}>
+              <View style={styles.resolvedIconBadge}>
+                <Ionicons
+                  name="location"
+                  size={wp('5.2%')}
+                  color={LUXURY_COLORS.emerald}
+                />
+              </View>
+
+              <View style={styles.resolvedCopy}>
+                <Text
+                  maxFontSizeMultiplier={MAX_FONT_SCALE}
+                  style={styles.resolvedEyebrow}
+                >
+                  {isResolving ? 'LOCATING PINNED SPOT…' : 'SELECTED LOCATION'}
+                </Text>
+                <Text
+                  maxFontSizeMultiplier={MAX_FONT_SCALE}
+                  numberOfLines={2}
+                  style={styles.resolvedAddressMain}
+                >
+                  {addLine1 ||
+                    (isResolving ? 'Detecting address…' : 'Address not found')}
+                </Text>
+                {addLine2 && !isDuplicateLine2 ? (
+                  <Text
+                    maxFontSizeMultiplier={MAX_FONT_SCALE}
+                    numberOfLines={1}
+                    style={styles.resolvedLine2}
+                  >
+                    {addLine2}
+                  </Text>
+                ) : null}
+              </View>
+            </View>
+
+            <View style={styles.sectionCard}>
+              <SectionTitle title="Save this address as" />
+
+              <View style={styles.typeRow}>
+                {ADDRESS_TYPES.map(type => {
+                  const selected = addressType === type.key;
+                  return (
+                    <TouchableOpacity
+                      key={type.key}
+                      activeOpacity={0.85}
+                      onPress={() => setAddressType(type.key)}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected }}
+                      accessibilityLabel={`Save as ${type.label}`}
+                      style={[
+                        styles.typeChip,
+                        selected && styles.typeChipActive,
+                      ]}
+                    >
+                      <MaterialCommunityIcons
+                        name={type.icon}
+                        size={wp('4.2%')}
+                        color={
+                          selected
+                            ? LUXURY_COLORS.emerald
+                            : LUXURY_COLORS.textMuted
+                        }
+                      />
+                      <Text
+                        maxFontSizeMultiplier={MAX_FONT_SCALE}
+                        style={[
+                          styles.typeChipLabel,
+                          selected && styles.typeChipLabelActive,
+                        ]}
+                        numberOfLines={1}
+                      >
+                        {type.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+
+            <View style={styles.sectionCard}>
+              <SectionTitle
+                title="Address details"
+                hint="Used by the rider to reach your door"
+              />
+
+              <Field
+                label="Full Address House / Flat / Block no"
+                required
+                value={addLine1}
+                onChangeText={handleAddLine1Change}
+              />
+
+              <Field
+                label="Apartment / Road / Area"
+                value={addLine2}
+                onChangeText={handleAddLine2Change}
+              />
+
+              <View style={styles.pincodeRow}>
+                <Field
+                  label="PIN Code"
+                  required
+                  value={pincode}
+                  onChangeText={handlePincodeChange}
+                  wrapperStyle={styles.pincodeField}
+                  keyboardType="numeric"
+                  maxLength={6}
+                />
+
+                <View style={styles.areaWrap}>
+                  <FieldLabel
+                    label="Area"
+                    required
+                    isActive={open}
+                    style={styles.areaLabel}
+                  />
+                  <TouchableOpacity
+                    activeOpacity={0.85}
+                    onPress={openAreaPicker}
+                    accessibilityRole="button"
+                    accessibilityLabel="Area"
+                    accessibilityValue={{
+                      text: selectedAreaName || 'Not selected',
+                    }}
+                    style={[styles.areaTrigger, open && styles.areaTriggerOpen]}
+                  >
+                    <Text
+                      maxFontSizeMultiplier={MAX_FONT_SCALE}
+                      numberOfLines={1}
+                      style={[
+                        styles.areaTriggerLabel,
+                        !selectedAreaName && styles.areaTriggerPlaceholder,
+                      ]}
+                    >
+                      {selectedAreaName || 'Choose area'}
+                    </Text>
+                    {isAreasLoading ? (
+                      <ActivityIndicator
+                        size="small"
+                        color={LUXURY_COLORS.emerald}
+                      />
+                    ) : (
+                      <Ionicons
+                        name="chevron-down"
+                        size={wp('4.2%')}
+                        color={LUXURY_COLORS.textMuted}
+                      />
+                    )}
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <Field
+                label="Landmark / Delivery instruction"
+                value={landmark}
+                onChangeText={setLandmark}
+                placeholder="eg. Near Lulu Mall"
+                inputStyle={styles.landmarkInput}
+                multiline
+              />
+            </View>
+
+            <View style={styles.sectionCard}>
+              <SectionTitle title="Contact details" />
+
+              <Field
+                label="Customer name"
+                required
+                value={custName}
+                onChangeText={setCustName}
+              />
+
+              <Field
+                label="Phone number"
+                required
+                value={phone}
+                onChangeText={setPhone}
+                placeholder="Enter mobile number"
+                keyboardType="phone-pad"
+                maxLength={10}
+              />
+            </View>
+          </ScrollView>
+
+          <View style={footerStyle}>
+            <TouchableOpacity
+              activeOpacity={0.9}
+              disabled={isLoading}
+              onPress={handleSave}
+              accessibilityRole="button"
+              accessibilityLabel={saveLabel}
+              accessibilityState={{ disabled: isLoading, busy: isLoading }}
+              style={[styles.saveButton, isLoading && styles.saveButtonBusy]}
+            >
+              {isLoading ? (
+                <ActivityIndicator color={LUXURY_COLORS.white} />
+              ) : (
+                <>
+                  <Text
+                    maxFontSizeMultiplier={MAX_FONT_SCALE}
+                    style={styles.saveButtonText}
+                  >
+                    {saveLabel}
+                  </Text>
+                  <Ionicons
+                    name="arrow-forward"
+                    size={wp('4.4%')}
+                    color={LUXURY_COLORS.white}
+                  />
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+
+      <AreaPickerSheet
+        visible={open}
+        onClose={closeAreaPicker}
+        items={items}
+        value={pincodeAreaId}
+        onSelect={handleSelectArea}
+        pincode={pincode}
+        loading={isAreasLoading}
+      />
+    </View>
+  );
+};
+
+export default AddLocationScreen;

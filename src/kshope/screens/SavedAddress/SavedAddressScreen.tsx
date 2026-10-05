@@ -1,0 +1,413 @@
+import React, { useCallback, useMemo } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  FlatList,
+  RefreshControl,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+
+import { useAddresses } from '../../hooks/useAddresses';
+import { MAX_FONT_SCALE, hitSlopTo, wp } from '../../theme/tokens';
+import AddressConfirmationModal from '../../components/AddressConfirmationModal';
+import styles, {
+  DISCOUNT,
+  ICON,
+  INK_BASE,
+  INK_MUTED,
+  INK_STRONG,
+  PRIMARY,
+  SUCCESS_TEXT,
+  s,
+} from './styles';
+
+const RowActions: React.FC<{
+  onEdit: () => void;
+  onDelete: () => void;
+  onClose: () => void;
+}> = ({ onEdit, onDelete, onClose }) => (
+  <View style={styles.actionsRow}>
+    <TouchableOpacity
+      hitSlop={hitSlopTo(ICON.action)}
+      accessibilityRole="button"
+      accessibilityLabel="Edit address"
+      onPress={onEdit}
+      style={styles.actionButton}
+    >
+      <MaterialCommunityIcons
+        name="pencil-outline"
+        size={ICON.action}
+        color={PRIMARY}
+      />
+    </TouchableOpacity>
+    <View style={styles.actionSeparator} />
+    <TouchableOpacity
+      hitSlop={hitSlopTo(ICON.action)}
+      accessibilityRole="button"
+      accessibilityLabel="Delete address"
+      onPress={onDelete}
+      style={styles.actionButton}
+    >
+      <MaterialCommunityIcons
+        name="trash-can-outline"
+        size={ICON.action}
+        color={DISCOUNT}
+      />
+    </TouchableOpacity>
+    <View style={styles.actionSeparator} />
+    <TouchableOpacity
+      hitSlop={hitSlopTo(ICON.action)}
+      accessibilityRole="button"
+      accessibilityLabel="Close actions"
+      onPress={onClose}
+      style={styles.actionButton}
+    >
+      <Ionicons name="close" size={ICON.action} color={INK_MUTED} />
+    </TouchableOpacity>
+  </View>
+);
+
+const AddressCard = React.memo<{
+  item: any;
+  onPress: () => void;
+  onEdit: () => void;
+  onMenu: () => void;
+  onDelete: () => void;
+  onCloseMenu: () => void;
+}>(({ item, onPress, onEdit, onMenu, onDelete, onCloseMenu }) => {
+  const isSelected = !!item.selected;
+  const typeLower = String(item.type || '').toLowerCase();
+  const iconName =
+    typeLower === 'home'
+      ? 'home-outline'
+      : typeLower === 'office'
+      ? 'briefcase-outline'
+      : 'location-outline';
+
+  return (
+    <TouchableOpacity
+      activeOpacity={0.9}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityState={{ selected: isSelected }}
+      accessibilityLabel={`${item.type} address, ${item.address}${
+        isSelected ? ', selected. Tap to edit' : '. Tap to use this address'
+      }`}
+      style={[styles.card, isSelected && styles.cardSelected]}
+    >
+      <View style={styles.cardHeader}>
+        <View style={styles.typeCluster}>
+          <View style={[styles.typeWell, isSelected && styles.typeWellActive]}>
+            <Ionicons
+              name={iconName}
+              size={ICON.type}
+              color={isSelected ? SUCCESS_TEXT : INK_BASE}
+            />
+          </View>
+          <Text
+            style={styles.typeText}
+            maxFontSizeMultiplier={MAX_FONT_SCALE}
+            numberOfLines={1}
+          >
+            {item.type}
+          </Text>
+        </View>
+
+        {item.threeDotsClicked ? (
+          <RowActions
+            onEdit={onEdit}
+            onDelete={onDelete}
+            onClose={onCloseMenu}
+          />
+        ) : (
+          <View style={styles.headerRight}>
+            {isSelected && (
+              <View style={styles.selectedPill}>
+                <Ionicons
+                  name="checkmark-circle"
+                  size={ICON.check}
+                  color="#FFFFFF"
+                />
+                <Text
+                  style={styles.selectedPillText}
+                  maxFontSizeMultiplier={MAX_FONT_SCALE}
+                >
+                  Selected
+                </Text>
+              </View>
+            )}
+            <TouchableOpacity
+              hitSlop={hitSlopTo(ICON.action)}
+              accessibilityRole="button"
+              accessibilityLabel="Address options"
+              onPress={onMenu}
+              style={styles.menuButton}
+            >
+              <Ionicons
+                name="ellipsis-vertical"
+                size={ICON.action}
+                color={INK_MUTED}
+              />
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+
+      <View style={styles.cardDivider} />
+
+      <View style={styles.cardBody}>
+        <Text style={styles.addressLine} maxFontSizeMultiplier={MAX_FONT_SCALE}>
+          {item.address}
+        </Text>
+
+        <View style={styles.metaRow}>
+          {item.phone ? (
+            <View style={styles.metaBadge}>
+              <Ionicons
+                name="call-outline"
+                size={ICON.meta}
+                color={INK_MUTED}
+              />
+              <Text
+                style={styles.metaText}
+                maxFontSizeMultiplier={MAX_FONT_SCALE}
+              >
+                {item.phone}
+              </Text>
+            </View>
+          ) : null}
+          {item.pin ? (
+            <View style={styles.metaBadge}>
+              <Ionicons
+                name="location-outline"
+                size={ICON.meta}
+                color={INK_MUTED}
+              />
+              <Text
+                style={styles.metaText}
+                maxFontSizeMultiplier={MAX_FONT_SCALE}
+              >
+                {item.pin}
+              </Text>
+            </View>
+          ) : null}
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+});
+
+const SavedAddressScreen: React.FC = () => {
+  const insets = useSafeAreaInsets();
+  const navigation = useNavigation<any>();
+  const {
+    addresses,
+    onSelectAddress,
+    onThreeDotsClicked,
+    onDeleteClicked,
+    onCloseThreeDots,
+    isLoading,
+    refreshAddresses,
+    addressConfirmationData,
+    setAddressConfirmationData,
+  } = useAddresses();
+
+  const selectedItem = useMemo(
+    () => addresses.find((a: any) => a.selected),
+    [addresses],
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshAddresses();
+    }, [refreshAddresses]),
+  );
+
+  const goToEditor = useCallback(
+    (address?: any) =>
+      navigation.navigate(
+        'KshopeAddLocation',
+        address ? { address } : undefined,
+      ),
+    [navigation],
+  );
+
+  const renderItem = useCallback(
+    ({ item }: { item: any }) => (
+      <AddressCard
+        item={item}
+        onPress={() => onSelectAddress(item.id, false)}
+        onEdit={() => goToEditor(item.raw)}
+        onMenu={() => onThreeDotsClicked(item.id)}
+        onDelete={() => onDeleteClicked(item.id)}
+        onCloseMenu={onCloseThreeDots}
+      />
+    ),
+    [
+      goToEditor,
+      onSelectAddress,
+      onThreeDotsClicked,
+      onDeleteClicked,
+      onCloseThreeDots,
+    ],
+  );
+
+  const listHeader = useCallback(
+    () => (
+      <TouchableOpacity
+        activeOpacity={0.85}
+        accessibilityRole="button"
+        accessibilityLabel="Add new location"
+        onPress={() => goToEditor()}
+        style={styles.addRow}
+      >
+        <View style={styles.addIconWell}>
+          <Ionicons name="add" size={ICON.plus} color={PRIMARY} />
+        </View>
+        <View style={styles.addRowTextCol}>
+          <Text
+            style={styles.addRowText}
+            maxFontSizeMultiplier={MAX_FONT_SCALE}
+          >
+            Add New Address
+          </Text>
+          <Text
+            style={styles.addRowSubtext}
+            maxFontSizeMultiplier={MAX_FONT_SCALE}
+          >
+            Deliver to your home, office, or loved ones
+          </Text>
+        </View>
+        <Ionicons
+          name="chevron-forward"
+          size={ICON.chevron}
+          color={INK_MUTED}
+        />
+      </TouchableOpacity>
+    ),
+    [goToEditor],
+  );
+
+  const listEmpty = useCallback(
+    () =>
+      isLoading ? null : (
+        <View style={styles.emptyState}>
+          <View style={styles.emptyIconWell}>
+            <Ionicons
+              name="location-outline"
+              size={ICON.empty}
+              color={PRIMARY}
+            />
+          </View>
+          <Text
+            style={styles.emptyTitle}
+            maxFontSizeMultiplier={MAX_FONT_SCALE}
+          >
+            No Saved Addresses
+          </Text>
+          <Text style={styles.emptyBody} maxFontSizeMultiplier={MAX_FONT_SCALE}>
+            Add a delivery location to explore collections and enjoy swift
+            doorstep delivery.
+          </Text>
+        </View>
+      ),
+    [isLoading],
+  );
+
+  const onConfirmSelection = useCallback(() => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    }
+  }, [navigation]);
+
+  return (
+    <View style={styles.mainContainer}>
+      <View style={[styles.headerContainer, { paddingTop: insets.top + s(8) }]}>
+        <TouchableOpacity
+          hitSlop={hitSlopTo(wp('6%'))}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        >
+          <Ionicons name="arrow-back" size={20} color={INK_STRONG} />
+        </TouchableOpacity>
+        <Text style={styles.headerText} maxFontSizeMultiplier={MAX_FONT_SCALE}>
+          Saved Addresses
+        </Text>
+      </View>
+
+      <FlatList
+        data={addresses}
+        keyExtractor={(item: any) => String(item.id)}
+        renderItem={renderItem}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isLoading}
+            onRefresh={refreshAddresses}
+            tintColor={PRIMARY}
+            colors={[PRIMARY]}
+          />
+        }
+        contentContainerStyle={[
+          styles.listContent,
+          !!selectedItem
+            ? { paddingBottom: s(110) + insets.bottom }
+            : { paddingBottom: Math.max(insets.bottom, s(40)) },
+        ]}
+        ListHeaderComponent={listHeader}
+        ListEmptyComponent={listEmpty}
+      />
+
+      {!!selectedItem && (
+        <View
+          style={[
+            styles.confirmBar,
+            { paddingBottom: Math.max(insets.bottom, s(16)) },
+          ]}
+        >
+          <Text
+            style={styles.confirmHint}
+            maxFontSizeMultiplier={MAX_FONT_SCALE}
+            numberOfLines={1}
+          >
+            Delivering to {selectedItem.type} · {selectedItem.pin}
+          </Text>
+          <TouchableOpacity
+            activeOpacity={0.9}
+            accessibilityRole="button"
+            accessibilityLabel="Confirm selected address"
+            onPress={onConfirmSelection}
+            style={styles.confirmButton}
+          >
+            <Ionicons
+              name="checkmark-circle"
+              size={ICON.type}
+              color="#FFFFFF"
+            />
+            <Text
+              style={styles.confirmButtonText}
+              maxFontSizeMultiplier={MAX_FONT_SCALE}
+            >
+              Deliver to this address
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      <AddressConfirmationModal
+        visible={!!addressConfirmationData}
+        onClose={() => setAddressConfirmationData(null)}
+        onConfirm={() => setAddressConfirmationData(null)}
+        data={addressConfirmationData}
+      />
+    </View>
+  );
+};
+
+export default SavedAddressScreen;

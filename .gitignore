@@ -33,11 +33,7 @@ local.properties
 .cxx/
 *.keystore
 !debug.keystore
-android/gradle-local.properties
-android/app/*.keystore
-android/app/*.jks
 .kotlin/
-*.jks
 
 # node.js
 #
@@ -70,6 +66,9 @@ yarn-error.log
 # testing
 /coverage
 
+# Build logs
+*.log
+
 # Yarn
 .yarn/*
 !.yarn/patches
@@ -77,3 +76,18 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Secrets — must never be committed. Copy the matching *.example to set up locally.
+.env*
+!.env.example
+src/globals/secrets.js
+# NOTE: Firebase config (android/app/google-services.json, ios/GoogleService-Info.plist)
+# is deliberately kept tracked — those keys are client identifiers shipped in every app
+# binary and are protected by GCP API-key restrictions + Firebase Security Rules, not by
+# secrecy. Lock those down provider-side instead of gitignoring the files.
+
+# Claude Code / Argent tooling (local dev tooling, not shipped)
+.claude/
+.agents/
+.mcp.json
+skills-lock.json

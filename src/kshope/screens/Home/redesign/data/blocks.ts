@@ -1,0 +1,211 @@
+const parseIfJson = (value: any) => {
+  if (
+    typeof value === 'string' &&
+    (value.trim().startsWith('{') || value.trim().startsWith('['))
+  ) {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return value;
+    }
+  }
+  return value;
+};
+
+export const unwrapBlock = (block: any): any => {
+  if (!block) {
+    return null;
+  }
+
+  let current = block;
+  for (let i = 0; i < 3; i++) {
+    const next = parseIfJson(current);
+    if (next === current) {
+      break;
+    }
+    current = next;
+  }
+
+  if (current && typeof current === 'object') {
+    if (current.firstProductBlock) current = current.firstProductBlock;
+    else if (current.FirstProductBlock) current = current.FirstProductBlock;
+    else if (current.secondProductBlock) current = current.secondProductBlock;
+    else if (current.SecondProductBlock) current = current.SecondProductBlock;
+    else if (current.thirdProductBlock) current = current.thirdProductBlock;
+    else if (current.ThirdProductBlock) current = current.ThirdProductBlock;
+    else if (current.fourthProductBlock) current = current.fourthProductBlock;
+    else if (current.FourthProductBlock) current = current.FourthProductBlock;
+    else if (current.trendingProducts) current = current.trendingProducts;
+    else if (current.TrendingProducts) current = current.TrendingProducts;
+    else if (current.trendingNow) current = current.trendingNow;
+    else if (current.TrendingNow) current = current.TrendingNow;
+    else if (current.featuredProducts) current = current.featuredProducts;
+    else if (current.FeaturedProducts) current = current.FeaturedProducts;
+    else if (current.bestOffers) current = current.bestOffers;
+    else if (current.BestOffers) current = current.BestOffers;
+    else if (current.halfPriceStore) current = current.halfPriceStore;
+    else if (current.HalfPriceStore) current = current.HalfPriceStore;
+    else if (current.categoryDiscovery && (current.categoryDiscovery.products || current.categoryDiscovery.items))
+      current = current.categoryDiscovery.products || current.categoryDiscovery.items;
+    else if (current.CategoryDiscovery && (current.CategoryDiscovery.products || current.CategoryDiscovery.items))
+      current = current.CategoryDiscovery.products || current.CategoryDiscovery.items;
+    else if (current.data && !current.items && !current.Items && !current.products && !current.Products)
+      current = current.data;
+
+    current = parseIfJson(current);
+  }
+
+  return current;
+};
+
+export const getItems = (block: any): any[] => {
+  if (!block) {
+    return [];
+  }
+  if (Array.isArray(block)) {
+    return block;
+  }
+  if (Array.isArray(block.products)) {
+    return block.products;
+  }
+  if (Array.isArray(block.Products)) {
+    return block.Products;
+  }
+  if (Array.isArray(block.items)) {
+    return block.items;
+  }
+  if (Array.isArray(block.Items)) {
+    return block.Items;
+  }
+  if (Array.isArray(block.productList)) {
+    return block.productList;
+  }
+  if (Array.isArray(block.ProductList)) {
+    return block.ProductList;
+  }
+  if (Array.isArray(block.productsList)) {
+    return block.productsList;
+  }
+  if (Array.isArray(block.ProductsList)) {
+    return block.ProductsList;
+  }
+  if (Array.isArray(block.data)) {
+    return block.data;
+  }
+  if (Array.isArray(block.list)) {
+    return block.list;
+  }
+  if (Array.isArray(block.List)) {
+    return block.List;
+  }
+  if (Array.isArray(block.results)) {
+    return block.results;
+  }
+  if (Array.isArray(block.result)) {
+    return block.result;
+  }
+  return [];
+};
+
+export const getProducts = (block: any): any[] =>
+  getItems(block).filter(
+    (i: any) =>
+      i &&
+      (i.productId !== undefined ||
+        i.ProductId !== undefined ||
+        i.id !== undefined ||
+        i.Id !== undefined ||
+        i.prId !== undefined ||
+        i.prName !== undefined ||
+        i.productName !== undefined ||
+        i.ProductName !== undefined ||
+        i.name !== undefined),
+  );
+
+export const bannersFor = (homeData: any, placementKey: string): any[] => {
+  const list =
+    homeData?.banners?.filter(
+      (b: any) =>
+        b.placementKey === placementKey || b.PlacementKey === placementKey,
+    ) || [];
+
+  const hasDistinctOrder = list.some(
+    (b: any) =>
+      b.displayOrder !== undefined &&
+      b.displayOrder !== null &&
+      Number(b.displayOrder) !== 0,
+  );
+
+  if (hasDistinctOrder) {
+    return [...list].sort(
+      (a: any, b: any) =>
+        Number(a.displayOrder ?? a.DisplayOrder ?? 0) -
+        Number(b.displayOrder ?? b.DisplayOrder ?? 0),
+    );
+  }
+
+  return list;
+};
+
+export const sectionTitle = (
+  homeData: any,
+  sectionKey: string,
+  fallback: string,
+): string => {
+  const titles = homeData?.titles || homeData?.Titles || [];
+  const found = titles.find(
+    (t: any) =>
+      (t.section || t.id || t.key || '').toLowerCase() ===
+      sectionKey.toLowerCase(),
+  );
+  return found?.title || found?.Title || fallback;
+};
+
+export const resolveCatId = (cat: any) =>
+  cat?.catId ??
+  cat?.CatId ??
+  cat?.categoryId ??
+  cat?.CategoryId ??
+  cat?.id ??
+  cat?.Id;
+
+export const resolveCatName = (cat: any, fallback = 'Category') =>
+  cat?.catName ||
+  cat?.CatName ||
+  cat?.displayTitle ||
+  cat?.DisplayTitle ||
+  cat?.name ||
+  cat?.Name ||
+  fallback;
+
+export const blockTitle = (block: any, fallback: string): string => {
+  const raw =
+    block?.title ||
+    block?.Title ||
+    block?.blockTitle ||
+    block?.BlockTitle ||
+    block?.displayTitle ||
+    block?.DisplayTitle ||
+    block?.sectionTitle ||
+    block?.SectionTitle ||
+    block?.catName ||
+    block?.CatName ||
+    block?.name ||
+    block?.Name;
+  const text = String(raw ?? '').trim();
+  return text || fallback;
+};
+
+export const splitTitle = (title: string) => {
+  const words = String(title ?? '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  if (words.length < 2) {
+    return { text: words[0] ?? '', accent: undefined as string | undefined };
+  }
+  return {
+    text: words.slice(0, -1).join(' '),
+    accent: words[words.length - 1],
+  };
+};

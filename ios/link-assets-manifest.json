@@ -2,80 +2,152 @@
   "migIndex": 1,
   "data": [
     {
-      "path": "node_modules/react-native-vector-icons/Fonts/Fontisto.ttf",
-      "sha1": "c090a3ec96a3f1bb9b615c2f3f204ce0dcdcdbc3"
+      "path": "src/assets/fonts/CormorantGaramond-Bold.ttf",
+      "sha1": "73538475d99560c926f13eeef4a1ec663394cd4f"
     },
     {
-      "path": "node_modules/react-native-vector-icons/Fonts/Octicons.ttf",
-      "sha1": "56acefc0731f35ee23b195b1c8cb5fa94a0db97b"
+      "path": "src/assets/fonts/CormorantGaramond-BoldItalic.ttf",
+      "sha1": "05571b055106544e817cc2d578682a1254090dd4"
     },
     {
-      "path": "node_modules/react-native-vector-icons/Fonts/Feather.ttf",
-      "sha1": "e6604258b1ced5efd51360875d782fca65381d47"
+      "path": "src/assets/fonts/CormorantGaramond-Italic.ttf",
+      "sha1": "6c2f1279a120436c5ebb5af359b9af30c9c885c8"
     },
     {
-      "path": "node_modules/react-native-vector-icons/Fonts/FontAwesome6_Regular.ttf",
-      "sha1": "775e2ecfc18d22b177274453d4c014ca6be63208"
+      "path": "src/assets/fonts/CormorantGaramond-Light.ttf",
+      "sha1": "1fef26789236477f8ad80ee7f2476f3a4327a379"
     },
     {
-      "path": "node_modules/react-native-vector-icons/Fonts/Entypo.ttf",
-      "sha1": "12b5670eb178138f77285d5f2c246d3cc5fa67d6"
+      "path": "src/assets/fonts/CormorantGaramond-LightItalic.ttf",
+      "sha1": "e32feb81396ca508f7e8911e5bc62ca0d41d05e3"
     },
     {
-      "path": "node_modules/react-native-vector-icons/Fonts/FontAwesome5_Brands.ttf",
-      "sha1": "3fa2d67cef22da5c3f3eb5730c6afbd6fecf0372"
+      "path": "src/assets/fonts/CormorantGaramond-Medium.ttf",
+      "sha1": "2ea180b74897d05547420906278915321319fb0e"
     },
     {
-      "path": "node_modules/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf",
-      "sha1": "4c2a838b00dbb5e8bb1b368fce0de534e8eb241c"
+      "path": "src/assets/fonts/CormorantGaramond-MediumItalic.ttf",
+      "sha1": "20ceb4d3a2b48d59959909fbd76597aa0562da17"
     },
     {
-      "path": "node_modules/react-native-vector-icons/Fonts/AntDesign.ttf",
-      "sha1": "4e77868439280fb434d4697c7b911271406c81f3"
+      "path": "src/assets/fonts/CormorantGaramond-Regular.ttf",
+      "sha1": "5f234cac1ff491d042e3da17da624e48dfc53c98"
     },
     {
-      "path": "node_modules/react-native-vector-icons/Fonts/Foundation.ttf",
-      "sha1": "4b2bce6c792493a4a5716b6fec2dbefe89492c3f"
+      "path": "src/assets/fonts/CormorantGaramond-SemiBold.ttf",
+      "sha1": "cef22cec8c19765cffa9ca61e3bb03c5c82cbcd1"
     },
     {
-      "path": "node_modules/react-native-vector-icons/Fonts/Ionicons.ttf",
-      "sha1": "86e07c3d974eb09099e6e5a9b3b8310303cf0feb"
+      "path": "src/assets/fonts/CormorantGaramond-SemiBoldItalic.ttf",
+      "sha1": "1871d200b35486a38ce06ab3788af1f83ad2638d"
     },
     {
-      "path": "node_modules/react-native-vector-icons/Fonts/FontAwesome5_Solid.ttf",
-      "sha1": "c1b9fae262f42868c075ac865a8ab34920e20a2c"
+      "path": "src/assets/fonts/Gilroy-Bold.ttf",
+      "sha1": "eeda33cebb0c6cb6cdbf2af87ef0cebfcb9e9f99"
     },
     {
-      "path": "node_modules/react-native-vector-icons/Fonts/FontAwesome5_Regular.ttf",
-      "sha1": "7d849a3981a716e2ba4a84634bc57d0b8054a6a3"
+      "path": "src/assets/fonts/Gilroy-ExtraBold.ttf",
+      "sha1": "eb2b7042895e0fe98ea023f3e45048f9d152127e"
     },
     {
-      "path": "node_modules/react-native-vector-icons/Fonts/FontAwesome.ttf",
-      "sha1": "13b1eab65a983c7a73bc7997c479d66943f7c6cb"
+      "path": "src/assets/fonts/Gilroy-Heavy.ttf",
+      "sha1": "6a2631b0af0b75a60e8d887d867f95578bb6e1f6"
     },
     {
-      "path": "node_modules/react-native-vector-icons/Fonts/Zocial.ttf",
-      "sha1": "6a48a962b06cc3acbdfd61df0d9a34744eea5e8d"
+      "path": "src/assets/fonts/Gilroy-Light.ttf",
+      "sha1": "3a3bc2fff8192fb3d99827c17eb37a6eb0f8d821"
     },
     {
-      "path": "node_modules/react-native-vector-icons/Fonts/EvilIcons.ttf",
-      "sha1": "91d377ea3cf47490b256c2ed081704a7dabdae0c"
+      "path": "src/assets/fonts/Gilroy-Medium.ttf",
+      "sha1": "a05d394f3550b31324c7ef6eda6bd09a6bcfb4bd"
     },
     {
-      "path": "node_modules/react-native-vector-icons/Fonts/FontAwesome6_Solid.ttf",
-      "sha1": "2b8e11389d98122399667cf64941eb58497dc128"
+      "path": "src/assets/fonts/Gilroy-Regular.ttf",
+      "sha1": "eae0f6aa553643ae5c2b4da46a422f8d26255bb1"
     },
     {
-      "path": "node_modules/react-native-vector-icons/Fonts/SimpleLineIcons.ttf",
-      "sha1": "9ffb81a5a11112e292f2cc323e98486bad597599"
+      "path": "src/assets/fonts/Gilroy-SemiBold.ttf",
+      "sha1": "8663a356eb9bc23b77696208f74376daf59687ea"
     },
     {
-      "path": "node_modules/react-native-vector-icons/Fonts/FontAwesome6_Brands.ttf",
-      "sha1": "7ce89c71d5a51ac65b159c71422783dd86529c66"
+      "path": "src/assets/fonts/Inter_18pt-Regular.ttf",
+      "sha1": "bd1976c1f019853ab6143ef1246e25aa66fd990e"
     },
     {
-      "path": "node_modules/react-native-vector-icons/Fonts/MaterialIcons.ttf",
-      "sha1": "7e02c3f005532ff4d24148567c84089756a7848a"
+      "path": "src/assets/fonts/Lexend-Bold.ttf",
+      "sha1": "59d8da5883b5c81de262e5a1bf0bc164daabafb6"
+    },
+    {
+      "path": "src/assets/fonts/Lexend-Light.ttf",
+      "sha1": "b2b574f4f2a15d300bb42e2a8ede67509cd5ae63"
+    },
+    {
+      "path": "src/assets/fonts/Lexend-Medium.ttf",
+      "sha1": "ecb541adfb5e827e3de237308772e103a553544d"
+    },
+    {
+      "path": "src/assets/fonts/Lexend-Regular.ttf",
+      "sha1": "15a0c501af33aef44bf18a104e46fba9f0e28f05"
+    },
+    {
+      "path": "src/assets/fonts/Lexend-SemiBold.ttf",
+      "sha1": "6a67f0e2d1549f7a69c8caa2bbc04abe61e15bc9"
+    },
+    {
+      "path": "src/assets/fonts/Madelyn-Trial-Regular.otf",
+      "sha1": "4ad41cf62d438615fb7c1f3328dd16f288515294"
+    },
+    {
+      "path": "src/assets/fonts/Madelyn-Trial-Regular.ttf",
+      "sha1": "537d385c5531c42b7da6acb9df79189fb3eed1de"
+    },
+    {
+      "path": "src/assets/fonts/MadelynFill-Trial-Regular.otf",
+      "sha1": "464038eea568c1f3129c1653534d3169ae49f1bb"
+    },
+    {
+      "path": "src/assets/fonts/MadelynFill-Trial-Regular.ttf",
+      "sha1": "99d6bebee65ef308dfc9f8edfedf5d9ffb7d940d"
+    },
+    {
+      "path": "src/kshope/assets/fonts/Poppins-Bold.ttf",
+      "sha1": "875cf0cecd647bcf22e79d633d868c1b1ec98dfa"
+    },
+    {
+      "path": "src/kshope/assets/fonts/Poppins-ExtraBold.ttf",
+      "sha1": "4b5c0750f073abd576413a0898d3b95adaf199c8"
+    },
+    {
+      "path": "src/kshope/assets/fonts/Poppins-ExtraBoldItalic.ttf",
+      "sha1": "94d3ee3acdbd00e37a715a25f2b5237666b5b8a3"
+    },
+    {
+      "path": "src/kshope/assets/fonts/Poppins-Italic.ttf",
+      "sha1": "e2bfcd56016c3c915221ef1c5fc1a17b0776eb91"
+    },
+    {
+      "path": "src/kshope/assets/fonts/Poppins-Light.ttf",
+      "sha1": "e247a92158e112f8bf7b638c8d95381d66b00dbb"
+    },
+    {
+      "path": "src/kshope/assets/fonts/Poppins-LightItalic.ttf",
+      "sha1": "f76102b361e705751a83b7b22fe954daf1f27dd4"
+    },
+    {
+      "path": "src/kshope/assets/fonts/Poppins-Medium.ttf",
+      "sha1": "283f21b44efbdbf276ba802be2d949a36bbc4233"
+    },
+    {
+      "path": "src/kshope/assets/fonts/Poppins-MediumItalic.ttf",
+      "sha1": "b592c62fdf88c40cfd0f031bba6423b1d4430472"
+    },
+    {
+      "path": "src/kshope/assets/fonts/Poppins-Regular.ttf",
+      "sha1": "fdd3002e7d814ee47c1c1b8487c72c6bbb3a2d00"
+    },
+    {
+      "path": "src/kshope/assets/fonts/Poppins-SemiBold.ttf",
+      "sha1": "8a4ace9392d06bcb7f8ea2f5169b07e4c383a90d"
     }
   ]
 }

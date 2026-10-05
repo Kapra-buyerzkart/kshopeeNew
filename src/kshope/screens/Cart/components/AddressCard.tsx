@@ -1,0 +1,99 @@
+import React from 'react';
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  StyleProp,
+  ViewStyle,
+} from 'react-native';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { AppText, Badge, IconDisc } from '../../../components/atoms';
+import {
+  UI_COLORS,
+  UI_RADIUS,
+  UI_SPACING,
+  hp,
+  wp,
+} from '../../../theme/tokens';
+
+interface AddressCardProps {
+  addressType?: string;
+  addressLine?: string;
+  onChange: () => void;
+  style?: StyleProp<ViewStyle>;
+}
+
+const AddressCard: React.FC<AddressCardProps> = ({
+  addressType,
+  addressLine,
+  onChange,
+  style,
+}) => (
+  <View style={[styles.card, style]}>
+    <IconDisc size={wp('9.5%')} tone="ink">
+      <MaterialCommunityIcons
+        name="map-marker-outline"
+        size={wp('5%')}
+        color={UI_COLORS.ink}
+      />
+    </IconDisc>
+
+    <View style={styles.details}>
+      <View style={styles.headingRow}>
+        <AppText variant="micro" tone="muted">
+          DELIVERING TO
+        </AppText>
+        <Badge tone="ink" label={(addressType || 'Home').toUpperCase()} />
+      </View>
+      <AppText variant="label" tone="secondary" numberOfLines={2}>
+        {addressLine || 'No address selected'}
+      </AppText>
+    </View>
+
+    <TouchableOpacity
+      activeOpacity={0.75}
+      onPress={onChange}
+      style={styles.changeButton}
+      accessibilityRole="button"
+      accessibilityLabel="Change delivery address"
+    >
+      <AppText variant="microStrong" tone="primary">
+        Change
+      </AppText>
+    </TouchableOpacity>
+  </View>
+);
+
+export default React.memo(AddressCard);
+
+const styles = StyleSheet.create({
+  card: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: UI_SPACING.md,
+    marginHorizontal: UI_SPACING.lg,
+    marginTop: hp('1.6%'),
+    padding: UI_SPACING.md,
+    borderRadius: UI_RADIUS.productCard,
+    backgroundColor: UI_COLORS.well,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: UI_COLORS.border,
+  },
+  details: {
+    flex: 1,
+    gap: UI_SPACING.xs,
+  },
+  headingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: UI_SPACING.sm,
+  },
+  changeButton: {
+    paddingHorizontal: UI_SPACING.md,
+    paddingVertical: UI_SPACING.xs + 2,
+    borderRadius: UI_RADIUS.pill,
+    backgroundColor: UI_COLORS.card,
+    borderWidth: 1,
+    borderColor: UI_COLORS.inkEdge,
+  },
+});
